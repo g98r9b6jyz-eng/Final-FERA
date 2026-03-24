@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 // --- Reusable UI Components ---
 const Card = ({ title, icon, info, children }) => {
