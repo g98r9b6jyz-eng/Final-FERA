@@ -159,9 +159,9 @@ const PortfolioChart = ({ data }: { data: any[] }) => {
   const fmtY = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
   // Colors adapted for both light/dark mode while matching user screenshot theme
-  const colorInitial = "#1e3a8a"; // Dark Blue (from screenshot)
-  const colorAdditions = "#b91c1c"; // Red (from screenshot)
-  const colorTotal = "#0d9488"; // Teal (from screenshot)
+  const colorInitial = "#1e3a8a"; // Dark Blue
+  const colorAdditions = "#b91c1c"; // Red
+  const colorTotal = "#0d9488"; // Teal
 
   return (
     <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg p-6 w-full mt-6 mb-8 overflow-hidden transition-colors">
@@ -420,11 +420,15 @@ export default function App() {
         totalPortfolio: totalInitialBalances
     }];
 
-    const tspReturnBiweekly = (marketReturn / 100) / 26;
-    const iraRatePerPeriod = iraFreq === 'Monthly' ? (marketReturn / 100) / 12 : (marketReturn / 100);
+    // CORRECTION 4: Precision Effective Annual Rate (EAR) compounding match
+    const annualR = marketReturn / 100;
+    const tspReturnBiweekly = Math.pow(1 + annualR, 1 / 26) - 1;
+    
     const iraPeriodsPerYear = iraFreq === 'Monthly' ? 12 : 1;
-    const broRatePerPeriod = brokerageFreq === 'Monthly' ? (marketReturn / 100) / 12 : (marketReturn / 100);
+    const iraRatePerPeriod = Math.pow(1 + annualR, 1 / iraPeriodsPerYear) - 1;
+    
     const broPeriodsPerYear = brokerageFreq === 'Monthly' ? 12 : 1;
+    const broRatePerPeriod = Math.pow(1 + annualR, 1 / broPeriodsPerYear) - 1;
     
     const currentTspLimit = 24500 + (currentAge >= 60 && currentAge <= 63 ? 12000 : (currentAge >= 50 ? 8000 : 0));
     const currentIraLimit = 7500 + (currentAge >= 50 ? 1100 : 0);
@@ -467,10 +471,11 @@ export default function App() {
         }
 
         let equivPct = ((actualBiweeklyTrad + actualBiweeklyRoth) / biweeklyGross) * 100;
-        let matchRate = 0;
-        if (equivPct > 0) matchRate += 1.0;
-        matchRate += Math.min(equivPct, 3.0);
-        if (equivPct > 3.0) matchRate += Math.min(equivPct - 3.0, 2.0) * 0.5;
+        
+        // CORRECTION 1: FERS Auto 1% is guaranteed regardless of personal contribution
+        let matchRate = 1.0; 
+        matchRate += Math.min(equivPct, 3.0); // 100% match on first 3%
+        if (equivPct > 3.0) matchRate += Math.min(equivPct - 3.0, 2.0) * 0.5; // 50% match on next 2%
         let actualMatch = biweeklyGross * (matchRate / 100);
 
         simTradTsp = simTradTsp * (1 + tspReturnBiweekly) + actualBiweeklyTrad + actualMatch;
@@ -550,11 +555,11 @@ export default function App() {
       }
       
       // -- YEAR-END RECORDING --
-      simPrior401k = prior401kBal * Math.pow(1 + (marketReturn / 100), yr + 1);
+      simPrior401k = prior401kBal * Math.pow(1 + annualR, yr + 1);
       
       trajectory.push({
           year: yr + 1,
-          initialCompounded: totalInitialBalances * Math.pow(1 + (marketReturn / 100), yr + 1),
+          initialCompounded: totalInitialBalances * Math.pow(1 + annualR, yr + 1),
           cumulativeContributions: runningCumulativeContribs,
           totalPortfolio: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simBrokerage + simPrior401k
       });
@@ -618,13 +623,19 @@ export default function App() {
     // --- Cash Flow Engine ---
     const baseMonthlyGross = currentSalary / 12;
     const monthlyPreTaxTradTsp = yr1TradContrib / 12;
-    const monthlyPreTaxFers = baseMonthlyGross * (fersRate / 100);
+    
+    // CORRECTION 2: FERS deduction is post-tax for Federal Income Tax rules
+    const monthlyFersDeduction = baseMonthlyGross * (fersRate / 100);
     const monthlyPreTaxFehb = fehbPremium;
-    const totalPreTax = monthlyPreTaxTradTsp + monthlyPreTaxFers + monthlyPreTaxFehb;
+    
+    // Only Traditional TSP and FEHB Health Insurance reduce Federal taxable income
+    const totalPreTax = monthlyPreTaxTradTsp + monthlyPreTaxFehb; 
 
     const totalMonthlyGross = baseMonthlyGross + supplementalIncome;
     let annualTaxableIncome = (baseMonthlyGross - totalPreTax) * 12;
-    let totalFicaWages = currentSalary;
+    
+    // CORRECTION 3: FEHB premiums are Section 125, meaning they are fully exempt from FICA wages
+    let totalFicaWages = currentSalary - (fehbPremium * 12); 
 
     if (supplementalTaxToggled) {
        annualTaxableIncome += (supplementalIncome * 12);
@@ -656,7 +667,9 @@ export default function App() {
     const monthlyFica = (annualOASDI + annualMedicare) / 12;
     
     const totalTaxes = monthlyFedTax + monthlyFica;
-    const netPaycheck = totalMonthlyGross - totalPreTax - totalTaxes;
+    
+    // Net Paycheck subtracts Pre-Tax (TSP, FEHB), Post-Tax (FERS), and Taxes
+    const netPaycheck = totalMonthlyGross - totalPreTax - monthlyFersDeduction - totalTaxes;
 
     const monthlyPostTaxRothTsp = yr1RothContrib / 12;
     const monthlyPostTaxTradIra = yr1TradIra / 12;
@@ -676,9 +689,9 @@ export default function App() {
       currentTspLimit, currentIraLimit, simTradTsp, simRothTsp, totalTsp: simTradTsp + simRothTsp, 
       simTradIra, simRothIra, simMega, simPrior401k, simBrokerage,
       totalPortfolio: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simPrior401k + simBrokerage,
-      trajectory, // <-- Added Trajectory data for the SVG chart
+      trajectory, 
       standardDebtStats, mortgageStats, maxedOutEarlyWarning, yr1Match,
-      baseMonthlyGross, totalMonthlyGross, monthlyPreTaxTradTsp, monthlyPreTaxFers, monthlyPreTaxFehb, totalPreTax,
+      baseMonthlyGross, totalMonthlyGross, monthlyPreTaxTradTsp, monthlyFersDeduction, monthlyPreTaxFehb, totalPreTax,
       monthlyFedTax, monthlyFica, totalTaxes, netPaycheck,
       monthlyPostTaxRothTsp, monthlyPostTaxTradIra, monthlyPostTaxRothIra, monthlyMega, monthlyBrokerage, totalPostTaxSavings,
       monthlyLoansAndEscrow, remainingToSpend
@@ -1086,12 +1099,16 @@ export default function App() {
                   
                   <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-2">
                     <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                      <span>Pre-Tax Deductions <span className="text-xs">(TSP, FERS, FEHB)</span></span>
+                      <span>Pre-Tax Deductions <span className="text-xs">(TSP, FEHB)</span></span>
                       <span className="text-rose-600 dark:text-rose-400">-{fmtCur(results.totalPreTax)}</span>
                     </div>
                     <div className="flex justify-between text-slate-500 dark:text-slate-400">
                       <span>Taxes <span className="text-xs">(Fed Income + FICA)</span></span>
                       <span className="text-rose-600 dark:text-rose-400">-{fmtCur(results.totalTaxes)}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                      <span>Post-Tax FERS Deduction</span>
+                      <span className="text-rose-600 dark:text-rose-400">-{fmtCur(results.monthlyFersDeduction)}</span>
                     </div>
                   </div>
 
