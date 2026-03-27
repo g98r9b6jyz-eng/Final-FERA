@@ -819,7 +819,86 @@ export default function App() {
     moon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
     chevronDown: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
     chevronUp: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>,
-    printer: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    printer: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>,
+    sparkles: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+  };
+
+  const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
+  const [aiInsights, setAiInsights] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  const generateInsights = async () => {
+    setIsGeneratingInsights(true);
+    setAiError(null);
+    
+    const apiKey = ""; 
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+    const systemPrompt = "You are an expert Federal Retirement Financial Planner. Analyze the provided federal employee data and provide 3 to 4 concise, highly personalized observations and actionable recommendations. Format clearly using bullet points and brief paragraphs. Be educational, encouraging, and note that this is not formal financial advice.";
+    
+    const userQuery = `
+      Here is my current profile:
+      Age: ${results.currentAge} (Target Retirement Age: ${retireAge})
+      Years to Retirement: ${results.yearsToRetire}
+      Federal Service at Retirement: ${results.totalCreditableService.toFixed(1)} years
+      Current Salary: $${currentSalary}
+      Projected High-3 Salary: $${Math.round(results.high3)}
+      
+      Projected Annual FERS Pension (Net): $${Math.round(results.netPension)}
+      
+      Current Balances:
+      TSP: $${tradTsp + rothTsp}
+      IRA: $${tradIraBalance + rothIraBalance}
+      Brokerage & Others: $${brokerageBalance + prior401kBal + megaBal}
+      
+      Future Total Portfolio Projection at Retirement: $${Math.round(results.totalPortfolio)}
+      
+      Monthly Cash Flow:
+      Gross: $${Math.round(results.totalMonthlyGross)}
+      Take-Home Net: $${Math.round(results.netPaycheck)}
+      Remaining Spendable Cash (after savings/debt): $${Math.round(results.remainingToSpend)}
+      
+      Please give me your top insights and recommendations to optimize my trajectory.
+    `;
+
+    const payload = {
+      contents: [{ parts: [{ text: userQuery }] }],
+      systemInstruction: { parts: [{ text: systemPrompt }] }
+    };
+
+    const fetchWithBackoff = async (retries = 5, delay = 1000): Promise<string> => {
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error("No text returned from Gemini");
+        
+        return text;
+      } catch (error) {
+        if (retries > 0) {
+          await new Promise(res => setTimeout(res, delay));
+          return fetchWithBackoff(retries - 1, delay * 2);
+        } else {
+          throw error;
+        }
+      }
+    };
+
+    try {
+      const text = await fetchWithBackoff();
+      setAiInsights(text);
+    } catch (err: any) {
+      setAiError("Failed to generate insights. Please check your network and try again.");
+    } finally {
+      setIsGeneratingInsights(false);
+    }
   };
 
   return (
@@ -1245,6 +1324,74 @@ export default function App() {
             {icons.printer} Save Page as PDF
           </button>
         </div>
+
+        {/* AI Insights Section */}
+        <div className="mt-8 mb-12 print:hidden">
+          <div className="bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 rounded-2xl p-8 shadow-xl relative overflow-hidden border border-indigo-800/50">
+             {/* Decorative background elements */}
+             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl"></div>
+             <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl"></div>
+             
+             <div className="relative z-10 flex flex-col items-center text-center">
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 flex items-center justify-center gap-3">
+                  <span className="text-indigo-400">{icons.sparkles}</span> Ask Gemini for AI Insights
+                </h3>
+                <p className="text-indigo-200/80 mb-8 max-w-2xl text-sm sm:text-base leading-relaxed">
+                  Have Gemini analyze your unique federal retirement trajectory, portfolio balances, and monthly cash flow to provide personalized observations and actionable recommendations.
+                </p>
+                
+                {!aiInsights && !isGeneratingInsights && (
+                   <button 
+                     onClick={generateInsights} 
+                     className="px-8 py-3.5 bg-indigo-500 hover:bg-indigo-400 text-white rounded-full font-bold transition-all shadow-lg hover:shadow-indigo-500/25 flex items-center gap-2 transform hover:-translate-y-0.5"
+                   >
+                     Generate My Insights
+                   </button>
+                )}
+
+                {isGeneratingInsights && (
+                   <div className="flex flex-col items-center gap-4 text-indigo-300">
+                      <div className="w-8 h-8 border-4 border-indigo-500/30 border-t-indigo-400 rounded-full animate-spin"></div>
+                      <span className="font-medium animate-pulse">Analyzing your financial trajectory...</span>
+                   </div>
+                )}
+
+                {aiError && (
+                   <div className="text-rose-200 bg-rose-900/40 p-4 rounded-xl border border-rose-800/50 mt-4 flex items-center gap-3 max-w-lg w-full text-left">
+                      <div className="shrink-0 text-rose-400">{icons.alert}</div>
+                      <div className="text-sm font-medium">{aiError}</div>
+                      <button onClick={generateInsights} className="ml-auto text-xs bg-rose-800/50 hover:bg-rose-700 px-3 py-1.5 rounded-md transition-colors">Retry</button>
+                   </div>
+                )}
+
+                {aiInsights && (
+                   <div className="mt-8 w-full text-left bg-slate-900/60 backdrop-blur-md border border-indigo-500/30 p-6 sm:p-8 rounded-xl shadow-inner text-indigo-50 relative">
+                     <div className="absolute top-4 right-4 text-indigo-500/30 opacity-50">
+                        {icons.sparkles}
+                     </div>
+                     <div className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base prose prose-invert prose-indigo max-w-none">
+                       {/* Basic Markdown rendering formatting through whitespace-pre-wrap */}
+                       {aiInsights.split('\n').map((line, idx) => {
+                          if (line.startsWith('**') && line.endsWith('**')) return <h4 key={idx} className="font-bold text-lg text-indigo-300 mt-4 mb-2">{line.replace(/\*\*/g, '')}</h4>;
+                          if (line.startsWith('* ')) return <li key={idx} className="ml-4 mb-1.5 text-indigo-100">{line.substring(2).replace(/\*\*/g, '')}</li>;
+                          if (line.trim() === '') return <br key={idx} />;
+                          return <p key={idx} className="mb-2 text-indigo-50/90">{line.replace(/\*\*/g, '')}</p>;
+                       })}
+                     </div>
+                     <div className="mt-8 flex justify-center">
+                        <button 
+                          onClick={() => setAiInsights(null)} 
+                          className="text-sm text-indigo-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-indigo-800/50"
+                        >
+                          Clear Insights
+                        </button>
+                     </div>
+                   </div>
+                )}
+             </div>
+          </div>
+        </div>
+
       </main>
 
       <footer className="py-10 bg-slate-900 border-t border-slate-800 text-slate-400 text-xs sm:text-sm w-full">
