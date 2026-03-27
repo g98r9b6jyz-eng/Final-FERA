@@ -137,9 +137,28 @@ const Toggle = ({ active, onChange, label, accent = "indigo" }: ToggleProps) => 
 
 // --- Custom SVG Chart Component ---
 const PortfolioChart = ({ data }: { data: any[] }) => {
+  const [mainCategory, setMainCategory] = useState<'portfolio' | 'tsp' | 'brokerage' | 'ira'>('portfolio');
+  const [subCategoryTsp, setSubCategoryTsp] = useState<'total' | 'trad' | 'roth'>('total');
+  const [subCategoryIra, setSubCategoryIra] = useState<'total' | 'trad' | 'roth'>('total');
+
   if (!data || data.length === 0) return null;
 
-  const maxY = Math.max(...data.map(d => d.totalPortfolio), 10000);
+  let keyInvested = 'portfolioInvested';
+  let keyTotal = 'portfolioTotal';
+
+  if (mainCategory === 'tsp') {
+      if (subCategoryTsp === 'total') { keyInvested = 'tspTotalInvested'; keyTotal = 'tspTotal'; }
+      else if (subCategoryTsp === 'trad') { keyInvested = 'tspTradInvested'; keyTotal = 'tspTrad'; }
+      else if (subCategoryTsp === 'roth') { keyInvested = 'tspRothInvested'; keyTotal = 'tspRoth'; }
+  } else if (mainCategory === 'ira') {
+      if (subCategoryIra === 'total') { keyInvested = 'iraTotalInvested'; keyTotal = 'iraTotal'; }
+      else if (subCategoryIra === 'trad') { keyInvested = 'iraTradInvested'; keyTotal = 'iraTrad'; }
+      else if (subCategoryIra === 'roth') { keyInvested = 'iraRothInvested'; keyTotal = 'iraRoth'; }
+  } else if (mainCategory === 'brokerage') {
+      keyInvested = 'brokerageInvested'; keyTotal = 'brokerageTotal';
+  }
+
+  const maxY = Math.max(...data.map(d => d[keyTotal] || 0), 10000);
   const roughStep = maxY / 10;
   const mag = Math.pow(10, Math.floor(Math.log10(roughStep || 1)));
   const step = Math.ceil((roughStep || 1) / mag) * mag;
@@ -158,57 +177,104 @@ const PortfolioChart = ({ data }: { data: any[] }) => {
   const ticks = Array.from({length: 11}, (_, i) => i * step);
   const fmtY = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
-  // Colors adapted for both light/dark mode while matching user screenshot theme
-  const colorInitial = "#1e3a8a"; // Dark Blue
-  const colorAdditions = "#b91c1c"; // Red
+  const colorInvested = "#1e3a8a"; // Dark Blue
   const colorTotal = "#0d9488"; // Teal
 
   return (
     <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg p-6 w-full mt-6 mb-8 overflow-hidden transition-colors">
-      <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 text-center mb-6">Total Savings</h3>
+      <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 text-center mb-4">Total Savings Projection</h3>
+      
+      {/* Chart Controls */}
+      <div className="flex flex-col items-center gap-3 mb-6">
+         <div className="flex flex-wrap justify-center bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+           {['portfolio', 'tsp', 'brokerage', 'ira'].map(cat => (
+             <button
+               key={cat}
+               type="button"
+               onClick={() => setMainCategory(cat as any)}
+               className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${mainCategory === cat ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+             >
+               {cat === 'portfolio' && 'Total Portfolio'}
+               {cat === 'tsp' && 'TSP'}
+               {cat === 'brokerage' && 'Personal Brokerage'}
+               {cat === 'ira' && 'IRA'}
+             </button>
+           ))}
+         </div>
+
+         {mainCategory === 'tsp' && (
+           <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+             {['total', 'trad', 'roth'].map(sub => (
+               <button
+                 key={`tsp-${sub}`}
+                 type="button"
+                 onClick={() => setSubCategoryTsp(sub as any)}
+                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${subCategoryTsp === sub ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+               >
+                 {sub === 'total' && 'Total TSP'}
+                 {sub === 'trad' && 'Traditional Only'}
+                 {sub === 'roth' && 'Roth Only'}
+               </button>
+             ))}
+           </div>
+         )}
+
+         {mainCategory === 'ira' && (
+           <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+             {['total', 'trad', 'roth'].map(sub => (
+               <button
+                 key={`ira-${sub}`}
+                 type="button"
+                 onClick={() => setSubCategoryIra(sub as any)}
+                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${subCategoryIra === sub ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+               >
+                 {sub === 'total' && 'Total IRA'}
+                 {sub === 'trad' && 'Traditional Only'}
+                 {sub === 'roth' && 'Roth Only'}
+               </button>
+             ))}
+           </div>
+         )}
+      </div>
+
       <div className="w-full overflow-x-auto custom-scrollbar pb-4">
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto min-w-[700px] text-slate-800 dark:text-slate-200" style={{fontFamily: 'inherit'}}>
-           {/* Grid */}
-           {ticks.map(tick => (
-             <g key={tick}>
-               <line x1={padX} y1={getY(tick)} x2={width - padX} y2={getY(tick)} stroke="currentColor" className="opacity-10 dark:opacity-20" />
-               <text x={padX - 10} y={getY(tick) + 4} textAnchor="end" className="text-[12px] fill-slate-500 dark:fill-slate-400 font-bold font-sans">
-                 {fmtY(tick)}
-               </text>
-             </g>
-           ))}
-           
-           {/* Y Axis Title */}
-           <text x={20} y={height / 2} transform={`rotate(-90 20 ${height/2})`} textAnchor="middle" className="text-[14px] fill-slate-600 dark:fill-slate-400 font-bold font-sans">
-             US Dollars ($)
-           </text>
-
-           {/* X Axis labels */}
-           {data.map((d, i) => {
-              if (data.length > 25 && i % 2 !== 0 && i !== data.length - 1 && i !== 0) return null; // declutter X axis
-              return (
-                <text key={`label-${d.year}`} x={getX(i) - 10} y={height - padY + 24} textAnchor="end" transform={`rotate(-45 ${getX(i) - 10} ${height - padY + 24})`} className="text-[12px] fill-slate-600 dark:fill-slate-400 font-bold font-sans">
-                  Year {d.year}
+            {/* Grid */}
+            {ticks.map(tick => (
+              <g key={tick}>
+                <line x1={padX} y1={getY(tick)} x2={width - padX} y2={getY(tick)} stroke="currentColor" className="opacity-10 dark:opacity-20" />
+                <text x={padX - 10} y={getY(tick) + 4} textAnchor="end" className="text-[12px] fill-slate-500 dark:fill-slate-400 font-bold font-sans">
+                  {fmtY(tick)}
                 </text>
-              );
-           })}
+              </g>
+            ))}
+            
+            {/* Y Axis Title */}
+            <text x={20} y={height / 2} transform={`rotate(-90 20 ${height/2})`} textAnchor="middle" className="text-[14px] fill-slate-600 dark:fill-slate-400 font-bold font-sans">
+              US Dollars ($)
+            </text>
 
-           {/* Lines */}
-           <polyline points={data.map((d, i) => `${getX(i)},${getY(d.initialCompounded)}`).join(' ')} fill="none" stroke={colorInitial} strokeWidth="2.5" />
-           <polyline points={data.map((d, i) => `${getX(i)},${getY(d.cumulativeContributions)}`).join(' ')} fill="none" stroke={colorAdditions} strokeWidth="2.5" />
-           <polyline points={data.map((d, i) => `${getX(i)},${getY(d.totalPortfolio)}`).join(' ')} fill="none" stroke={colorTotal} strokeWidth="2.5" />
+            {/* X Axis labels */}
+            {data.map((d, i) => {
+               if (data.length > 25 && i % 2 !== 0 && i !== data.length - 1 && i !== 0) return null; // declutter X axis
+               return (
+                 <text key={`label-${d.year}`} x={getX(i) - 10} y={height - padY + 24} textAnchor="end" transform={`rotate(-45 ${getX(i) - 10} ${height - padY + 24})`} className="text-[12px] fill-slate-600 dark:fill-slate-400 font-bold font-sans">
+                   Year {d.year}
+                 </text>
+               );
+            })}
 
-           {/* Points */}
-           {data.map((d, i) => (
-             <g key={`pts-${i}`}>
-               {/* Initial (Blue Circles) */}
-               <circle cx={getX(i)} cy={getY(d.initialCompounded)} r="4.5" fill={colorInitial} />
-               {/* Additions (Red Squares) */}
-               <rect x={getX(i)-4} y={getY(d.cumulativeContributions)-4} width="8" height="8" fill={colorAdditions} />
-               {/* Total (Teal Diamonds) */}
-               <rect x={getX(i)-5} y={getY(d.totalPortfolio)-5} width="10" height="10" fill={colorTotal} transform={`rotate(45 ${getX(i)} ${getY(d.totalPortfolio)})`} />
-             </g>
-           ))}
+            {/* Lines */}
+            <polyline points={data.map((d, i) => `${getX(i)},${getY(d[keyInvested] || 0)}`).join(' ')} fill="none" stroke={colorInvested} strokeWidth="2.5" />
+            <polyline points={data.map((d, i) => `${getX(i)},${getY(d[keyTotal] || 0)}`).join(' ')} fill="none" stroke={colorTotal} strokeWidth="2.5" />
+
+            {/* Points */}
+            {data.map((d, i) => (
+              <g key={`pts-${i}`}>
+                <circle cx={getX(i)} cy={getY(d[keyInvested] || 0)} r="4.5" fill={colorInvested} />
+                <rect x={getX(i)-5} y={getY(d[keyTotal] || 0)-5} width="10" height="10" fill={colorTotal} transform={`rotate(45 ${getX(i)} ${getY(d[keyTotal] || 0)})`} />
+              </g>
+            ))}
         </svg>
       </div>
       
@@ -216,19 +282,13 @@ const PortfolioChart = ({ data }: { data: any[] }) => {
       <div className="flex justify-center gap-x-12 gap-y-4 mt-8 flex-wrap text-base font-bold text-slate-700 dark:text-slate-300">
          <div className="flex items-center gap-2">
             <div className="flex items-center justify-center w-6 h-6">
-               <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="6" fill={colorInitial} /></svg>
+                <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="6" fill={colorInvested} /></svg>
             </div>
-            Initial Investment Compounded
+            Total Invested
          </div>
          <div className="flex items-center gap-2">
             <div className="flex items-center justify-center w-6 h-6">
-               <svg viewBox="0 0 24 24" width="24" height="24"><rect x="6" y="6" width="12" height="12" fill={colorAdditions} /></svg>
-            </div>
-            Total Monthly Additions To-Date
-         </div>
-         <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-6 h-6">
-               <svg viewBox="0 0 24 24" width="24" height="24"><rect x="6" y="6" width="12" height="12" fill={colorTotal} transform="rotate(45 12 12)" /></svg>
+                <svg viewBox="0 0 24 24" width="24" height="24"><rect x="6" y="6" width="12" height="12" fill={colorTotal} transform="rotate(45 12 12)" /></svg>
             </div>
             Total Savings Compounded
          </div>
@@ -325,7 +385,7 @@ export default function App() {
       const maxAllow = Math.max(0, periodLimit - currentRoth);
       if (typeof val === 'number' && val > maxAllow) { 
         safeVal = maxAllow; 
-        setIraWarning(`2026 Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
+        setIraWarning(`Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
       } else { setIraWarning(''); }
       setTradIraContrib(safeVal);
     } else {
@@ -333,7 +393,7 @@ export default function App() {
       const maxAllow = Math.max(0, periodLimit - currentTrad);
       if (typeof val === 'number' && val > maxAllow) { 
         safeVal = maxAllow; 
-        setIraWarning(`2026 Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
+        setIraWarning(`Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
       } else { setIraWarning(''); }
       setRothIraContrib(safeVal);
     }
@@ -413,14 +473,30 @@ export default function App() {
     let runningCumulativeContribs = 0;
     const totalInitialBalances = tradTsp + rothTsp + tradIraBalance + rothIraBalance + prior401kBal + megaBal + brokerageBalance;
 
+    let cumTradTsp = 0; let cumRothTsp = 0;
+    let cumTradIra = 0; let cumRothIra = 0;
+    let cumMega = 0; let cumBrokerage = 0;
+
     const trajectory = [{
         year: 0,
-        initialCompounded: totalInitialBalances,
-        cumulativeContributions: 0,
-        totalPortfolio: totalInitialBalances
+        portfolioInvested: totalInitialBalances,
+        portfolioTotal: totalInitialBalances,
+        tspTotalInvested: tradTsp + rothTsp,
+        tspTotal: tradTsp + rothTsp,
+        tspTradInvested: tradTsp,
+        tspTrad: tradTsp,
+        tspRothInvested: rothTsp,
+        tspRoth: rothTsp,
+        iraTotalInvested: tradIraBalance + rothIraBalance,
+        iraTotal: tradIraBalance + rothIraBalance,
+        iraTradInvested: tradIraBalance,
+        iraTrad: tradIraBalance,
+        iraRothInvested: rothIraBalance,
+        iraRoth: rothIraBalance,
+        brokerageInvested: brokerageBalance,
+        brokerageTotal: brokerageBalance
     }];
 
-    // CORRECTION 4: Precision Effective Annual Rate (EAR) compounding match
     const annualR = marketReturn / 100;
     const tspReturnBiweekly = Math.pow(1 + annualR, 1 / 26) - 1;
     
@@ -472,16 +548,17 @@ export default function App() {
 
         let equivPct = ((actualBiweeklyTrad + actualBiweeklyRoth) / biweeklyGross) * 100;
         
-        // CORRECTION 1: FERS Auto 1% is guaranteed regardless of personal contribution
         let matchRate = 1.0; 
-        matchRate += Math.min(equivPct, 3.0); // 100% match on first 3%
-        if (equivPct > 3.0) matchRate += Math.min(equivPct - 3.0, 2.0) * 0.5; // 50% match on next 2%
+        matchRate += Math.min(equivPct, 3.0); 
+        if (equivPct > 3.0) matchRate += Math.min(equivPct - 3.0, 2.0) * 0.5; 
         let actualMatch = biweeklyGross * (matchRate / 100);
 
         simTradTsp = simTradTsp * (1 + tspReturnBiweekly) + actualBiweeklyTrad + actualMatch;
         simRothTsp = simRothTsp * (1 + tspReturnBiweekly) + actualBiweeklyRoth;
         ytdTspContribs += actualBiweeklyTrad + actualBiweeklyRoth;
         
+        cumTradTsp += actualBiweeklyTrad + actualMatch;
+        cumRothTsp += actualBiweeklyRoth;
         runningCumulativeContribs += (actualBiweeklyTrad + actualBiweeklyRoth + actualMatch);
 
         if (yr === 0) {
@@ -539,6 +616,9 @@ export default function App() {
         ytdIra += actTradIra + actRothIra;
         ytdMega += actMega;
         
+        cumTradIra += actTradIra;
+        cumRothIra += actRothIra;
+        cumMega += actMega;
         runningCumulativeContribs += (actTradIra + actRothIra + actMega);
 
         if (yr === 0) {
@@ -551,6 +631,7 @@ export default function App() {
       let targetPeriodBro = canContribBro ? brokerageContrib : 0;
       for (let p = 0; p < broPeriodsPerYear; p++) {
           simBrokerage = simBrokerage * (1 + broRatePerPeriod) + targetPeriodBro;
+          cumBrokerage += targetPeriodBro;
           runningCumulativeContribs += targetPeriodBro;
       }
       
@@ -559,9 +640,25 @@ export default function App() {
       
       trajectory.push({
           year: yr + 1,
-          initialCompounded: totalInitialBalances * Math.pow(1 + annualR, yr + 1),
-          cumulativeContributions: runningCumulativeContribs,
-          totalPortfolio: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simBrokerage + simPrior401k
+          portfolioInvested: totalInitialBalances + runningCumulativeContribs,
+          portfolioTotal: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simBrokerage + simPrior401k,
+
+          tspTotalInvested: (tradTsp + rothTsp) + cumTradTsp + cumRothTsp,
+          tspTotal: simTradTsp + simRothTsp,
+          tspTradInvested: tradTsp + cumTradTsp,
+          tspTrad: simTradTsp,
+          tspRothInvested: rothTsp + cumRothTsp,
+          tspRoth: simRothTsp,
+
+          iraTotalInvested: (tradIraBalance + rothIraBalance) + cumTradIra + cumRothIra,
+          iraTotal: simTradIra + simRothIra,
+          iraTradInvested: tradIraBalance + cumTradIra,
+          iraTrad: simTradIra,
+          iraRothInvested: rothIraBalance + cumRothIra,
+          iraRoth: simRothIra,
+
+          brokerageInvested: brokerageBalance + cumBrokerage,
+          brokerageTotal: simBrokerage
       });
     }
 
@@ -624,17 +721,14 @@ export default function App() {
     const baseMonthlyGross = currentSalary / 12;
     const monthlyPreTaxTradTsp = yr1TradContrib / 12;
     
-    // CORRECTION 2: FERS deduction is post-tax for Federal Income Tax rules
     const monthlyFersDeduction = baseMonthlyGross * (fersRate / 100);
     const monthlyPreTaxFehb = fehbPremium;
     
-    // Only Traditional TSP and FEHB Health Insurance reduce Federal taxable income
     const totalPreTax = monthlyPreTaxTradTsp + monthlyPreTaxFehb; 
 
     const totalMonthlyGross = baseMonthlyGross + supplementalIncome;
     let annualTaxableIncome = (baseMonthlyGross - totalPreTax) * 12;
     
-    // CORRECTION 3: FEHB premiums are Section 125, meaning they are fully exempt from FICA wages
     let totalFicaWages = currentSalary - (fehbPremium * 12); 
 
     if (supplementalTaxToggled) {
@@ -667,8 +761,6 @@ export default function App() {
     const monthlyFica = (annualOASDI + annualMedicare) / 12;
     
     const totalTaxes = monthlyFedTax + monthlyFica;
-    
-    // Net Paycheck subtracts Pre-Tax (TSP, FEHB), Post-Tax (FERS), and Taxes
     const netPaycheck = totalMonthlyGross - totalPreTax - monthlyFersDeduction - totalTaxes;
 
     const monthlyPostTaxRothTsp = yr1RothContrib / 12;
@@ -726,7 +818,8 @@ export default function App() {
     sun: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
     moon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
     chevronDown: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
-    chevronUp: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    chevronUp: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>,
+    printer: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
   };
 
   return (
@@ -737,14 +830,24 @@ export default function App() {
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight">F.E.R.A - Federal Employee Retirement Analyzer</h1>
           </div>
-          <button 
-            type="button"
-            onClick={() => setIsDarkMode(!isDarkMode)} 
-            className="p-2 rounded-full bg-indigo-600 dark:bg-indigo-800 hover:bg-indigo-500 dark:hover:bg-indigo-700 transition-colors shadow-sm shrink-0 ml-4"
-            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          >
-            {isDarkMode ? icons.sun : icons.moon}
-          </button>
+          <div className="flex items-center gap-2 sm:gap-4 ml-4 print:hidden">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-3 py-2 bg-indigo-600 dark:bg-indigo-800 hover:bg-indigo-500 dark:hover:bg-indigo-700 transition-colors shadow-sm rounded-lg text-sm font-medium"
+              title="Save as PDF"
+            >
+              {icons.printer} <span className="hidden sm:inline">Save PDF</span>
+            </button>
+            <button 
+              type="button"
+              onClick={() => setIsDarkMode(!isDarkMode)} 
+              className="p-2 rounded-full bg-indigo-600 dark:bg-indigo-800 hover:bg-indigo-500 dark:hover:bg-indigo-700 transition-colors shadow-sm shrink-0"
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? icons.sun : icons.moon}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -822,7 +925,7 @@ export default function App() {
                 </div>
               </div>
 
-              <Toggle active={isMaxTsp} onChange={setIsMaxTsp} label="Auto-Max 2026 Projected IRS Contributions" accent="emerald" />
+              <Toggle active={isMaxTsp} onChange={setIsMaxTsp} label="Auto-Max IRS Contributions" accent="emerald" />
 
               {isMaxTsp ? (
                 <div className="mt-4 p-4 border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
@@ -865,7 +968,7 @@ export default function App() {
                 <Field label="Roth IRA Balance"><NumberInput value={rothIraBalance} onChange={(v) => typeof v === 'number' && setRothIraBalance(v)} prefix="$" /></Field>
               </div>
               
-              <Toggle active={isMaxIra} onChange={setIsMaxIra} label="Auto-Max 2026 Projected IRS Contributions" accent="emerald" />
+              <Toggle active={isMaxIra} onChange={setIsMaxIra} label="Auto-Max IRS Contributions" accent="emerald" />
 
               {isMaxIra ? (
                 <div className="mt-4 p-4 border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
@@ -898,7 +1001,7 @@ export default function App() {
               )}
 
               <div className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-slate-700 pt-4">
-                  <Field label="Stop Contributions At Age" description="Age to stop adding funds (compounds forever)">
+                  <Field label="Stop Contributions At Age" description="Age to stop adding funds">
                         <NumberInput value={iraContribStopAge} onChange={(v) => typeof v === 'number' && setIraContribStopAge(v)} />
                   </Field>
                   <div className="flex flex-col gap-1.5">
@@ -912,52 +1015,8 @@ export default function App() {
             </Card>
 
             <Card 
-              title="Prior Employer 401(k)" icon={icons.archive}
-              info="Old retirement accounts that continue to compound but no longer receive contributions."
-            >
-               <div className="grid grid-cols-1 gap-4">
-                <Field label="Legacy 401(k) Balance"><NumberInput value={prior401kBal} onChange={(v) => typeof v === 'number' && setPrior401kBal(v)} prefix="$" /></Field>
-              </div>
-            </Card>
-
-            <Card 
-              title="Mega Backdoor Roth / Alt 401(k)" icon={icons.chart}
-              info="SECURE 2.0 options. Note: Federal TSP does NOT currently permit after-tax mega backdoor contributions."
-            >
-               <div className="grid grid-cols-2 gap-4">
-                <Field label="Current Mega/Alt Bal"><NumberInput value={megaBal} onChange={(v) => typeof v === 'number' && setMegaBal(v)} prefix="$" /></Field>
-                <Field label="Contribution Amount"><NumberInput value={megaContrib} onChange={(v) => typeof v === 'number' && setMegaContrib(v)} prefix="$" /></Field>
-              </div>
-              <div className="mt-3">
-                <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
-                  <button type="button" onClick={() => setMegaFreq('Monthly')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${megaFreq === 'Monthly' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Monthly</button>
-                  <button type="button" onClick={() => setMegaFreq('Annual')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${megaFreq === 'Annual' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Annual</button>
-                </div>
-              </div>
-            </Card>
-
-            <Card 
-              title="Taxable Brokerage" icon={icons.chart}
-              info="Standard investment accounts (Vanguard, Fidelity, etc.) with no IRS limits or age withdrawal penalties."
-            >
-               <div className="grid grid-cols-2 gap-4">
-                <Field label="Current Brokerage Bal"><NumberInput value={brokerageBalance} onChange={(v) => typeof v === 'number' && setBrokerageBalance(v)} prefix="$" /></Field>
-                <Field label="Contribution Amount"><NumberInput value={brokerageContrib} onChange={(v) => typeof v === 'number' && setBrokerageContrib(v)} prefix="$" /></Field>
-              </div>
-              <div className="mt-3 flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
-                  <button type="button" onClick={() => setBrokerageFreq('Monthly')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${brokerageFreq === 'Monthly' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Monthly</button>
-                  <button type="button" onClick={() => setBrokerageFreq('Annual')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${brokerageFreq === 'Annual' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Annual</button>
-              </div>
-              <div className="mt-4">
-                  <Field label="Stop Contributions At Age" description="Age to stop adding funds (compounds forever)">
-                      <NumberInput value={brokerageContribStopAge} onChange={(v) => typeof v === 'number' && setBrokerageContribStopAge(v)} />
-                  </Field>
-              </div>
-            </Card>
-
-            <Card 
               title="Global Market Assumptions" icon={icons.trending}
-              info="Sets the expected annual rate of return across all of your investment accounts (TSP, IRAs, 401k, Brokerage) and is used universally to calculate the opportunity cost of paying down debt early versus investing your extra cash."
+              info="Sets the expected annual rate of return across all of your investment accounts."
             >
               <Field label="Expected Annual Market Return">
                 <Slider value={marketReturn} onChange={setMarketReturn} min={3} max={15} step={0.1} suffix="%" />
@@ -966,7 +1025,6 @@ export default function App() {
 
             <Card 
               title="Standard Debt Amortization" icon={icons.creditCard}
-              info="Calculate time and interest saved by applying extra principal to non-mortgage debts."
             >
                <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
                 <Field label="Loan Start Date"><MonthInput value={debtStartDate} onChange={setDebtStartDate} /></Field>
@@ -984,7 +1042,6 @@ export default function App() {
 
             <Card 
               title="Mortgage Amortization" icon={icons.home}
-              info="Determine the accelerated payoff date for your primary residence."
             >
                <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
                 <Field label="Loan Start Date"><MonthInput value={mortgageStartDate} onChange={setMortgageStartDate} /></Field>
@@ -1008,10 +1065,9 @@ export default function App() {
           <div className="lg:col-span-7">
             <div className="sticky top-6 flex flex-col gap-6">
               
-              {/* STACKED HEADER BOXES */}
               <div className="flex flex-col gap-4">
                 <div className="bg-indigo-600 dark:bg-indigo-700 rounded-xl p-6 text-white shadow-lg overflow-hidden transition-colors w-full">
-                  <p className="text-indigo-100 text-sm font-medium mb-1">Projected FERS Pension</p>
+                  <p className="text-indigo-100 text-sm font-medium mb-1">Projected Annual FERS Pension (Net)</p>
                   <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
                     {fmtCur(results.netPension)} <span className="text-xl font-normal opacity-75">/yr</span>
                   </h2>
@@ -1068,10 +1124,6 @@ export default function App() {
 
               {/* MONTHLY CASH FLOW */}
               <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg p-6 relative overflow-hidden transition-colors">
-                <div className="absolute top-0 right-0 p-4 opacity-5 dark:opacity-10 pointer-events-none">
-                  <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                </div>
-                
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-5 gap-4">
                   <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     {icons.wallet} Monthly Cash Flow
@@ -1113,7 +1165,7 @@ export default function App() {
                   </div>
 
                   <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <span className="font-bold text-slate-700 dark:text-slate-300">Net Paycheck</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300">Net Take-Home Pay</span>
                     <span className="font-bold text-slate-800 dark:text-slate-100">{fmtCur(results.netPaycheck)}</span>
                   </div>
 
@@ -1129,7 +1181,7 @@ export default function App() {
                   </div>
 
                   <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-200 dark:border-emerald-800/50 mt-2">
-                    <span className="font-bold text-emerald-800 dark:text-emerald-400 text-base">Remaining to Spend</span>
+                    <span className="font-bold text-emerald-800 dark:text-emerald-400 text-base">Remaining Spendable Cash</span>
                     <span className="font-black text-emerald-600 dark:text-emerald-50 text-2xl">{fmtCur(results.remainingToSpend)}</span>
                   </div>
                 </div>
@@ -1138,7 +1190,7 @@ export default function App() {
               {/* FERS Breakdown */}
               <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-6 transition-colors">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-700 pb-3 mb-4 flex items-center gap-2">
-                  {icons.building} FERS Creditable Service Logic
+                  {icons.building} FERS Retirement Summary
                 </h3>
                 <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
                   <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
@@ -1158,150 +1210,22 @@ export default function App() {
                     <span className="font-bold text-indigo-600 dark:text-indigo-400">{fmtNum(results.totalCreditableService)} yrs</span>
                   </div>
                   <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
-                    <span className="text-slate-500 dark:text-slate-400">Est. High-3 Salary</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{fmtCur(results.high3)}</span>
+                    <span className="text-slate-500 dark:text-slate-400">Multiplier</span>
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400">{(results.fersMultiplier * 100).toFixed(1)}%</span>
                   </div>
                   <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
-                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                      FERS Multiplier
-                      {results.meets11Bump ? 
-                        <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] rounded-full font-bold">1.1% BUMP UNLOCKED</span> : 
-                        <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[10px] rounded-full">Standard</span>
-                      }
-                    </span>
-                    <span className="font-bold text-indigo-600 dark:text-indigo-400">{(results.fersMultiplier * 100).toFixed(1)}%</span>
+                    <span className="text-slate-500 dark:text-slate-400">High-3 Salary</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{fmtCur(results.high3)}</span>
                   </div>
                 </div>
 
                 <div className={`mt-5 p-3 rounded-lg flex items-start gap-3 border ${fehb5Year ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'}`}>
                   <div className="mt-0.5">{fehb5Year ? icons.check : icons.alert}</div>
                   <div className="text-sm">
-                    <strong className="block">{fehb5Year ? 'FEHB Retirement Eligible' : 'FEHB 5-Year Rule Warning'}</strong>
+                    <strong className="block">{fehb5Year ? 'FEHB Eligible' : 'FEHB Alert'}</strong>
                     {fehb5Year 
-                      ? 'You meet the 5-year continuous enrollment requirement to carry FEHB into retirement.' 
-                      : 'You MUST be enrolled in FEHB for 5 continuous years immediately preceding retirement to retain coverage.'}
-                  </div>
-                </div>
-              </div>
-
-              {/* TSP Section */}
-              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-6 relative transition-colors">
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    {icons.trending} Thrift Savings Plan (TSP)
-                  </h3>
-                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                    1st Yr Match: <span className="text-indigo-600 dark:text-indigo-400 font-bold">{fmtCur(results.yr1Match)}</span>
-                  </span>
-                </div>
-                
-                {!isMaxTsp && results.maxedOutEarlyWarning && (
-                  <div className="mb-4 bg-rose-50 dark:bg-rose-900/20 text-rose-800 dark:text-rose-300 p-3 rounded-lg text-sm border border-rose-200 dark:border-rose-800 flex items-start gap-2">
-                    <div className="mt-0.5">{icons.alert}</div>
-                    <div>
-                      <strong>WARNING: Match Lost.</strong> You hit the 2026 Projected IRS limit early. TSP will shut off, and agency match will stop for the year.
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <div className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3 flex justify-between">
-                      <span>Current Balances</span>
-                      <span className="text-slate-800 dark:text-slate-200">{fmtCur(tradTsp + rothTsp)}</span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Traditional</span><span className="font-medium text-slate-700 dark:text-slate-300">{fmtCur(tradTsp)}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Roth</span><span className="font-medium text-slate-700 dark:text-slate-300">{fmtCur(rothTsp)}</span></div>
-                    </div>
-                  </div>
-
-                  <div className="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-lg border border-indigo-100 dark:border-indigo-800/50">
-                    <div className="text-sm font-semibold text-indigo-900 dark:text-indigo-200 mb-3 flex justify-between">
-                      <span>Projected Future Value</span>
-                      <span className="text-indigo-700 dark:text-indigo-400 font-bold">{fmtCur(results.totalTsp)}</span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between"><span className="text-indigo-600/70 dark:text-indigo-400/70">Traditional</span><span className="font-medium text-indigo-800 dark:text-indigo-300">{fmtCur(results.simTradTsp)}</span></div>
-                      <div className="flex justify-between"><span className="text-indigo-600/70 dark:text-indigo-400/70">Roth</span><span className="font-medium text-indigo-800 dark:text-indigo-300">{fmtCur(results.simRothTsp)}</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Debt/Mortgage Summaries */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-6 transition-colors">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-700 pb-3 mb-4 flex items-center gap-2">
-                    {icons.creditCard} Debt Impact
-                  </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Standard Payoff</span><span className="text-slate-800 dark:text-slate-200">{results.standardDebtStats.basePayoffStr}</span></div>
-                    <div className="flex justify-between font-bold"><span className="text-indigo-600 dark:text-indigo-400">Accelerated</span><span>{results.standardDebtStats.accPayoffStr}</span></div>
-                    <div className="bg-rose-50 dark:bg-rose-900/20 p-2 rounded text-center">
-                      <span className="text-rose-600 dark:text-rose-400 font-bold">Time Saved: {results.standardDebtStats.monthsAcc === Infinity ? '0' : `${Math.floor(results.standardDebtStats.timeSaved / 12)}y ${results.standardDebtStats.timeSaved % 12}m`}</span>
-                    </div>
-
-                    {debtExtra > 0 && results.standardDebtStats.monthsOrig !== Infinity && (
-                      <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                         <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Invest vs. Payoff Early</h4>
-                         <div className="space-y-2 text-xs">
-                            <div className="flex justify-between">
-                               <span className="text-slate-500 dark:text-slate-400">Invest extra {fmtCur(debtExtra)}/mo @ {marketReturn}%</span>
-                               <span className="font-medium text-slate-700 dark:text-slate-300">{fmtCur(results.standardDebtStats.fvInvestExtra)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                               <span className="text-slate-500 dark:text-slate-400">Payoff early, then invest {fmtCur(results.standardDebtStats.newPmt)}/mo</span>
-                               <span className="font-medium text-slate-700 dark:text-slate-300">{fmtCur(results.standardDebtStats.fvPayoffThenInvest)}</span>
-                            </div>
-                            <div className={`p-3 rounded-lg mt-3 text-center border ${results.standardDebtStats.investWins ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-300'}`}>
-                               <strong className="block mb-1.5 text-sm">{results.standardDebtStats.investWins ? 'Investing' : 'Paying Off'} Wins by {fmtCur(results.standardDebtStats.diff)}</strong>
-                               <p className="opacity-90 leading-relaxed text-[11px]">
-                                 {results.standardDebtStats.investWins 
-                                   ? `Market return (${marketReturn}%) exceeds the loan interest rate (${debtRate}%), so capital grows faster invested.` 
-                                   : `Loan interest (${debtRate}%) exceeds market return (${marketReturn}%), making early payoff the optimal risk-free choice.`}
-                               </p>
-                            </div>
-                         </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-6 transition-colors">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-700 pb-3 mb-4 flex items-center gap-2">
-                    {icons.home} Mortgage Impact
-                  </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Standard Payoff</span><span className="text-slate-800 dark:text-slate-200">{results.mortgageStats.basePayoffStr}</span></div>
-                    <div className="flex justify-between font-bold"><span className="text-indigo-600 dark:text-indigo-400">Accelerated</span><span>{results.mortgageStats.accPayoffStr}</span></div>
-                    <div className="bg-rose-50 dark:bg-rose-900/20 p-2 rounded text-center">
-                      <span className="text-rose-600 dark:text-rose-400 font-bold">Time Saved: {results.mortgageStats.monthsAcc === Infinity ? '0' : `${Math.floor(results.mortgageStats.timeSaved / 12)}y ${results.mortgageStats.timeSaved % 12}m`}</span>
-                    </div>
-
-                    {mortgageExtra > 0 && results.mortgageStats.monthsOrig !== Infinity && (
-                      <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                         <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Invest vs. Payoff Early</h4>
-                         <div className="space-y-2 text-xs">
-                            <div className="flex justify-between">
-                               <span className="text-slate-500 dark:text-slate-400">Invest extra {fmtCur(mortgageExtra)}/mo @ {marketReturn}%</span>
-                               <span className="font-medium text-slate-700 dark:text-slate-300">{fmtCur(results.mortgageStats.fvInvestExtra)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                               <span className="text-slate-500 dark:text-slate-400">Payoff early, then invest {fmtCur(results.mortgageStats.newPmt)}/mo</span>
-                               <span className="font-medium text-slate-700 dark:text-slate-300">{fmtCur(results.mortgageStats.fvPayoffThenInvest)}</span>
-                            </div>
-                            <div className={`p-3 rounded-lg mt-3 text-center border ${results.mortgageStats.investWins ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-300'}`}>
-                               <strong className="block mb-1.5 text-sm">{results.mortgageStats.investWins ? 'Investing' : 'Paying Off'} Wins by {fmtCur(results.mortgageStats.diff)}</strong>
-                               <p className="opacity-90 leading-relaxed text-[11px]">
-                                 {results.mortgageStats.investWins 
-                                   ? `Market return (${marketReturn}%) exceeds the loan interest rate (${mortgageRate}%), so capital grows faster invested.` 
-                                   : `Loan interest (${mortgageRate}%) exceeds market return (${marketReturn}%), making early payoff the optimal risk-free choice.`}
-                               </p>
-                            </div>
-                         </div>
-                      </div>
-                    )}
+                      ? 'Meeting the 5-year enrollment requirement.' 
+                      : 'You must have 5 years of FEHB before retirement to carry it over.'}
                   </div>
                 </div>
               </div>
@@ -1310,21 +1234,27 @@ export default function App() {
           </div>
         </div>
         
-        {/* FULL WIDTH CHART */}
         <PortfolioChart data={results.trajectory} />
 
+        <div className="flex justify-center mt-8 mb-4 print:hidden">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 dark:bg-indigo-700 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors shadow-md"
+          >
+            {icons.printer} Save Page as PDF
+          </button>
+        </div>
       </main>
 
       <footer className="py-10 bg-slate-900 border-t border-slate-800 text-slate-400 text-xs sm:text-sm w-full">
         <div className="max-w-5xl mx-auto px-6 text-center space-y-4">
           <p className="font-bold uppercase tracking-widest text-slate-200">
-            Important Legal & Financial Disclaimer
+            F.E.R.A Disclaimer
           </p>
           <p className="leading-relaxed">
-            F.E.R.A. (Federal Employee Retirement Analyzer) is a hypothetical simulation tool designed for educational and informational purposes only. It is not affiliated with, endorsed by, or representative of the Office of Personnel Management (OPM), the Thrift Savings Plan (TSP), or any U.S. Government agency.
-          </p>
-          <p className="leading-relaxed">
-            All projections and estimates are based strictly on user inputs and assumed 2026 Projected IRS regulations. This tool does not provide formal financial, tax, or legal advice. Market results will vary. Consult a professional before making irreversible decisions.
+            Hypothetical simulation for educational purposes. Projections based on user inputs and projected 2026 limits. 
+            Not affiliated with OPM or any government agency. Consult a financial professional for advice.
           </p>
         </div>
       </footer>
