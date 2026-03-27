@@ -306,6 +306,7 @@ export default function App() {
   // Application State
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isPortfolioExpanded, setIsPortfolioExpanded] = useState(false);
+  const [inflationRate, setInflationRate] = useState<0 | 2.5 | 3.5>(0); // New Inflation State
 
   useEffect(() => {
     if (isDarkMode) document.documentElement.classList.add('dark');
@@ -357,32 +358,17 @@ export default function App() {
   const [isMaxIra, setIsMaxIra] = useState(false);
   const [maxIraRothPct, setMaxIraRothPct] = useState(100);
   const [tradIraContrib, setTradIraContrib] = useState<number | ''>(0);
-  const [rothIraContrib, setRothIraContrib] = useState<number | ''>(625); 
-  const [iraFreq, setIraFreq] = useState<'Monthly' | 'Annual'>('Monthly');
+  const [rothIraContrib, setRothIraContrib] = useState<number | ''>(7500); 
   const [iraWarning, setIraWarning] = useState('');
   const [iraContribStopAge, setIraContribStopAge] = useState(55);
 
-  const handleIraFreqChange = (newFreq: 'Monthly' | 'Annual') => {
-    if (newFreq === iraFreq) return;
-    if (newFreq === 'Monthly') {
-       setTradIraContrib(tradIraContrib === '' ? '' : Math.round(Number(tradIraContrib) / 12));
-       setRothIraContrib(rothIraContrib === '' ? '' : Math.round(Number(rothIraContrib) / 12));
-    } else {
-       setTradIraContrib(tradIraContrib === '' ? '' : Math.round(Number(tradIraContrib) * 12));
-       setRothIraContrib(rothIraContrib === '' ? '' : Math.round(Number(rothIraContrib) * 12));
-    }
-    setIraFreq(newFreq);
-    setIraWarning('');
-  };
-
   const handleIraInput = (type: 'Trad' | 'Roth', val: number | '') => {
     const annualLimit = (currentYear - birthYear) >= 50 ? 8600 : 7500;
-    const periodLimit = iraFreq === 'Monthly' ? annualLimit / 12 : annualLimit;
     
     let safeVal = val;
     if (type === 'Trad') {
       const currentRoth = typeof rothIraContrib === 'number' ? rothIraContrib : 0;
-      const maxAllow = Math.max(0, periodLimit - currentRoth);
+      const maxAllow = Math.max(0, annualLimit - currentRoth);
       if (typeof val === 'number' && val > maxAllow) { 
         safeVal = maxAllow; 
         setIraWarning(`Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
@@ -390,7 +376,7 @@ export default function App() {
       setTradIraContrib(safeVal);
     } else {
       const currentTrad = typeof tradIraContrib === 'number' ? tradIraContrib : 0;
-      const maxAllow = Math.max(0, periodLimit - currentTrad);
+      const maxAllow = Math.max(0, annualLimit - currentTrad);
       if (typeof val === 'number' && val > maxAllow) { 
         safeVal = maxAllow; 
         setIraWarning(`Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
@@ -405,12 +391,12 @@ export default function App() {
   // Mega Backdoor
   const [megaBal, setMegaBal] = useState(0);
   const [megaContrib, setMegaContrib] = useState(0);
-  const [megaFreq, setMegaFreq] = useState<'Monthly' | 'Annual'>('Monthly');
+  const [megaFreq, setMegaFreq] = useState<'Monthly' | 'Annual'>('Annual');
 
   // Taxable Brokerage
   const [brokerageBalance, setBrokerageBalance] = useState(50000);
-  const [brokerageContrib, setBrokerageContrib] = useState(500);
-  const [brokerageFreq, setBrokerageFreq] = useState<'Monthly' | 'Annual'>('Monthly');
+  const [brokerageContrib, setBrokerageContrib] = useState(6000);
+  const [brokerageFreq, setBrokerageFreq] = useState<'Monthly' | 'Annual'>('Annual');
   const [brokerageContribStopAge, setBrokerageContribStopAge] = useState(55);
 
   // Debt
@@ -454,24 +440,24 @@ export default function App() {
 
     // --- Unified Trajectory Engine ---
     
-    let simTradTsp = tradTsp;
-    let simRothTsp = rothTsp;
-    let simSalary = currentSalary; 
+    let simTradTsp = typeof tradTsp === 'number' ? tradTsp : 0;
+    let simRothTsp = typeof rothTsp === 'number' ? rothTsp : 0;
+    let simSalary = typeof currentSalary === 'number' ? currentSalary : 0; 
     let yr1TradContrib = 0;
     let yr1RothContrib = 0;
     let yr1Match = 0;
     let maxedOutEarlyWarning = false;
 
-    let simTradIra = tradIraBalance;
-    let simRothIra = rothIraBalance;
-    let simMega = megaBal;
+    let simTradIra = typeof tradIraBalance === 'number' ? tradIraBalance : 0;
+    let simRothIra = typeof rothIraBalance === 'number' ? rothIraBalance : 0;
+    let simMega = typeof megaBal === 'number' ? megaBal : 0;
     let yr1TradIra = 0, yr1RothIra = 0, yr1Mega = 0;
 
-    let simBrokerage = brokerageBalance;
-    let simPrior401k = prior401kBal;
+    let simBrokerage = typeof brokerageBalance === 'number' ? brokerageBalance : 0;
+    let simPrior401k = typeof prior401kBal === 'number' ? prior401kBal : 0;
     
     let runningCumulativeContribs = 0;
-    const totalInitialBalances = tradTsp + rothTsp + tradIraBalance + rothIraBalance + prior401kBal + megaBal + brokerageBalance;
+    const totalInitialBalances = simTradTsp + simRothTsp + simTradIra + simRothIra + simPrior401k + simMega + simBrokerage;
 
     let cumTradTsp = 0; let cumRothTsp = 0;
     let cumTradIra = 0; let cumRothIra = 0;
@@ -481,27 +467,27 @@ export default function App() {
         year: 0,
         portfolioInvested: totalInitialBalances,
         portfolioTotal: totalInitialBalances,
-        tspTotalInvested: tradTsp + rothTsp,
-        tspTotal: tradTsp + rothTsp,
-        tspTradInvested: tradTsp,
-        tspTrad: tradTsp,
-        tspRothInvested: rothTsp,
-        tspRoth: rothTsp,
-        iraTotalInvested: tradIraBalance + rothIraBalance,
-        iraTotal: tradIraBalance + rothIraBalance,
-        iraTradInvested: tradIraBalance,
-        iraTrad: tradIraBalance,
-        iraRothInvested: rothIraBalance,
-        iraRoth: rothIraBalance,
-        brokerageInvested: brokerageBalance,
-        brokerageTotal: brokerageBalance
+        tspTotalInvested: simTradTsp + simRothTsp,
+        tspTotal: simTradTsp + simRothTsp,
+        tspTradInvested: simTradTsp,
+        tspTrad: simTradTsp,
+        tspRothInvested: simRothTsp,
+        tspRoth: simRothTsp,
+        iraTotalInvested: simTradIra + simRothIra,
+        iraTotal: simTradIra + simRothIra,
+        iraTradInvested: simTradIra,
+        iraTrad: simTradIra,
+        iraRothInvested: simRothIra,
+        iraRoth: simRothIra,
+        brokerageInvested: simBrokerage,
+        brokerageTotal: simBrokerage
     }];
 
     const annualR = marketReturn / 100;
     const tspReturnBiweekly = Math.pow(1 + annualR, 1 / 26) - 1;
     
-    const iraPeriodsPerYear = iraFreq === 'Monthly' ? 12 : 1;
-    const iraRatePerPeriod = Math.pow(1 + annualR, 1 / iraPeriodsPerYear) - 1;
+    const iraPeriodsPerYear = 1;
+    const iraRatePerPeriod = annualR;
     
     const broPeriodsPerYear = brokerageFreq === 'Monthly' ? 12 : 1;
     const broRatePerPeriod = Math.pow(1 + annualR, 1 / broPeriodsPerYear) - 1;
@@ -546,7 +532,7 @@ export default function App() {
           if (!isMaxTsp && yr === 0 && pp < 25 && availableRoom === 0) maxedOutEarlyWarning = true;
         }
 
-        let equivPct = ((actualBiweeklyTrad + actualBiweeklyRoth) / biweeklyGross) * 100;
+        let equivPct = biweeklyGross > 0 ? ((actualBiweeklyTrad + actualBiweeklyRoth) / biweeklyGross) * 100 : 0;
         
         let matchRate = 1.0; 
         matchRate += Math.min(equivPct, 3.0); 
@@ -582,14 +568,14 @@ export default function App() {
         if (isMaxIra) {
           let annualTrad = iraLimit * (1 - (maxIraRothPct / 100));
           let annualRoth = iraLimit * (maxIraRothPct / 100);
-          targetPeriodTradIra = iraFreq === 'Monthly' ? annualTrad / 12 : annualTrad;
-          targetPeriodRothIra = iraFreq === 'Monthly' ? annualRoth / 12 : annualRoth;
+          targetPeriodTradIra = annualTrad;
+          targetPeriodRothIra = annualRoth;
         } else {
           targetPeriodTradIra = typeof tradIraContrib === 'number' ? tradIraContrib : 0;
           targetPeriodRothIra = typeof rothIraContrib === 'number' ? rothIraContrib : 0;
         }
       }
-      let targetPeriodMega = megaContrib;
+      let targetPeriodMega = typeof megaContrib === 'number' ? megaContrib : 0;
 
       for (let p = 0; p < iraPeriodsPerYear; p++) {
         let iraRoom = Math.max(0, iraLimit - ytdIra);
@@ -628,7 +614,7 @@ export default function App() {
 
       // -- BROKERAGE LOGIC --
       let canContribBro = simAgeEndOfYear < brokerageContribStopAge;
-      let targetPeriodBro = canContribBro ? brokerageContrib : 0;
+      let targetPeriodBro = canContribBro ? (typeof brokerageContrib === 'number' ? brokerageContrib : 0) : 0;
       for (let p = 0; p < broPeriodsPerYear; p++) {
           simBrokerage = simBrokerage * (1 + broRatePerPeriod) + targetPeriodBro;
           cumBrokerage += targetPeriodBro;
@@ -636,78 +622,84 @@ export default function App() {
       }
       
       // -- YEAR-END RECORDING --
-      simPrior401k = prior401kBal * Math.pow(1 + annualR, yr + 1);
+      simPrior401k = simPrior401k * Math.pow(1 + annualR, 1);
       
       trajectory.push({
           year: yr + 1,
           portfolioInvested: totalInitialBalances + runningCumulativeContribs,
           portfolioTotal: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simBrokerage + simPrior401k,
 
-          tspTotalInvested: (tradTsp + rothTsp) + cumTradTsp + cumRothTsp,
+          tspTotalInvested: (typeof tradTsp === 'number' ? tradTsp : 0) + (typeof rothTsp === 'number' ? rothTsp : 0) + cumTradTsp + cumRothTsp,
           tspTotal: simTradTsp + simRothTsp,
-          tspTradInvested: tradTsp + cumTradTsp,
+          tspTradInvested: (typeof tradTsp === 'number' ? tradTsp : 0) + cumTradTsp,
           tspTrad: simTradTsp,
-          tspRothInvested: rothTsp + cumRothTsp,
+          tspRothInvested: (typeof rothTsp === 'number' ? rothTsp : 0) + cumRothTsp,
           tspRoth: simRothTsp,
 
-          iraTotalInvested: (tradIraBalance + rothIraBalance) + cumTradIra + cumRothIra,
+          iraTotalInvested: (typeof tradIraBalance === 'number' ? tradIraBalance : 0) + (typeof rothIraBalance === 'number' ? rothIraBalance : 0) + cumTradIra + cumRothIra,
           iraTotal: simTradIra + simRothIra,
-          iraTradInvested: tradIraBalance + cumTradIra,
+          iraTradInvested: (typeof tradIraBalance === 'number' ? tradIraBalance : 0) + cumTradIra,
           iraTrad: simTradIra,
-          iraRothInvested: rothIraBalance + cumRothIra,
+          iraRothInvested: (typeof rothIraBalance === 'number' ? rothIraBalance : 0) + cumRothIra,
           iraRoth: simRothIra,
 
-          brokerageInvested: brokerageBalance + cumBrokerage,
+          brokerageInvested: (typeof brokerageBalance === 'number' ? brokerageBalance : 0) + cumBrokerage,
           brokerageTotal: simBrokerage
       });
     }
 
     // --- Debt Engine ---
-    const calcDebt = (origP: number, currentP: number, rate: number, t: number, extra: number, invRateAnnual: number) => {
-      const r = (rate / 100) / 12; 
-      const n = t * 12; 
-      const minPmt = origP > 0 && r > 0 ? (origP * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : (n > 0 ? origP / n : 0);
-      const newPmt = minPmt + extra;
+    const calcDebt = (origP: number | '', currentP: number | '', rate: number | '', t: number | '', extra: number | '', invRateAnnual: number) => {
+      const orig = typeof origP === 'number' ? origP : 0;
+      const curr = typeof currentP === 'number' ? currentP : 0;
+      const r_rate = typeof rate === 'number' ? rate : 0;
+      const term = typeof t === 'number' ? t : 0;
+      const ex = typeof extra === 'number' ? extra : 0;
+      
+      const r = (r_rate / 100) / 12; 
+      const n = term * 12; 
+      const minPmt = orig > 0 && r > 0 ? (orig * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : (n > 0 ? orig / n : 0);
+      const newPmt = minPmt + ex;
 
       let monthsOrig = 0;
-      if (currentP > 0 && minPmt > 0 && minPmt > currentP * r) {
-        monthsOrig = Math.ceil(-Math.log(1 - (currentP * r) / minPmt) / Math.log(1 + r));
-      } else if (currentP > 0) {
+      if (curr > 0 && minPmt > 0 && minPmt > curr * r) {
+        monthsOrig = Math.ceil(-Math.log(1 - (curr * r) / minPmt) / Math.log(1 + r));
+      } else if (curr > 0) {
         monthsOrig = Infinity;
       }
 
       let monthsAcc = 0;
-      if (currentP > 0 && newPmt > 0) {
-        if (newPmt > currentP * r) { 
-           monthsAcc = Math.ceil(-Math.log(1 - (currentP * r) / newPmt) / Math.log(1 + r)); 
+      if (curr > 0 && newPmt > 0) {
+        if (newPmt > curr * r) { 
+           monthsAcc = Math.ceil(-Math.log(1 - (curr * r) / newPmt) / Math.log(1 + r)); 
         } 
         else { monthsAcc = Infinity; }
       }
 
       const current = new Date(); 
       const basePayoffDate = new Date(current);
-      if (monthsOrig !== Infinity) basePayoffDate.setMonth(current.getMonth() + monthsOrig);
+      if (monthsOrig !== Infinity && !isNaN(monthsOrig)) basePayoffDate.setMonth(current.getMonth() + monthsOrig);
       const accPayoffDate = new Date(current);
-      if (monthsAcc !== Infinity) accPayoffDate.setMonth(current.getMonth() + monthsAcc);
+      if (monthsAcc !== Infinity && !isNaN(monthsAcc)) accPayoffDate.setMonth(current.getMonth() + monthsAcc);
 
-      const fmtDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      const fmtDate = (d: Date) => isNaN(d.getTime()) ? 'Unknown' : d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
       const invRateMonthly = (invRateAnnual / 100) / 12;
       let fvInvestExtra = 0;
       let fvPayoffThenInvest = 0;
 
-      if (monthsOrig !== Infinity && extra > 0 && invRateMonthly > 0) {
-          fvInvestExtra = extra * ((Math.pow(1 + invRateMonthly, monthsOrig) - 1) / invRateMonthly);
+      if (monthsOrig !== Infinity && !isNaN(monthsOrig) && ex > 0 && invRateMonthly > 0) {
+          fvInvestExtra = ex * ((Math.pow(1 + invRateMonthly, monthsOrig) - 1) / invRateMonthly);
       }
-      if (monthsAcc !== Infinity && monthsAcc < monthsOrig && newPmt > 0 && invRateMonthly > 0) {
+      if (monthsAcc !== Infinity && !isNaN(monthsAcc) && monthsAcc < monthsOrig && newPmt > 0 && invRateMonthly > 0) {
           const monthsRemainingFree = monthsOrig - monthsAcc;
           fvPayoffThenInvest = newPmt * ((Math.pow(1 + invRateMonthly, monthsRemainingFree) - 1) / invRateMonthly);
       }
 
       const investWins = fvInvestExtra > fvPayoffThenInvest;
-      const diff = Math.abs(fvInvestExtra - fvPayoffThenInvest);
+      const diff = Math.abs(fvInvestExtra - fvPayoffThenInvest) || 0;
 
       return { 
-        minPmt, newPmt, monthsOrig, monthsAcc, timeSaved: Math.max(0, monthsOrig - monthsAcc),
+        minPmt, newPmt, monthsOrig, monthsAcc, timeSaved: Math.max(0, monthsOrig - monthsAcc) || 0,
         basePayoffStr: monthsOrig === Infinity ? 'Never' : fmtDate(basePayoffDate),
         accPayoffStr: monthsAcc === Infinity ? 'Never' : fmtDate(accPayoffDate),
         invRateAnnual, fvInvestExtra, fvPayoffThenInvest, investWins, diff
@@ -718,22 +710,23 @@ export default function App() {
     const mortgageStats = calcDebt(mortgageOriginal, mortgageCurrent, mortgageRate, mortgageTerm, mortgageExtra, marketReturn);
 
     // --- Cash Flow Engine ---
-    const baseMonthlyGross = currentSalary / 12;
+    const baseMonthlyGross = (typeof currentSalary === 'number' ? currentSalary : 0) / 12;
     const monthlyPreTaxTradTsp = yr1TradContrib / 12;
     
-    const monthlyFersDeduction = baseMonthlyGross * (fersRate / 100);
-    const monthlyPreTaxFehb = fehbPremium;
+    const monthlyFersDeduction = baseMonthlyGross * ((typeof fersRate === 'number' ? fersRate : 0) / 100);
+    const monthlyPreTaxFehb = typeof fehbPremium === 'number' ? fehbPremium : 0;
     
     const totalPreTax = monthlyPreTaxTradTsp + monthlyPreTaxFehb; 
 
-    const totalMonthlyGross = baseMonthlyGross + supplementalIncome;
+    const safeSuppIncome = typeof supplementalIncome === 'number' ? supplementalIncome : 0;
+    const totalMonthlyGross = baseMonthlyGross + safeSuppIncome;
     let annualTaxableIncome = (baseMonthlyGross - totalPreTax) * 12;
     
-    let totalFicaWages = currentSalary - (fehbPremium * 12); 
+    let totalFicaWages = (typeof currentSalary === 'number' ? currentSalary : 0) - (monthlyPreTaxFehb * 12); 
 
     if (supplementalTaxToggled) {
-       annualTaxableIncome += (supplementalIncome * 12);
-       totalFicaWages += (supplementalIncome * 12);
+       annualTaxableIncome += (safeSuppIncome * 12);
+       totalFicaWages += (safeSuppIncome * 12);
     }
 
     const stdDeduction = filingStatus === 'Married' ? 30800 : 15400;
@@ -753,7 +746,7 @@ export default function App() {
         } else break;
     }
     
-    annualFedTax = Math.max(0, annualFedTax - (dependents * 2000));
+    annualFedTax = Math.max(0, annualFedTax - ((typeof dependents === 'number' ? dependents : 0) * 2000));
     const monthlyFedTax = annualFedTax / 12;
 
     const annualOASDI = Math.min(totalFicaWages, 182700) * 0.062;
@@ -767,12 +760,17 @@ export default function App() {
     const monthlyPostTaxTradIra = yr1TradIra / 12;
     const monthlyPostTaxRothIra = yr1RothIra / 12;
     const monthlyMega = yr1Mega / 12;
+    
+    const safeBrokContrib = typeof brokerageContrib === 'number' ? brokerageContrib : 0;
     const canContribBroYr1 = (currentYear - birthYear) < brokerageContribStopAge;
-    const monthlyBrokerage = canContribBroYr1 ? (brokerageFreq === 'Monthly' ? brokerageContrib : brokerageContrib / 12) : 0;
+    const monthlyBrokerage = canContribBroYr1 ? (brokerageFreq === 'Monthly' ? safeBrokContrib : safeBrokContrib / 12) : 0;
     
     const totalPostTaxSavings = monthlyPostTaxRothTsp + monthlyPostTaxTradIra + monthlyPostTaxRothIra + monthlyMega + monthlyBrokerage;
 
-    const monthlyLoansAndEscrow = (debtCurrent > 0 ? standardDebtStats.newPmt : 0) + (mortgageCurrent > 0 ? mortgageStats.newPmt : 0) + mortgageEscrow;
+    const safeDebtCurr = typeof debtCurrent === 'number' ? debtCurrent : 0;
+    const safeMtgCurr = typeof mortgageCurrent === 'number' ? mortgageCurrent : 0;
+    const safeMtgEscrow = typeof mortgageEscrow === 'number' ? mortgageEscrow : 0;
+    const monthlyLoansAndEscrow = (safeDebtCurr > 0 ? standardDebtStats.newPmt : 0) + (safeMtgCurr > 0 ? mortgageStats.newPmt : 0) + safeMtgEscrow;
     const remainingToSpend = netPaycheck - totalPostTaxSavings - monthlyLoansAndEscrow;
 
     return {
@@ -793,15 +791,21 @@ export default function App() {
     currentYear, birthYear, ageStarted, retireAge, priorService, sickLeaveDays,
     maxGradeSalary, cola, survivorBenefit, fehb5Year, filingStatus, dependents, fersRate, fehbPremium, supplementalIncome, supplementalTaxToggled,
     currentSalary, annualRaise, tradTsp, rothTsp, isMaxTsp, maxTspRothPct, tspInputMode, tradTspInput, rothTspInput,
-    tradIraBalance, rothIraBalance, isMaxIra, maxIraRothPct, tradIraContrib, rothIraContrib, iraContribStopAge, iraFreq,
+    tradIraBalance, rothIraBalance, isMaxIra, maxIraRothPct, tradIraContrib, rothIraContrib, iraContribStopAge,
     prior401kBal,
     megaBal, megaContrib, megaFreq, brokerageBalance, brokerageContrib, brokerageFreq, brokerageContribStopAge,
     debtOriginal, debtCurrent, debtRate, debtTerm, debtExtra,
     mortgageOriginal, mortgageCurrent, mortgageRate, mortgageTerm, mortgageExtra, mortgageEscrow
   ]);
 
-  const fmtCur = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
-  const fmtNum = (val: number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(val);
+  const fmtCur = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val || 0);
+  const fmtNum = (val: number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(val || 0);
+
+  // Inflation Helper
+  const adjustForInflation = (futureValue: number) => {
+    if (inflationRate === 0 || results.yearsToRetire <= 0) return futureValue;
+    return futureValue / Math.pow(1 + (inflationRate / 100), results.yearsToRetire);
+  };
 
   const icons = {
     user: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
@@ -830,35 +834,43 @@ export default function App() {
   const generateInsights = async () => {
     setIsGeneratingInsights(true);
     setAiError(null);
+    setAiInsights(null); 
     
     const apiKey = ""; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
     const systemPrompt = "You are an expert Federal Retirement Financial Planner. Analyze the provided federal employee data and provide 3 to 4 concise, highly personalized observations and actionable recommendations. Format clearly using bullet points and brief paragraphs. Be educational, encouraging, and note that this is not formal financial advice.";
     
+    const standardDebtWins = results.standardDebtStats.investWins ? "Investing the extra cash in the market" : "Paying off the debt principal early";
+    const mortgageWins = results.mortgageStats.investWins ? "Investing the extra cash in the market" : "Paying off the mortgage principal early";
+
     const userQuery = `
       Here is my current profile:
-      Age: ${results.currentAge} (Target Retirement Age: ${retireAge})
-      Years to Retirement: ${results.yearsToRetire}
-      Federal Service at Retirement: ${results.totalCreditableService.toFixed(1)} years
-      Current Salary: $${currentSalary}
-      Projected High-3 Salary: $${Math.round(results.high3)}
+      Age: ${results.currentAge || 0} (Target Retirement Age: ${retireAge || 0})
+      Years to Retirement: ${results.yearsToRetire || 0}
+      Federal Service at Retirement: ${Number(results.totalCreditableService || 0).toFixed(1)} years
+      Current Salary: $${currentSalary || 0}
+      Projected High-3 Salary: $${Math.round(results.high3 || 0)}
       
-      Projected Annual FERS Pension (Net): $${Math.round(results.netPension)}
+      Projected Annual FERS Pension (Net): $${Math.round(results.netPension || 0)}
       
       Current Balances:
-      TSP: $${tradTsp + rothTsp}
-      IRA: $${tradIraBalance + rothIraBalance}
-      Brokerage & Others: $${brokerageBalance + prior401kBal + megaBal}
+      TSP: $${(typeof tradTsp === 'number' ? tradTsp : 0) + (typeof rothTsp === 'number' ? rothTsp : 0)}
+      IRA: $${(typeof tradIraBalance === 'number' ? tradIraBalance : 0) + (typeof rothIraBalance === 'number' ? rothIraBalance : 0)}
+      Brokerage & Others: $${(typeof brokerageBalance === 'number' ? brokerageBalance : 0) + (typeof prior401kBal === 'number' ? prior401kBal : 0) + (typeof megaBal === 'number' ? megaBal : 0)}
       
-      Future Total Portfolio Projection at Retirement: $${Math.round(results.totalPortfolio)}
+      Future Total Portfolio Projection at Retirement: $${Math.round(results.totalPortfolio || 0)}
       
       Monthly Cash Flow:
-      Gross: $${Math.round(results.totalMonthlyGross)}
-      Take-Home Net: $${Math.round(results.netPaycheck)}
-      Remaining Spendable Cash (after savings/debt): $${Math.round(results.remainingToSpend)}
+      Gross: $${Math.round(results.totalMonthlyGross || 0)}
+      Take-Home Net: $${Math.round(results.netPaycheck || 0)}
+      Remaining Spendable Cash (after savings/debt): $${Math.round(results.remainingToSpend || 0)}
       
-      Please give me your top insights and recommendations to optimize my trajectory.
+      Debt Payoff vs. Investing ROI Strategy (Assumed Market Return: ${marketReturn}%):
+      - Standard Debt: Assuming extra payments of $${debtExtra}/mo. My calculations show that ${standardDebtWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(results.standardDebtStats.diff || 0)}.
+      - Mortgage: Assuming extra payments of $${mortgageExtra}/mo. My calculations show that ${mortgageWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(results.mortgageStats.diff || 0)}.
+      
+      Based on all this, please give me your top insights and explicitly tell me whether or not it is better to put my extra payments into the debt principal or to the market to get a better ROI based on my specific numbers above.
     `;
 
     const payload = {
@@ -866,7 +878,7 @@ export default function App() {
       systemInstruction: { parts: [{ text: systemPrompt }] }
     };
 
-    const fetchWithBackoff = async (retries = 5, delay = 1000): Promise<string> => {
+    const fetchWithBackoff = async (retries = 3, delay = 1000): Promise<string> => {
       try {
         const response = await fetch(url, {
           method: 'POST',
@@ -874,14 +886,27 @@ export default function App() {
           body: JSON.stringify(payload)
         });
         
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+           let errDetail = response.statusText;
+           try {
+               const errData = await response.json();
+               errDetail = errData.error?.message || errDetail;
+           } catch(e) {}
+           throw new Error(`API Error (${response.status}): ${errDetail}`);
+        }
         
         const data = await response.json();
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error("No text returned from Gemini");
+        
+        if (!text) {
+           if (data.promptFeedback?.blockReason) {
+              throw new Error(`Blocked by safety filter: ${data.promptFeedback.blockReason}`);
+           }
+           throw new Error("No text returned from Gemini. The response may have been blocked or empty.");
+        }
         
         return text;
-      } catch (error) {
+      } catch (error: any) {
         if (retries > 0) {
           await new Promise(res => setTimeout(res, delay));
           return fetchWithBackoff(retries - 1, delay * 2);
@@ -895,7 +920,8 @@ export default function App() {
       const text = await fetchWithBackoff();
       setAiInsights(text);
     } catch (err: any) {
-      setAiError("Failed to generate insights. Please check your network and try again.");
+      console.error("Gemini Generation Error:", err);
+      setAiError(err.message || "Failed to generate insights. Please check your network and try again.");
     } finally {
       setIsGeneratingInsights(false);
     }
@@ -1069,10 +1095,10 @@ export default function App() {
                   )}
 
                   <div className="grid grid-cols-2 gap-4">
-                      <Field label="To Traditional IRA">
+                      <Field label="Annual Trad Contrib.">
                            <NumberInput value={tradIraContrib} onChange={(val) => handleIraInput('Trad', val)} prefix="$" />
                       </Field>
-                      <Field label="To Roth IRA">
+                      <Field label="Annual Roth Contrib.">
                            <NumberInput value={rothIraContrib} onChange={(val) => handleIraInput('Roth', val)} prefix="$" />
                       </Field>
                     </div>
@@ -1083,13 +1109,40 @@ export default function App() {
                   <Field label="Stop Contributions At Age" description="Age to stop adding funds">
                         <NumberInput value={iraContribStopAge} onChange={(v) => typeof v === 'number' && setIraContribStopAge(v)} />
                   </Field>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Frequency</label>
-                    <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
-                      <button type="button" onClick={() => handleIraFreqChange('Monthly')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${iraFreq === 'Monthly' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Monthly</button>
-                      <button type="button" onClick={() => handleIraFreqChange('Annual')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${iraFreq === 'Annual' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Annual</button>
-                    </div>
-                  </div>
+              </div>
+            </Card>
+
+            <Card 
+              title="Prior Employer 401(k)" icon={icons.archive}
+              info="Old retirement accounts that continue to compound but no longer receive contributions."
+            >
+               <div className="grid grid-cols-1 gap-4">
+                <Field label="Legacy 401(k) Balance"><NumberInput value={prior401kBal} onChange={(v) => typeof v === 'number' && setPrior401kBal(v)} prefix="$" /></Field>
+              </div>
+            </Card>
+
+            <Card 
+              title="Mega Backdoor Roth / Alt 401(k)" icon={icons.chart}
+              info="SECURE 2.0 options. Note: Federal TSP does NOT currently permit after-tax mega backdoor contributions."
+            >
+               <div className="grid grid-cols-2 gap-4">
+                <Field label="Current Mega/Alt Bal"><NumberInput value={megaBal} onChange={(v) => typeof v === 'number' && setMegaBal(v)} prefix="$" /></Field>
+                <Field label="Annual Contribution"><NumberInput value={megaContrib} onChange={(v) => typeof v === 'number' && setMegaContrib(v)} prefix="$" /></Field>
+              </div>
+            </Card>
+
+            <Card 
+              title="Taxable Brokerage" icon={icons.chart}
+              info="Standard investment accounts (Vanguard, Fidelity, etc.) with no IRS limits or age withdrawal penalties."
+            >
+               <div className="grid grid-cols-2 gap-4">
+                <Field label="Current Brokerage Bal"><NumberInput value={brokerageBalance} onChange={(v) => typeof v === 'number' && setBrokerageBalance(v)} prefix="$" /></Field>
+                <Field label="Annual Contribution"><NumberInput value={brokerageContrib} onChange={(v) => typeof v === 'number' && setBrokerageContrib(v)} prefix="$" /></Field>
+              </div>
+              <div className="mt-4 border-t border-slate-100 dark:border-slate-700 pt-4 grid grid-cols-2 gap-4">
+                  <Field label="Stop Contributions At Age" description="Age to stop adding funds">
+                      <NumberInput value={brokerageContribStopAge} onChange={(v) => typeof v === 'number' && setBrokerageContribStopAge(v)} />
+                  </Field>
               </div>
             </Card>
 
@@ -1153,22 +1206,37 @@ export default function App() {
                   <p className="text-indigo-200 text-sm mt-2">{fmtCur(results.netPension / 12)} per month</p>
                 </div>
                 
-                <div 
-                  className="bg-emerald-600 dark:bg-emerald-700 rounded-xl text-white shadow-lg overflow-hidden transition-all cursor-pointer hover:bg-emerald-500 dark:hover:bg-emerald-600 border border-transparent dark:border-emerald-600"
-                  onClick={() => setIsPortfolioExpanded(!isPortfolioExpanded)}
-                >
-                  <div className="p-6 flex justify-between items-center">
-                    <div>
-                      <p className="text-emerald-100 text-sm font-medium mb-1">Total Future Portfolio</p>
-                      <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                        {fmtCur(results.totalPortfolio)}
-                      </h2>
-                      <p className="text-emerald-200 text-sm mt-2">
-                        {isPortfolioExpanded ? "Tap to collapse breakdown" : "Tap to view exact breakdown"}
-                      </p>
+                <div className="bg-emerald-600 dark:bg-emerald-700 rounded-xl text-white shadow-lg overflow-hidden transition-all border border-transparent dark:border-emerald-600">
+                  <div className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-emerald-100 text-sm font-medium mb-1">Total Future Portfolio</p>
+                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight cursor-pointer" onClick={() => setIsPortfolioExpanded(!isPortfolioExpanded)}>
+                          {fmtCur(adjustForInflation(results.totalPortfolio))}
+                        </h2>
+                      </div>
+                      <div className="text-emerald-100 bg-emerald-700/50 p-2 rounded-full cursor-pointer hover:bg-emerald-500 transition-colors" onClick={() => setIsPortfolioExpanded(!isPortfolioExpanded)}>
+                        {isPortfolioExpanded ? icons.chevronUp : icons.chevronDown}
+                      </div>
                     </div>
-                    <div className="text-emerald-100 bg-emerald-700/50 p-2 rounded-full">
-                      {isPortfolioExpanded ? icons.chevronUp : icons.chevronDown}
+
+                    {/* Inflation Dropdown */}
+                    <div className="mt-5 pt-4 border-t border-emerald-500/50">
+                      <label className="text-emerald-100 text-xs font-medium mb-1.5 block">Adjust for Inflation (Purchasing Power in Today's Dollars)</label>
+                      <div className="relative">
+                        <select 
+                          className="w-full appearance-none bg-emerald-700/50 border border-emerald-500/50 text-white text-sm rounded-lg py-2 pl-3 pr-8 outline-none focus:ring-2 focus:ring-emerald-400 transition-colors cursor-pointer"
+                          value={inflationRate}
+                          onChange={(e) => setInflationRate(Number(e.target.value) as 0 | 2.5 | 3.5)}
+                        >
+                          <option value={0}>Nominal Value (No Adjustment)</option>
+                          <option value={2.5}>Moderate (Baseline): 2.5% per year</option>
+                          <option value={3.5}>Conservative: 3.5% per year</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-emerald-300">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1177,23 +1245,23 @@ export default function App() {
                       <div className="space-y-3 text-sm sm:text-base">
                         <div className="flex justify-between items-center">
                           <span className="text-emerald-100">Thrift Savings Plan (TSP)</span>
-                          <span className="font-bold">{fmtCur(results.totalTsp)}</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.totalTsp))}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-emerald-100">Individual IRAs</span>
-                          <span className="font-bold">{fmtCur(results.simTradIra + results.simRothIra)}</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.simTradIra + results.simRothIra))}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-emerald-100">Taxable Brokerage</span>
-                          <span className="font-bold">{fmtCur(results.simBrokerage)}</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.simBrokerage))}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-emerald-100">Mega Backdoor / Alt</span>
-                          <span className="font-bold">{fmtCur(results.simMega)}</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.simMega))}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-emerald-100">Prior Legacy 401(k)</span>
-                          <span className="font-bold">{fmtCur(results.simPrior401k)}</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.simPrior401k))}</span>
                         </div>
                       </div>
                     </div>
@@ -1378,12 +1446,18 @@ export default function App() {
                           return <p key={idx} className="mb-2 text-indigo-50/90">{line.replace(/\*\*/g, '')}</p>;
                        })}
                      </div>
-                     <div className="mt-8 flex justify-center">
+                     <div className="mt-8 flex justify-center gap-4">
+                        <button 
+                          onClick={generateInsights} 
+                          className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white transition-colors px-4 py-2 rounded-lg font-medium shadow-sm"
+                        >
+                          Update with New Inputs
+                        </button>
                         <button 
                           onClick={() => setAiInsights(null)} 
                           className="text-sm text-indigo-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-indigo-800/50"
                         >
-                          Clear Insights
+                          Clear
                         </button>
                      </div>
                    </div>
