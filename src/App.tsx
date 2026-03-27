@@ -391,12 +391,10 @@ export default function App() {
   // Mega Backdoor
   const [megaBal, setMegaBal] = useState(0);
   const [megaContrib, setMegaContrib] = useState(0);
-  const [megaFreq, setMegaFreq] = useState<'Monthly' | 'Annual'>('Annual');
 
   // Taxable Brokerage
   const [brokerageBalance, setBrokerageBalance] = useState(50000);
   const [brokerageContrib, setBrokerageContrib] = useState(6000);
-  const [brokerageFreq, setBrokerageFreq] = useState<'Monthly' | 'Annual'>('Annual');
   const [brokerageContribStopAge, setBrokerageContribStopAge] = useState(55);
 
   // Debt
@@ -489,8 +487,8 @@ export default function App() {
     const iraPeriodsPerYear = 1;
     const iraRatePerPeriod = annualR;
     
-    const broPeriodsPerYear = brokerageFreq === 'Monthly' ? 12 : 1;
-    const broRatePerPeriod = Math.pow(1 + annualR, 1 / broPeriodsPerYear) - 1;
+    const broPeriodsPerYear = 1;
+    const broRatePerPeriod = annualR;
     
     const currentTspLimit = 24500 + (currentAge >= 60 && currentAge <= 63 ? 12000 : (currentAge >= 50 ? 8000 : 0));
     const currentIraLimit = 7500 + (currentAge >= 50 ? 1100 : 0);
@@ -763,7 +761,7 @@ export default function App() {
     
     const safeBrokContrib = typeof brokerageContrib === 'number' ? brokerageContrib : 0;
     const canContribBroYr1 = (currentYear - birthYear) < brokerageContribStopAge;
-    const monthlyBrokerage = canContribBroYr1 ? (brokerageFreq === 'Monthly' ? safeBrokContrib : safeBrokContrib / 12) : 0;
+    const monthlyBrokerage = canContribBroYr1 ? safeBrokContrib / 12 : 0;
     
     const totalPostTaxSavings = monthlyPostTaxRothTsp + monthlyPostTaxTradIra + monthlyPostTaxRothIra + monthlyMega + monthlyBrokerage;
 
@@ -793,7 +791,7 @@ export default function App() {
     currentSalary, annualRaise, tradTsp, rothTsp, isMaxTsp, maxTspRothPct, tspInputMode, tradTspInput, rothTspInput,
     tradIraBalance, rothIraBalance, isMaxIra, maxIraRothPct, tradIraContrib, rothIraContrib, iraContribStopAge,
     prior401kBal,
-    megaBal, megaContrib, megaFreq, brokerageBalance, brokerageContrib, brokerageFreq, brokerageContribStopAge,
+    megaBal, megaContrib, brokerageBalance, brokerageContrib, brokerageContribStopAge,
     debtOriginal, debtCurrent, debtRate, debtTerm, debtExtra,
     mortgageOriginal, mortgageCurrent, mortgageRate, mortgageTerm, mortgageExtra, mortgageEscrow
   ]);
@@ -841,34 +839,38 @@ export default function App() {
 
     const systemPrompt = "You are an expert Federal Retirement Financial Planner. Analyze the provided federal employee data and provide 3 to 4 concise, highly personalized observations and actionable recommendations. Format clearly using bullet points and brief paragraphs. Be educational, encouraging, and note that this is not formal financial advice.";
     
+    // Safety wrappers to guarantee the string payload never receives invalid variable states during active data entry.
+    const safeNum = (val: any) => (typeof val === 'number' && !isNaN(val)) ? val : 0;
+    
     const standardDebtWins = results.standardDebtStats.investWins ? "Investing the extra cash in the market" : "Paying off the debt principal early";
     const mortgageWins = results.mortgageStats.investWins ? "Investing the extra cash in the market" : "Paying off the mortgage principal early";
 
     const userQuery = `
       Here is my current profile:
-      Age: ${results.currentAge || 0} (Target Retirement Age: ${retireAge || 0})
-      Years to Retirement: ${results.yearsToRetire || 0}
-      Federal Service at Retirement: ${Number(results.totalCreditableService || 0).toFixed(1)} years
-      Current Salary: $${currentSalary || 0}
-      Projected High-3 Salary: $${Math.round(results.high3 || 0)}
+      Age: ${safeNum(results.currentAge)} (Target Retirement Age: ${safeNum(retireAge)})
+      Years to Retirement: ${safeNum(results.yearsToRetire)}
+      Federal Service at Retirement: ${safeNum(results.totalCreditableService).toFixed(1)} years
+      Current Salary: $${safeNum(currentSalary)}
+      Projected High-3 Salary: $${Math.round(safeNum(results.high3))}
       
-      Projected Annual FERS Pension (Net): $${Math.round(results.netPension || 0)}
+      Projected Annual FERS Pension (Net): $${Math.round(safeNum(results.netPension))}
       
       Current Balances:
-      TSP: $${(typeof tradTsp === 'number' ? tradTsp : 0) + (typeof rothTsp === 'number' ? rothTsp : 0)}
-      IRA: $${(typeof tradIraBalance === 'number' ? tradIraBalance : 0) + (typeof rothIraBalance === 'number' ? rothIraBalance : 0)}
-      Brokerage & Others: $${(typeof brokerageBalance === 'number' ? brokerageBalance : 0) + (typeof prior401kBal === 'number' ? prior401kBal : 0) + (typeof megaBal === 'number' ? megaBal : 0)}
+      TSP: $${safeNum(tradTsp) + safeNum(rothTsp)}
+      IRA: $${safeNum(tradIraBalance) + safeNum(rothIraBalance)}
+      Brokerage & Others: $${safeNum(brokerageBalance) + safeNum(prior401kBal) + safeNum(megaBal)}
       
-      Future Total Portfolio Projection at Retirement: $${Math.round(results.totalPortfolio || 0)}
+      Future Total Portfolio Projection at Retirement (Nominal): $${Math.round(safeNum(results.totalPortfolio))}
+      Future Total Portfolio Projection at Retirement (Inflation Adjusted at ${inflationRate}%): $${Math.round(adjustForInflation(safeNum(results.totalPortfolio)))}
       
       Monthly Cash Flow:
-      Gross: $${Math.round(results.totalMonthlyGross || 0)}
-      Take-Home Net: $${Math.round(results.netPaycheck || 0)}
-      Remaining Spendable Cash (after savings/debt): $${Math.round(results.remainingToSpend || 0)}
+      Gross: $${Math.round(safeNum(results.totalMonthlyGross))}
+      Take-Home Net: $${Math.round(safeNum(results.netPaycheck))}
+      Remaining Spendable Cash (after savings/debt): $${Math.round(safeNum(results.remainingToSpend))}
       
-      Debt Payoff vs. Investing ROI Strategy (Assumed Market Return: ${marketReturn}%):
-      - Standard Debt: Assuming extra payments of $${debtExtra}/mo. My calculations show that ${standardDebtWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(results.standardDebtStats.diff || 0)}.
-      - Mortgage: Assuming extra payments of $${mortgageExtra}/mo. My calculations show that ${mortgageWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(results.mortgageStats.diff || 0)}.
+      Debt Payoff vs. Investing ROI Strategy (Assumed Market Return: ${safeNum(marketReturn)}%):
+      - Standard Debt: Assuming extra payments of $${safeNum(debtExtra)}/mo. My calculations show that ${standardDebtWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(safeNum(results.standardDebtStats.diff))}.
+      - Mortgage: Assuming extra payments of $${safeNum(mortgageExtra)}/mo. My calculations show that ${mortgageWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(safeNum(results.mortgageStats.diff))}.
       
       Based on all this, please give me your top insights and explicitly tell me whether or not it is better to put my extra payments into the debt principal or to the market to get a better ROI based on my specific numbers above.
     `;
@@ -1447,12 +1449,14 @@ export default function App() {
                        })}
                      </div>
                      <div className="mt-8 flex justify-center gap-4">
-                        <button 
-                          onClick={generateInsights} 
-                          className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white transition-colors px-4 py-2 rounded-lg font-medium shadow-sm"
-                        >
-                          Update with New Inputs
-                        </button>
+                        {!isGeneratingInsights && (
+                          <button 
+                            onClick={generateInsights} 
+                            className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white transition-colors px-4 py-2 rounded-lg font-medium shadow-sm"
+                          >
+                            Update with New Inputs
+                          </button>
+                        )}
                         <button 
                           onClick={() => setAiInsights(null)} 
                           className="text-sm text-indigo-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-indigo-800/50"
