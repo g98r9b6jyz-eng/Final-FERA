@@ -835,8 +835,8 @@ export default function App() {
     setAiInsights(null); 
     
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || ""; 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    
     const systemPrompt = "You are an expert Federal Retirement Financial Planner. Analyze the provided federal employee data and provide 3 to 4 concise, highly personalized observations and actionable recommendations. Format clearly using bullet points and brief paragraphs. Be educational, encouraging, and note that this is not formal financial advice.";
     
     // Safety wrappers to guarantee the string payload never receives invalid variable states during active data entry.
