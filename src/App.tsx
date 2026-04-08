@@ -1481,7 +1481,7 @@ export default function App() {
             F.E.R.A Disclaimer
           </p>
           <p className="leading-relaxed">
-            Hypothetical simulation for educational purposes. Projections based on user inputs and projected limits. 
+            Hypothetical simulation for educational purposes entirely made by artificial intelligence. Projections based on user inputs and projected limits. 
             Not affiliated with OPM or any government agency. Consult a financial professional for advice.
           </p>
         </div>
