@@ -3,1880 +3,1895 @@ import React, { useState, useMemo, useEffect } from 'react';
 // --- TypeScript Interfaces ---
 
 interface CardProps {
-  title: string;
-  icon: React.ReactNode;
-  info?: string;
-  children: React.ReactNode;
+  title: string;
+  icon: React.ReactNode;
+  info?: string;
+  children: React.ReactNode;
 }
 
 interface FieldProps {
-  label: string;
-  children: React.ReactNode;
-  description?: string;
+  label: string;
+  children: React.ReactNode;
+  description?: string;
 }
 
 interface NumberInputProps {
-  value: number | '';
-  onChange: (val: number | '') => void;
-  prefix?: string;
-  suffix?: string;
-  min?: number;
-  max?: number;
-  step?: number;
-  disabled?: boolean;
+  value: number | '';
+  onChange: (val: number | '') => void;
+  prefix?: string;
+  suffix?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  disabled?: boolean;
 }
 
 interface MonthInputProps {
-  value: string;
-  onChange: (val: string) => void;
+  value: string;
+  onChange: (val: string) => void;
 }
 
 interface SliderProps {
-  value: number;
-  onChange: (val: number) => void;
-  min: number;
-  max: number;
-  step?: number;
-  suffix?: string;
+  value: number;
+  onChange: (val: number) => void;
+  min: number;
+  max: number;
+  step?: number;
+  suffix?: string;
 }
 
 interface ToggleProps {
-  active: boolean;
-  onChange: (val: boolean) => void;
-  label: string;
-  accent?: "indigo" | "emerald";
+  active: boolean;
+  onChange: (val: boolean) => void;
+  label: string;
+  accent?: "indigo" | "emerald";
 }
 
 // --- Reusable UI Components ---
 
 const Card = ({ title, icon, info, children }: CardProps) => {
-  const [showInfo, setShowInfo] = useState(false);
-  return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden mb-6 transition-colors">
-      <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="text-indigo-600 dark:text-indigo-400">{icon}</div>
-          <h3 className="font-semibold text-slate-800 dark:text-slate-100">{title}</h3>
-        </div>
-        {info && (
-          <button 
-            type="button"
-            onClick={() => setShowInfo(!showInfo)} 
-            className={`p-1 rounded-full transition-colors ${showInfo ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
-            title="More Information"
-          >
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.732l-1.171 4.805c-.06.241.05.49.27.585a.5.5 0 00.67-.323l.115-.463a.5.5 0 01.968.252l-.116.463a1.5 1.5 0 01-2.01.968c-1.146-.573-2.437-.463-2.126-1.732l1.171-4.805a.5.5 0 00-.67-.585.5.5 0 01-.968-.252l.116-.463a1.5 1.5 0 012.01-.968zM12 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
-             </svg>
-          </button>
-        )}
-      </div>
-      {info && showInfo && (
-        <div className="bg-indigo-50/50 dark:bg-indigo-900/20 border-b border-indigo-100 dark:border-indigo-800/50 px-5 py-4 text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed border-l-4 border-l-indigo-500 dark:border-l-indigo-400">
-          {info}
-        </div>
-      )}
-      <div className="p-5 flex flex-col gap-4">
-        {children}
-      </div>
-    </div>
-  );
+  const [showInfo, setShowInfo] = useState(false);
+  return (
+    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden mb-6 transition-colors">
+      <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 px-5 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="text-indigo-600 dark:text-indigo-400">{icon}</div>
+          <h3 className="font-semibold text-slate-800 dark:text-slate-100">{title}</h3>
+        </div>
+        {info && (
+          <button 
+            type="button"
+            onClick={() => setShowInfo(!showInfo)} 
+            className={`p-1 rounded-full transition-colors ${showInfo ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+            title="More Information"
+          >
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.732l-1.171 4.805c-.06.241.05.49.27.585a.5.5 0 00.67-.323l.115-.463a.5.5 0 01.968.252l-.116.463a1.5 1.5 0 01-2.01.968c-1.146-.573-2.437-.463-2.126-1.732l1.171-4.805a.5.5 0 00-.67-.585.5.5 0 01-.968-.252l.116-.463a1.5 1.5 0 012.01-.968zM12 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+             </svg>
+          </button>
+        )}
+      </div>
+      {info && showInfo && (
+        <div className="bg-indigo-50/50 dark:bg-indigo-900/20 border-b border-indigo-100 dark:border-indigo-800/50 px-5 py-4 text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed border-l-4 border-l-indigo-500 dark:border-l-indigo-400">
+          {info}
+        </div>
+      )}
+      <div className="p-5 flex flex-col gap-4">
+        {children}
+      </div>
+    </div>
+  );
 };
 
 const Field = ({ label, children, description }: FieldProps) => (
-  <div className="flex flex-col gap-1.5">
-    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</label>
-    {description && <span className="text-xs text-slate-500 dark:text-slate-400 mb-1">{description}</span>}
-    {children}
-  </div>
+  <div className="flex flex-col gap-1.5">
+    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</label>
+    {description && <span className="text-xs text-slate-500 dark:text-slate-400 mb-1">{description}</span>}
+    {children}
+  </div>
 );
 
 const NumberInput = ({ value, onChange, prefix, suffix, min, max, step = 1, disabled = false }: NumberInputProps) => {
-  return (
-    <div className="relative flex items-center">
-      {prefix && <span className={`absolute left-3 text-sm ${disabled ? 'text-slate-400 dark:text-slate-600' : 'text-slate-500 dark:text-slate-400'}`}>{prefix}</span>}
-      <input
-        type="number" min={min} max={max} step={step} value={value} disabled={disabled}
-        onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
-        className={`w-full border py-2 outline-none text-sm rounded-lg transition-shadow ${prefix ? 'pl-7' : 'pl-3'} ${suffix ? 'pr-8' : 'pr-3'} 
-          ${disabled 
-            ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed' 
-            : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500'}`}
-      />
-      {suffix && <span className={`absolute right-3 text-sm ${disabled ? 'text-slate-400 dark:text-slate-600' : 'text-slate-500 dark:text-slate-400'}`}>{suffix}</span>}
-    </div>
-  );
+  return (
+    <div className="relative flex items-center">
+      {prefix && <span className={`absolute left-3 text-sm ${disabled ? 'text-slate-400 dark:text-slate-600' : 'text-slate-500 dark:text-slate-400'}`}>{prefix}</span>}
+      <input
+        type="number" min={min} max={max} step={step} value={value} disabled={disabled}
+        onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
+        className={`w-full border py-2 outline-none text-sm rounded-lg transition-shadow ${prefix ? 'pl-7' : 'pl-3'} ${suffix ? 'pr-8' : 'pr-3'} 
+          ${disabled 
+            ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed' 
+            : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500'}`}
+      />
+      {suffix && <span className={`absolute right-3 text-sm ${disabled ? 'text-slate-400 dark:text-slate-600' : 'text-slate-500 dark:text-slate-400'}`}>{suffix}</span>}
+    </div>
+  );
 };
 
 const MonthInput = ({ value, onChange }: MonthInputProps) => {
-  return (
-    <input
-      type="month" 
-      value={value} 
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full border py-2 px-3 outline-none text-sm rounded-lg transition-shadow bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500"
-    />
-  );
+  return (
+    <input
+      type="month" 
+      value={value} 
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full border py-2 px-3 outline-none text-sm rounded-lg transition-shadow bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500"
+    />
+  );
 };
 
 const Slider = ({ value, onChange, min, max, step = 1, suffix = '' }: SliderProps) => (
-  <div className="flex items-center gap-4">
-    <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:accent-indigo-400" />
-    <span className="text-sm font-medium text-slate-700 dark:text-slate-300 min-w-[3.5rem] text-right">{value}{suffix}</span>
-  </div>
+  <div className="flex items-center gap-4">
+    <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:accent-indigo-400" />
+    <span className="text-sm font-medium text-slate-700 dark:text-slate-300 min-w-[3.5rem] text-right">{value}{suffix}</span>
+  </div>
 );
 
 const Toggle = ({ active, onChange, label, accent = "indigo" }: ToggleProps) => (
-  <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors h-full">
-    <span className="text-sm font-medium text-slate-700 dark:text-slate-300 pr-2 leading-tight">{label}</span>
-    <button type="button" onClick={() => onChange(!active)} className={`shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? (accent==='emerald' ? 'bg-emerald-500' : 'bg-indigo-600 dark:bg-indigo-500') : 'bg-slate-300 dark:bg-slate-600'}`}>
-      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`} />
-    </button>
-  </div>
+  <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors h-full">
+    <span className="text-sm font-medium text-slate-700 dark:text-slate-300 pr-2 leading-tight">{label}</span>
+    <button type="button" onClick={() => onChange(!active)} className={`shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? (accent==='emerald' ? 'bg-emerald-500' : 'bg-indigo-600 dark:bg-indigo-500') : 'bg-slate-300 dark:bg-slate-600'}`}>
+      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`} />
+    </button>
+  </div>
 );
 
 // --- Custom SVG Chart Component ---
 const PortfolioChart = ({ data }: { data: any[] }) => {
-  const [mainCategory, setMainCategory] = useState<'portfolio' | 'tsp' | 'brokerage' | 'ira'>('portfolio');
-  const [subCategoryTsp, setSubCategoryTsp] = useState<'total' | 'trad' | 'roth'>('total');
-  const [subCategoryIra, setSubCategoryIra] = useState<'total' | 'trad' | 'roth'>('total');
+  const [mainCategory, setMainCategory] = useState<'portfolio' | 'tsp' | 'brokerage' | 'ira'>('portfolio');
+  const [subCategoryTsp, setSubCategoryTsp] = useState<'total' | 'trad' | 'roth'>('total');
+  const [subCategoryIra, setSubCategoryIra] = useState<'total' | 'trad' | 'roth'>('total');
 
-  if (!data || data.length === 0) return null;
+  if (!data || data.length === 0) return null;
 
-  let keyInvested = 'portfolioInvested';
-  let keyTotal = 'portfolioTotal';
+  let keyInvested = 'portfolioInvested';
+  let keyTotal = 'portfolioTotal';
 
-  if (mainCategory === 'tsp') {
-      if (subCategoryTsp === 'total') { keyInvested = 'tspTotalInvested'; keyTotal = 'tspTotal'; }
-      else if (subCategoryTsp === 'trad') { keyInvested = 'tspTradInvested'; keyTotal = 'tspTrad'; }
-      else if (subCategoryTsp === 'roth') { keyInvested = 'tspRothInvested'; keyTotal = 'tspRoth'; }
-  } else if (mainCategory === 'ira') {
-      if (subCategoryIra === 'total') { keyInvested = 'iraTotalInvested'; keyTotal = 'iraTotal'; }
-      else if (subCategoryIra === 'trad') { keyInvested = 'iraTradInvested'; keyTotal = 'iraTrad'; }
-      else if (subCategoryIra === 'roth') { keyInvested = 'iraRothInvested'; keyTotal = 'iraRoth'; }
-  } else if (mainCategory === 'brokerage') {
-      keyInvested = 'brokerageInvested'; keyTotal = 'brokerageTotal';
-  }
+  if (mainCategory === 'tsp') {
+      if (subCategoryTsp === 'total') { keyInvested = 'tspTotalInvested'; keyTotal = 'tspTotal'; }
+      else if (subCategoryTsp === 'trad') { keyInvested = 'tspTradInvested'; keyTotal = 'tspTrad'; }
+      else if (subCategoryTsp === 'roth') { keyInvested = 'tspRothInvested'; keyTotal = 'tspRoth'; }
+  } else if (mainCategory === 'ira') {
+      if (subCategoryIra === 'total') { keyInvested = 'iraTotalInvested'; keyTotal = 'iraTotal'; }
+      else if (subCategoryIra === 'trad') { keyInvested = 'iraTradInvested'; keyTotal = 'iraTrad'; }
+      else if (subCategoryIra === 'roth') { keyInvested = 'iraRothInvested'; keyTotal = 'iraRoth'; }
+  } else if (mainCategory === 'brokerage') {
+      keyInvested = 'brokerageInvested'; keyTotal = 'brokerageTotal';
+  }
 
-  const maxY = Math.max(...data.map(d => d[keyTotal] || 0), 10000);
-  const roughStep = maxY / 10;
-  const mag = Math.pow(10, Math.floor(Math.log10(roughStep || 1)));
-  const step = Math.ceil((roughStep || 1) / mag) * mag;
-  const topY = step * 10;
+  const maxY = Math.max(...data.map(d => d[keyTotal] || 0), 10000);
+  const roughStep = maxY / 10;
+  const mag = Math.pow(10, Math.floor(Math.log10(roughStep || 1)));
+  const step = Math.ceil((roughStep || 1) / mag) * mag;
+  const topY = step * 10;
 
-  const width = 1000;
-  const height = 450;
-  const padX = 90;
-  const padY = 50;
-  const chartW = width - padX * 2;
-  const chartH = height - padY * 2;
+  const width = 1000;
+  const height = 450;
+  const padX = 90;
+  const padY = 50;
+  const chartW = width - padX * 2;
+  const chartH = height - padY * 2;
 
-  const getX = (i: number) => padX + (i / Math.max(1, data.length - 1)) * chartW;
-  const getY = (val: number) => height - padY - (val / topY) * chartH;
+  const getX = (i: number) => padX + (i / Math.max(1, data.length - 1)) * chartW;
+  const getY = (val: number) => height - padY - (val / topY) * chartH;
 
-  const ticks = Array.from({length: 11}, (_, i) => i * step);
-  const fmtY = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+  const ticks = Array.from({length: 11}, (_, i) => i * step);
+  const fmtY = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
-  const colorInvested = "#1e3a8a"; // Dark Blue
-  const colorTotal = "#0d9488"; // Teal
+  const colorInvested = "#1e3a8a"; // Dark Blue
+  const colorTotal = "#0d9488"; // Teal
 
-  return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg p-6 w-full mt-6 mb-8 overflow-hidden transition-colors">
-      <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 text-center mb-4">Total Savings Projection</h3>
-      
-      {/* Chart Controls */}
-      <div className="flex flex-col items-center gap-3 mb-6">
-         <div className="flex flex-wrap justify-center bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
-           {['portfolio', 'tsp', 'brokerage', 'ira'].map(cat => (
-             <button
-               key={cat}
-               type="button"
-               onClick={() => setMainCategory(cat as any)}
-               className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${mainCategory === cat ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
-             >
-               {cat === 'portfolio' && 'Total Portfolio'}
-               {cat === 'tsp' && 'TSP'}
-               {cat === 'brokerage' && 'Personal Brokerage'}
-               {cat === 'ira' && 'IRA'}
-             </button>
-           ))}
-         </div>
+  return (
+    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg p-6 w-full mt-6 mb-8 overflow-hidden transition-colors">
+      <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 text-center mb-4">Total Savings Projection</h3>
+      
+      {/* Chart Controls */}
+      <div className="flex flex-col items-center gap-3 mb-6">
+         <div className="flex flex-wrap justify-center bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+           {['portfolio', 'tsp', 'brokerage', 'ira'].map(cat => (
+             <button
+               key={cat}
+               type="button"
+               onClick={() => setMainCategory(cat as any)}
+               className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${mainCategory === cat ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+             >
+               {cat === 'portfolio' && 'Total Portfolio'}
+               {cat === 'tsp' && 'TSP'}
+               {cat === 'brokerage' && 'Personal Brokerage'}
+               {cat === 'ira' && 'IRA'}
+             </button>
+           ))}
+         </div>
 
-         {mainCategory === 'tsp' && (
-           <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
-             {['total', 'trad', 'roth'].map(sub => (
-               <button
-                 key={`tsp-${sub}`}
-                 type="button"
-                 onClick={() => setSubCategoryTsp(sub as any)}
-                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${subCategoryTsp === sub ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
-               >
-                 {sub === 'total' && 'Total TSP'}
-                 {sub === 'trad' && 'Traditional Only'}
-                 {sub === 'roth' && 'Roth Only'}
-               </button>
-             ))}
-           </div>
-         )}
+         {mainCategory === 'tsp' && (
+           <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+             {['total', 'trad', 'roth'].map(sub => (
+               <button
+                 key={`tsp-${sub}`}
+                 type="button"
+                 onClick={() => setSubCategoryTsp(sub as any)}
+                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${subCategoryTsp === sub ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+               >
+                 {sub === 'total' && 'Total TSP'}
+                 {sub === 'trad' && 'Traditional Only'}
+                 {sub === 'roth' && 'Roth Only'}
+               </button>
+             ))}
+           </div>
+         )}
 
-         {mainCategory === 'ira' && (
-           <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
-             {['total', 'trad', 'roth'].map(sub => (
-               <button
-                 key={`ira-${sub}`}
-                 type="button"
-                 onClick={() => setSubCategoryIra(sub as any)}
-                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${subCategoryIra === sub ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
-               >
-                 {sub === 'total' && 'Total IRA'}
-                 {sub === 'trad' && 'Traditional Only'}
-                 {sub === 'roth' && 'Roth Only'}
-               </button>
-             ))}
-           </div>
-         )}
-      </div>
+         {mainCategory === 'ira' && (
+           <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+             {['total', 'trad', 'roth'].map(sub => (
+               <button
+                 key={`ira-${sub}`}
+                 type="button"
+                 onClick={() => setSubCategoryIra(sub as any)}
+                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${subCategoryIra === sub ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+               >
+                 {sub === 'total' && 'Total IRA'}
+                 {sub === 'trad' && 'Traditional Only'}
+                 {sub === 'roth' && 'Roth Only'}
+               </button>
+             ))}
+           </div>
+         )}
+      </div>
 
-      <div className="w-full overflow-x-auto custom-scrollbar pb-4">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto min-w-[700px] text-slate-800 dark:text-slate-200" style={{fontFamily: 'inherit'}}>
-            {/* Grid */}
-            {ticks.map(tick => (
-              <g key={tick}>
-                <line x1={padX} y1={getY(tick)} x2={width - padX} y2={getY(tick)} stroke="currentColor" className="opacity-10 dark:opacity-20" />
-                <text x={padX - 10} y={getY(tick) + 4} textAnchor="end" className="text-[12px] fill-slate-500 dark:fill-slate-400 font-bold font-sans">
-                  {fmtY(tick)}
-                </text>
-              </g>
-            ))}
-            
-            {/* Y Axis Title */}
-            <text x={20} y={height / 2} transform={`rotate(-90 20 ${height/2})`} textAnchor="middle" className="text-[14px] fill-slate-600 dark:fill-slate-400 font-bold font-sans">
-              US Dollars ($)
-            </text>
+      <div className="w-full overflow-x-auto custom-scrollbar pb-4">
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto min-w-[700px] text-slate-800 dark:text-slate-200" style={{fontFamily: 'inherit'}}>
+            {/* Grid */}
+            {ticks.map(tick => (
+              <g key={tick}>
+                <line x1={padX} y1={getY(tick)} x2={width - padX} y2={getY(tick)} stroke="currentColor" className="opacity-10 dark:opacity-20" />
+                <text x={padX - 10} y={getY(tick) + 4} textAnchor="end" className="text-[12px] fill-slate-500 dark:fill-slate-400 font-bold font-sans">
+                  {fmtY(tick)}
+                </text>
+              </g>
+            ))}
+            
+            {/* Y Axis Title */}
+            <text x={20} y={height / 2} transform={`rotate(-90 20 ${height/2})`} textAnchor="middle" className="text-[14px] fill-slate-600 dark:fill-slate-400 font-bold font-sans">
+              US Dollars ($)
+            </text>
 
-            {/* X Axis labels */}
-            {data.map((d, i) => {
-               if (data.length > 25 && i % 2 !== 0 && i !== data.length - 1 && i !== 0) return null; // declutter X axis
-               return (
-                 <text key={`label-${d.year}`} x={getX(i) - 10} y={height - padY + 24} textAnchor="end" transform={`rotate(-45 ${getX(i) - 10} ${height - padY + 24})`} className="text-[12px] fill-slate-600 dark:fill-slate-400 font-bold font-sans">
-                   Year {d.year}
-                 </text>
-               );
-            })}
+            {/* X Axis labels */}
+            {data.map((d, i) => {
+               if (data.length > 25 && i % 2 !== 0 && i !== data.length - 1 && i !== 0) return null; // declutter X axis
+               return (
+                 <text key={`label-${d.year}`} x={getX(i) - 10} y={height - padY + 24} textAnchor="end" transform={`rotate(-45 ${getX(i) - 10} ${height - padY + 24})`} className="text-[12px] fill-slate-600 dark:fill-slate-400 font-bold font-sans">
+                   Year {d.year}
+                 </text>
+               );
+            })}
 
-            {/* Lines */}
-            <polyline points={data.map((d, i) => `${getX(i)},${getY(d[keyInvested] || 0)}`).join(' ')} fill="none" stroke={colorInvested} strokeWidth="2.5" />
-            <polyline points={data.map((d, i) => `${getX(i)},${getY(d[keyTotal] || 0)}`).join(' ')} fill="none" stroke={colorTotal} strokeWidth="2.5" />
+            {/* Lines */}
+            <polyline points={data.map((d, i) => `${getX(i)},${getY(d[keyInvested] || 0)}`).join(' ')} fill="none" stroke={colorInvested} strokeWidth="2.5" />
+            <polyline points={data.map((d, i) => `${getX(i)},${getY(d[keyTotal] || 0)}`).join(' ')} fill="none" stroke={colorTotal} strokeWidth="2.5" />
 
-            {/* Points */}
-            {data.map((d, i) => (
-              <g key={`pts-${i}`}>
-                <circle cx={getX(i)} cy={getY(d[keyInvested] || 0)} r="4.5" fill={colorInvested} />
-                <rect x={getX(i)-5} y={getY(d[keyTotal] || 0)-5} width="10" height="10" fill={colorTotal} transform={`rotate(45 ${getX(i)} ${getY(d[keyTotal] || 0)})`} />
-              </g>
-            ))}
-        </svg>
-      </div>
-      
-      {/* Legend */}
-      <div className="flex justify-center gap-x-12 gap-y-4 mt-8 flex-wrap text-base font-bold text-slate-700 dark:text-slate-300">
-         <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-6 h-6">
-                <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="6" fill={colorInvested} /></svg>
-            </div>
-            Total Invested
-         </div>
-         <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-6 h-6">
-                <svg viewBox="0 0 24 24" width="24" height="24"><rect x="6" y="6" width="12" height="12" fill={colorTotal} transform="rotate(45 12 12)" /></svg>
-            </div>
-            Total Savings Compounded
-         </div>
-      </div>
-    </div>
-  );
+            {/* Points */}
+            {data.map((d, i) => (
+              <g key={`pts-${i}`}>
+                <circle cx={getX(i)} cy={getY(d[keyInvested] || 0)} r="4.5" fill={colorInvested} />
+                <rect x={getX(i)-5} y={getY(d[keyTotal] || 0)-5} width="10" height="10" fill={colorTotal} transform={`rotate(45 ${getX(i)} ${getY(d[keyTotal] || 0)})`} />
+              </g>
+            ))}
+        </svg>
+      </div>
+      
+      {/* Legend */}
+      <div className="flex justify-center gap-x-12 gap-y-4 mt-8 flex-wrap text-base font-bold text-slate-700 dark:text-slate-300">
+         <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-6 h-6">
+                <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="6" fill={colorInvested} /></svg>
+            </div>
+            Total Invested
+         </div>
+         <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-6 h-6">
+                <svg viewBox="0 0 24 24" width="24" height="24"><rect x="6" y="6" width="12" height="12" fill={colorTotal} transform="rotate(45 12 12)" /></svg>
+            </div>
+            Total Savings Compounded
+         </div>
+      </div>
+    </div>
+  );
 };
 
 
 // --- Main Application ---
 
 export default function App() {
-  const currentYear = new Date().getFullYear();
-
-  // Application State
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isPortfolioExpanded, setIsPortfolioExpanded] = useState(false);
-  const [inflationRate, setInflationRate] = useState<0 | 2.5 | 3.5>(0); // New Inflation State
-
-  useEffect(() => {
-    if (isDarkMode) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-  }, [isDarkMode]);
-
-  // Global Assumptions
-  const [marketReturn, setMarketReturn] = useState(7.0);
-
-  // Time & Service
-  const [birthYear, setBirthYear] = useState(1985);
-  const [ageStarted, setAgeStarted] = useState(25);
-  const [retireAge, setRetireAge] = useState(62);
-  const [priorService, setPriorService] = useState(4);
-  const [sickLeaveDays, setSickLeaveDays] = useState(180);
-
-  // Taxes & Cash Flow Info
-  const [filingStatus, setFilingStatus] = useState<'Single' | 'Married'>('Married');
-  const [dependents, setDependents] = useState(2);
-  const [fersRate, setFersRate] = useState(4.4);
-  const [fehbPremium, setFehbPremium] = useState(450);
-  
-  // Supplemental Income
-  const [supplementalIncome, setSupplementalIncome] = useState(0);
-  const [supplementalTaxToggled, setSupplementalTaxToggled] = useState(true);
-
-  // FERS Pension
-  const [maxGradeSalary, setMaxGradeSalary] = useState(135000);
-  const [cola, setCola] = useState(2.0);
-  const [survivorBenefit, setSurvivorBenefit] = useState(true);
-  const [fehb5Year, setFehb5Year] = useState(true);
-
-  // TSP & Income
-  const [currentSalary, setCurrentSalary] = useState(95000);
-  const [annualRaise, setAnnualRaise] = useState(2.0);
-  const [tradTsp, setTradTsp] = useState(65000);
-  const [rothTsp, setRothTsp] = useState(15000);
-  
-  // TSP Advanced Inputs
-  const [isMaxTsp, setIsMaxTsp] = useState(false);
-  const [maxTspRothPct, setMaxTspRothPct] = useState(0); 
-  const [tspInputMode, setTspInputMode] = useState<'%' | '$'>('%'); 
-  const [tradTspInput, setTradTspInput] = useState<number | ''>(5.0);
-  const [rothTspInput, setRothTspInput] = useState<number | ''>(0.0);
-
-  // IRA
-  const [tradIraBalance, setTradIraBalance] = useState(10000);
-  const [rothIraBalance, setRothIraBalance] = useState(10000);
-  const [isMaxIra, setIsMaxIra] = useState(false);
-  const [maxIraRothPct, setMaxIraRothPct] = useState(100);
-  const [tradIraContrib, setTradIraContrib] = useState<number | ''>(0);
-  const [rothIraContrib, setRothIraContrib] = useState<number | ''>(7500); 
-  const [iraWarning, setIraWarning] = useState('');
-  const [iraContribStopAge, setIraContribStopAge] = useState(55);
-
-  const handleIraInput = (type: 'Trad' | 'Roth', val: number | '') => {
-    const annualLimit = (currentYear - birthYear) >= 50 ? 8600 : 7500;
-    
-    let safeVal = val;
-    if (type === 'Trad') {
-      const currentRoth = typeof rothIraContrib === 'number' ? rothIraContrib : 0;
-      const maxAllow = Math.max(0, annualLimit - currentRoth);
-      if (typeof val === 'number' && val > maxAllow) { 
-        safeVal = maxAllow; 
-        setIraWarning(`Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
-      } else { setIraWarning(''); }
-      setTradIraContrib(safeVal);
-    } else {
-      const currentTrad = typeof tradIraContrib === 'number' ? tradIraContrib : 0;
-      const maxAllow = Math.max(0, annualLimit - currentTrad);
-      if (typeof val === 'number' && val > maxAllow) { 
-        safeVal = maxAllow; 
-        setIraWarning(`Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
-      } else { setIraWarning(''); }
-      setRothIraContrib(safeVal);
-    }
-  };
-
-  // Prior 401(k)
-  const [prior401kBal, setPrior401kBal] = useState(45000);
-
-  // Mega Backdoor
-  const [megaBal, setMegaBal] = useState(0);
-  const [megaContrib, setMegaContrib] = useState(0);
-
-  // Taxable Brokerage
-  const [brokerageBalance, setBrokerageBalance] = useState(50000);
-  const [brokerageContrib, setBrokerageContrib] = useState(6000);
-  const [brokerageContribStopAge, setBrokerageContribStopAge] = useState(55);
-
-  // Debt
-  const [debtStartDate, setDebtStartDate] = useState('2022-01');
-  const [debtOriginal, setDebtOriginal] = useState(45000);
-  const [debtCurrent, setDebtCurrent] = useState(35000);
-  const [debtRate, setDebtRate] = useState(6.5);
-  const [debtTerm, setDebtTerm] = useState(10);
-  const [debtExtra, setDebtExtra] = useState(100);
-
-  // Mortgage
-  const [mortgageStartDate, setMortgageStartDate] = useState('2019-06');
-  const [mortgageOriginal, setMortgageOriginal] = useState(500000);
-  const [mortgageCurrent, setMortgageCurrent] = useState(450000);
-  const [mortgageRate, setMortgageRate] = useState(5.5);
-  const [mortgageTerm, setMortgageTerm] = useState(30);
-  const [mortgageExtra, setMortgageExtra] = useState(300);
-  const [mortgageEscrow, setMortgageEscrow] = useState(500);
-
-  // Drawdown Strategy State
-  const [globalWithdrawalRate, setGlobalWithdrawalRate] = useState(4.0);
-  const [mixPreTax, setMixPreTax] = useState(60);
-  const [mixRoth, setMixRoth] = useState(20);
-  const [mixBrokerage, setMixBrokerage] = useState(20);
-  const [showDrawdownInfo, setShowDrawdownInfo] = useState(false);
-
-  // --- MATH ENGINE ---
-  const results = useMemo(() => {
-    const currentAge = currentYear - birthYear;
-    const yearsToRetire = Math.max(0, retireAge - currentAge);
-    const baseFederalTenure = retireAge - ageStarted;
-    const baseServiceForMultiplier = baseFederalTenure + priorService;
-    const sickLeaveYears = sickLeaveDays / 360; 
-    const totalCreditableService = baseServiceForMultiplier + sickLeaveYears;
-
-    const meets11Bump = retireAge >= 62 && baseServiceForMultiplier >= 20;
-    const fersMultiplier = meets11Bump ? 0.011 : 0.010;
-
-    let y = yearsToRetire;
-    let c = cola / 100;
-    const salYrMinus2 = maxGradeSalary * Math.pow(1 + c, Math.max(0, y - 2));
-    const salYrMinus1 = maxGradeSalary * Math.pow(1 + c, Math.max(0, y - 1));
-    const salYr0 = maxGradeSalary * Math.pow(1 + c, Math.max(0, y));
-    const high3 = (salYrMinus2 + salYrMinus1 + salYr0) / 3;
-
-    let grossPension = high3 * fersMultiplier * totalCreditableService;
-    let netPension = survivorBenefit ? grossPension * 0.9 : grossPension;
-
-    // --- Final Salary Estimation ---
-    const finalSalary = currentSalary * Math.pow(1 + (annualRaise / 100), yearsToRetire);
-
-    // --- Estimated Social Security Engine ---
-    // Calculates FRA based on birth year
-    let fra = 67;
-    if (birthYear <= 1954) fra = 66;
-    else if (birthYear < 1960) fra = 66 + (birthYear - 1954) / 12;
-
-    // Use current salary to approximate Average Indexed Monthly Earnings (AIME)
-    let aime = currentSalary / 12;
-    // Projected 2026 Bend Points
-    let bp1 = 1226;
-    let bp2 = 7391;
-    let pia = 0;
-    
-    if (aime <= bp1) pia = 0.9 * aime;
-    else if (aime <= bp2) pia = (0.9 * bp1) + 0.32 * (aime - bp1);
-    else pia = (0.9 * bp1) + 0.32 * (bp2 - bp1) + 0.15 * (aime - bp2);
-
-    let claimAge = Math.min(Math.max(retireAge, 62), 70); // Assume claim at retirement, min 62, max 70
-    let monthsToFra = (fra - claimAge) * 12;
-    
-    let ssMultiplier = 1.0;
-    if (monthsToFra > 0) {
-        let first36 = Math.min(monthsToFra, 36);
-        let over36 = Math.max(0, monthsToFra - 36);
-        ssMultiplier -= (first36 * (5/900)) + (over36 * (5/1200));
-    } else if (monthsToFra < 0) {
-        let delayedMonths = -monthsToFra;
-        ssMultiplier += delayedMonths * (8/1200);
-    }
-
-    let estimatedAnnualSS_today = pia * ssMultiplier * 12;
-    // Project SS out to retirement year using estimated COLA
-    let estimatedAnnualSS_future = estimatedAnnualSS_today * Math.pow(1 + cola/100, yearsToRetire);
-
-    // --- Unified Trajectory Engine ---
-    
-    let simTradTsp = typeof tradTsp === 'number' ? tradTsp : 0;
-    let simRothTsp = typeof rothTsp === 'number' ? rothTsp : 0;
-    let simSalary = typeof currentSalary === 'number' ? currentSalary : 0; 
-    let yr1TradContrib = 0;
-    let yr1RothContrib = 0;
-    let yr1Match = 0;
-    let maxedOutEarlyWarning = false;
-
-    let simTradIra = typeof tradIraBalance === 'number' ? tradIraBalance : 0;
-    let simRothIra = typeof rothIraBalance === 'number' ? rothIraBalance : 0;
-    let simMega = typeof megaBal === 'number' ? megaBal : 0;
-    let yr1TradIra = 0, yr1RothIra = 0, yr1Mega = 0;
-
-    let simBrokerage = typeof brokerageBalance === 'number' ? brokerageBalance : 0;
-    let simPrior401k = typeof prior401kBal === 'number' ? prior401kBal : 0;
-    
-    let runningCumulativeContribs = 0;
-    const totalInitialBalances = simTradTsp + simRothTsp + simTradIra + simRothIra + simPrior401k + simMega + simBrokerage;
-
-    let cumTradTsp = 0; let cumRothTsp = 0;
-    let cumTradIra = 0; let cumRothIra = 0;
-    let cumMega = 0; let cumBrokerage = 0;
-
-    const trajectory = [{
-        year: 0,
-        portfolioInvested: totalInitialBalances,
-        portfolioTotal: totalInitialBalances,
-        tspTotalInvested: simTradTsp + simRothTsp,
-        tspTotal: simTradTsp + simRothTsp,
-        tspTradInvested: simTradTsp,
-        tspTrad: simTradTsp,
-        tspRothInvested: simRothTsp,
-        tspRoth: simRothTsp,
-        iraTotalInvested: simTradIra + simRothIra,
-        iraTotal: simTradIra + simRothIra,
-        iraTradInvested: simTradIra,
-        iraTrad: simTradIra,
-        iraRothInvested: simRothIra,
-        iraRoth: simRothIra,
-        brokerageInvested: simBrokerage,
-        brokerageTotal: simBrokerage
-    }];
-
-    const annualR = marketReturn / 100;
-    const tspReturnBiweekly = Math.pow(1 + annualR, 1 / 26) - 1;
-    
-    const iraPeriodsPerYear = 1;
-    const iraRatePerPeriod = annualR;
-    
-    const broPeriodsPerYear = 1;
-    const broRatePerPeriod = annualR;
-    
-    const currentTspLimit = 24500 + (currentAge >= 60 && currentAge <= 63 ? 12000 : (currentAge >= 50 ? 8000 : 0));
-    const currentIraLimit = 7500 + (currentAge >= 50 ? 1100 : 0);
-
-    for (let yr = 0; yr < yearsToRetire; yr++) {
-      let simAgeEndOfYear = currentAge + yr;
-      
-      // -- TSP LOGIC --
-      let tspLimit = 24500;
-      if (simAgeEndOfYear >= 60 && simAgeEndOfYear <= 63) tspLimit += 12000; 
-      else if (simAgeEndOfYear >= 50) tspLimit += 8000; 
-
-      let ytdTspContribs = 0;
-      let biweeklyGross = simSalary / 26;
-      let targetBiweeklyTrad = 0;
-      let targetBiweeklyRoth = 0;
-
-      if (isMaxTsp) {
-        targetBiweeklyTrad = (tspLimit * (1 - (maxTspRothPct / 100))) / 26;
-        targetBiweeklyRoth = (tspLimit * (maxTspRothPct / 100)) / 26;
-      } else {
-        targetBiweeklyTrad = tspInputMode === '%' ? biweeklyGross * ((typeof tradTspInput === 'number' ? tradTspInput : 0) / 100) : (typeof tradTspInput === 'number' ? tradTspInput : 0);
-        targetBiweeklyRoth = tspInputMode === '%' ? biweeklyGross * ((typeof rothTspInput === 'number' ? rothTspInput : 0) / 100) : (typeof rothTspInput === 'number' ? rothTspInput : 0);
-      }
-
-      for (let pp = 0; pp < 26; pp++) {
-        let availableRoom = Math.max(0, tspLimit - ytdTspContribs);
-        let actualBiweeklyTrad = targetBiweeklyTrad;
-        let actualBiweeklyRoth = targetBiweeklyRoth;
-
-        if (actualBiweeklyTrad + actualBiweeklyRoth > availableRoom) {
-          let totalTarget = actualBiweeklyTrad + actualBiweeklyRoth;
-          if (totalTarget > 0 && availableRoom > 0) {
-            actualBiweeklyTrad = availableRoom * (actualBiweeklyTrad / totalTarget);
-            actualBiweeklyRoth = availableRoom * (actualBiweeklyRoth / totalTarget);
-          } else {
-            actualBiweeklyTrad = 0; actualBiweeklyRoth = 0;
-          }
-          if (!isMaxTsp && yr === 0 && pp < 25 && availableRoom === 0) maxedOutEarlyWarning = true;
-        }
-
-        let equivPct = biweeklyGross > 0 ? ((actualBiweeklyTrad + actualBiweeklyRoth) / biweeklyGross) * 100 : 0;
-        
-        let matchRate = 1.0; 
-        matchRate += Math.min(equivPct, 3.0); 
-        if (equivPct > 3.0) matchRate += Math.min(equivPct - 3.0, 2.0) * 0.5; 
-        let actualMatch = biweeklyGross * (matchRate / 100);
-
-        simTradTsp = simTradTsp * (1 + tspReturnBiweekly) + actualBiweeklyTrad + actualMatch;
-        simRothTsp = simRothTsp * (1 + tspReturnBiweekly) + actualBiweeklyRoth;
-        ytdTspContribs += actualBiweeklyTrad + actualBiweeklyRoth;
-        
-        cumTradTsp += actualBiweeklyTrad + actualMatch;
-        cumRothTsp += actualBiweeklyRoth;
-        runningCumulativeContribs += (actualBiweeklyTrad + actualBiweeklyRoth + actualMatch);
-
-        if (yr === 0) {
-          yr1TradContrib += actualBiweeklyTrad;
-          yr1RothContrib += actualBiweeklyRoth;
-          yr1Match += actualMatch;
-        }
-      }
-      simSalary *= (1 + (annualRaise / 100)); 
-
-      // -- IRA LOGIC --
-      let canContribIra = simAgeEndOfYear < iraContribStopAge;
-      let iraLimit = 7500 + (simAgeEndOfYear >= 50 ? 1100 : 0);
-      let megaLimit = 47500;
-      let ytdIra = 0;
-      let ytdMega = 0;
-      let targetPeriodTradIra = 0;
-      let targetPeriodRothIra = 0;
-
-      if (canContribIra) {
-        if (isMaxIra) {
-          let annualTrad = iraLimit * (1 - (maxIraRothPct / 100));
-          let annualRoth = iraLimit * (maxIraRothPct / 100);
-          targetPeriodTradIra = annualTrad;
-          targetPeriodRothIra = annualRoth;
-        } else {
-          targetPeriodTradIra = typeof tradIraContrib === 'number' ? tradIraContrib : 0;
-          targetPeriodRothIra = typeof rothIraContrib === 'number' ? rothIraContrib : 0;
-        }
-      }
-      let targetPeriodMega = typeof megaContrib === 'number' ? megaContrib : 0;
-
-      for (let p = 0; p < iraPeriodsPerYear; p++) {
-        let iraRoom = Math.max(0, iraLimit - ytdIra);
-        let actTradIra = targetPeriodTradIra;
-        let actRothIra = targetPeriodRothIra;
-        let totIra = actTradIra + actRothIra;
-
-        if (totIra > iraRoom) {
-            if (totIra > 0) {
-                actTradIra = iraRoom * (actTradIra / totIra);
-                actRothIra = iraRoom * (actRothIra / totIra);
-            } else { actTradIra = 0; actRothIra = 0; }
-        } else if (totIra === 0) {
-            actTradIra = 0; actRothIra = 0;
-        }
-
-        let megaRoom = Math.max(0, megaLimit - ytdMega);
-        let actMega = targetPeriodMega > megaRoom ? megaRoom : targetPeriodMega;
-
-        simTradIra = simTradIra * (1 + iraRatePerPeriod) + actTradIra;
-        simRothIra = simRothIra * (1 + iraRatePerPeriod) + actRothIra;
-        simMega = simMega * (1 + iraRatePerPeriod) + actMega;
-
-        ytdIra += actTradIra + actRothIra;
-        ytdMega += actMega;
-        
-        cumTradIra += actTradIra;
-        cumRothIra += actRothIra;
-        cumMega += actMega;
-        runningCumulativeContribs += (actTradIra + actRothIra + actMega);
-
-        if (yr === 0) {
-          yr1TradIra += actTradIra; yr1RothIra += actRothIra; yr1Mega += actMega;
-        }
-      }
-
-      // -- BROKERAGE LOGIC --
-      let canContribBro = simAgeEndOfYear < brokerageContribStopAge;
-      let targetPeriodBro = canContribBro ? (typeof brokerageContrib === 'number' ? brokerageContrib : 0) : 0;
-      for (let p = 0; p < broPeriodsPerYear; p++) {
-          simBrokerage = simBrokerage * (1 + broRatePerPeriod) + targetPeriodBro;
-          cumBrokerage += targetPeriodBro;
-          runningCumulativeContribs += targetPeriodBro;
-      }
-      
-      // -- YEAR-END RECORDING --
-      simPrior401k = simPrior401k * Math.pow(1 + annualR, 1);
-      
-      trajectory.push({
-          year: yr + 1,
-          portfolioInvested: totalInitialBalances + runningCumulativeContribs,
-          portfolioTotal: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simBrokerage + simPrior401k,
-
-          tspTotalInvested: (typeof tradTsp === 'number' ? tradTsp : 0) + (typeof rothTsp === 'number' ? rothTsp : 0) + cumTradTsp + cumRothTsp,
-          tspTotal: simTradTsp + simRothTsp,
-          tspTradInvested: (typeof tradTsp === 'number' ? tradTsp : 0) + cumTradTsp,
-          tspTrad: simTradTsp,
-          tspRothInvested: (typeof rothTsp === 'number' ? rothTsp : 0) + cumRothTsp,
-          tspRoth: simRothTsp,
-
-          iraTotalInvested: (typeof tradIraBalance === 'number' ? tradIraBalance : 0) + (typeof rothIraBalance === 'number' ? rothIraBalance : 0) + cumTradIra + cumRothIra,
-          iraTotal: simTradIra + simRothIra,
-          iraTradInvested: (typeof tradIraBalance === 'number' ? tradIraBalance : 0) + cumTradIra,
-          iraTrad: simTradIra,
-          iraRothInvested: (typeof rothIraBalance === 'number' ? rothIraBalance : 0) + cumRothIra,
-          iraRoth: simRothIra,
-
-          brokerageInvested: (typeof brokerageBalance === 'number' ? brokerageBalance : 0) + cumBrokerage,
-          brokerageTotal: simBrokerage
-      });
-    }
-
-    // --- Debt Engine ---
-    const calcDebt = (origP: number | '', currentP: number | '', rate: number | '', t: number | '', extra: number | '', invRateAnnual: number) => {
-      const orig = typeof origP === 'number' ? origP : 0;
-      const curr = typeof currentP === 'number' ? currentP : 0;
-      const r_rate = typeof rate === 'number' ? rate : 0;
-      const term = typeof t === 'number' ? t : 0;
-      const ex = typeof extra === 'number' ? extra : 0;
-      
-      const r = (r_rate / 100) / 12; 
-      const n = term * 12; 
-      const minPmt = orig > 0 && r > 0 ? (orig * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : (n > 0 ? orig / n : 0);
-      const newPmt = minPmt + ex;
-
-      let monthsOrig = 0;
-      if (curr > 0 && minPmt > 0 && minPmt > curr * r) {
-        monthsOrig = Math.ceil(-Math.log(1 - (curr * r) / minPmt) / Math.log(1 + r));
-      } else if (curr > 0) {
-        monthsOrig = Infinity;
-      }
-
-      let monthsAcc = 0;
-      if (curr > 0 && newPmt > 0) {
-        if (newPmt > curr * r) { 
-           monthsAcc = Math.ceil(-Math.log(1 - (curr * r) / newPmt) / Math.log(1 + r)); 
-        } 
-        else { monthsAcc = Infinity; }
-      }
-
-      const current = new Date(); 
-      const basePayoffDate = new Date(current);
-      if (monthsOrig !== Infinity && !isNaN(monthsOrig)) basePayoffDate.setMonth(current.getMonth() + monthsOrig);
-      const accPayoffDate = new Date(current);
-      if (monthsAcc !== Infinity && !isNaN(monthsAcc)) accPayoffDate.setMonth(current.getMonth() + monthsAcc);
-
-      const fmtDate = (d: Date) => isNaN(d.getTime()) ? 'Unknown' : d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      const invRateMonthly = (invRateAnnual / 100) / 12;
-      let fvInvestExtra = 0;
-      let fvPayoffThenInvest = 0;
-
-      if (monthsOrig !== Infinity && !isNaN(monthsOrig) && ex > 0 && invRateMonthly > 0) {
-          fvInvestExtra = ex * ((Math.pow(1 + invRateMonthly, monthsOrig) - 1) / invRateMonthly);
-      }
-      if (monthsAcc !== Infinity && !isNaN(monthsAcc) && monthsAcc < monthsOrig && newPmt > 0 && invRateMonthly > 0) {
-          const monthsRemainingFree = monthsOrig - monthsAcc;
-          fvPayoffThenInvest = newPmt * ((Math.pow(1 + invRateMonthly, monthsRemainingFree) - 1) / invRateMonthly);
-      }
-
-      const investWins = fvInvestExtra > fvPayoffThenInvest;
-      const diff = Math.abs(fvInvestExtra - fvPayoffThenInvest) || 0;
-
-      return { 
-        minPmt, newPmt, monthsOrig, monthsAcc, timeSaved: Math.max(0, monthsOrig - monthsAcc) || 0,
-        basePayoffStr: monthsOrig === Infinity ? 'Never' : fmtDate(basePayoffDate),
-        accPayoffStr: monthsAcc === Infinity ? 'Never' : fmtDate(accPayoffDate),
-        invRateAnnual, fvInvestExtra, fvPayoffThenInvest, investWins, diff
-      };
-    };
-    
-    const standardDebtStats = calcDebt(debtOriginal, debtCurrent, debtRate, debtTerm, debtExtra, marketReturn);
-    const mortgageStats = calcDebt(mortgageOriginal, mortgageCurrent, mortgageRate, mortgageTerm, mortgageExtra, marketReturn);
-
-    // --- Cash Flow Engine ---
-    const baseMonthlyGross = (typeof currentSalary === 'number' ? currentSalary : 0) / 12;
-    const monthlyPreTaxTradTsp = yr1TradContrib / 12;
-    
-    const monthlyFersDeduction = baseMonthlyGross * ((typeof fersRate === 'number' ? fersRate : 0) / 100);
-    const monthlyPreTaxFehb = typeof fehbPremium === 'number' ? fehbPremium : 0;
-    
-    const totalPreTax = monthlyPreTaxTradTsp + monthlyPreTaxFehb; 
-
-    const safeSuppIncome = typeof supplementalIncome === 'number' ? supplementalIncome : 0;
-    const totalMonthlyGross = baseMonthlyGross + safeSuppIncome;
-    let annualTaxableIncome = (baseMonthlyGross - totalPreTax) * 12;
-    
-    let totalFicaWages = (typeof currentSalary === 'number' ? currentSalary : 0) - (monthlyPreTaxFehb * 12); 
-
-    if (supplementalTaxToggled) {
-       annualTaxableIncome += (safeSuppIncome * 12);
-       totalFicaWages += (safeSuppIncome * 12);
-    }
-
-    const stdDeduction = filingStatus === 'Married' ? 30800 : 15400;
-    const incomeAfterDeduction = Math.max(0, annualTaxableIncome - stdDeduction);
-    
-    let annualFedTax = 0;
-    const brackets = filingStatus === 'Married'
-      ? [{l: 24500, r: 0.10}, {l: 99700, r: 0.12}, {l: 212500, r: 0.22}, {l: 405800, r: 0.24}, {l: 515200, r: 0.32}, {l: 772900, r: 0.35}, {l: Infinity, r: 0.37}]
-      : [{l: 12250, r: 0.10}, {l: 49850, r: 0.12}, {l: 106250, r: 0.22}, {l: 202900, r: 0.24}, {l: 257600, r: 0.32}, {l: 386450, r: 0.35}, {l: Infinity, r: 0.37}];
-
-    for (let i = 0, prevLimit = 0; i < brackets.length; i++) {
-        const b = brackets[i];
-        if (incomeAfterDeduction > prevLimit) {
-            let taxableAtThisBracket = Math.min(incomeAfterDeduction, b.l) - prevLimit;
-            annualFedTax += taxableAtThisBracket * b.r;
-            prevLimit = b.l;
-        } else break;
-    }
-    
-    annualFedTax = Math.max(0, annualFedTax - ((typeof dependents === 'number' ? dependents : 0) * 2000));
-    const monthlyFedTax = annualFedTax / 12;
-
-    const annualOASDI = Math.min(totalFicaWages, 182700) * 0.062;
-    const annualMedicare = totalFicaWages * 0.0145;
-    const monthlyFica = (annualOASDI + annualMedicare) / 12;
-    
-    const totalTaxes = monthlyFedTax + monthlyFica;
-    const netPaycheck = totalMonthlyGross - totalPreTax - monthlyFersDeduction - totalTaxes;
-
-    const monthlyPostTaxRothTsp = yr1RothContrib / 12;
-    const monthlyPostTaxTradIra = yr1TradIra / 12;
-    const monthlyPostTaxRothIra = yr1RothIra / 12;
-    const monthlyMega = yr1Mega / 12;
-    
-    const safeBrokContrib = typeof brokerageContrib === 'number' ? brokerageContrib : 0;
-    const canContribBroYr1 = (currentYear - birthYear) < brokerageContribStopAge;
-    const monthlyBrokerage = canContribBroYr1 ? safeBrokContrib / 12 : 0;
-    
-    const totalPostTaxSavings = monthlyPostTaxRothTsp + monthlyPostTaxTradIra + monthlyPostTaxRothIra + monthlyMega + monthlyBrokerage;
-
-    const safeDebtCurr = typeof debtCurrent === 'number' ? debtCurrent : 0;
-    const safeMtgCurr = typeof mortgageCurrent === 'number' ? mortgageCurrent : 0;
-    const safeMtgEscrow = typeof mortgageEscrow === 'number' ? mortgageEscrow : 0;
-    const monthlyLoansAndEscrow = (safeDebtCurr > 0 ? standardDebtStats.newPmt : 0) + (safeMtgCurr > 0 ? mortgageStats.newPmt : 0) + safeMtgEscrow;
-    const remainingToSpend = netPaycheck - totalPostTaxSavings - monthlyLoansAndEscrow;
-
-    return {
-      currentAge, yearsToRetire, baseServiceForMultiplier, sickLeaveYears, totalCreditableService,
-      meets11Bump, fersMultiplier, high3, grossPension, netPension, finalSalary, estimatedAnnualSS_future, claimAge,
-      currentTspLimit, currentIraLimit, simTradTsp, simRothTsp, totalTsp: simTradTsp + simRothTsp, 
-      simTradIra, simRothIra, simMega, simPrior401k, simBrokerage,
-      totalPortfolio: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simPrior401k + simBrokerage,
-      trajectory, 
-      standardDebtStats, mortgageStats, maxedOutEarlyWarning, yr1Match,
-      baseMonthlyGross, totalMonthlyGross, monthlyPreTaxTradTsp, monthlyFersDeduction, monthlyPreTaxFehb, totalPreTax,
-      monthlyFedTax, monthlyFica, totalTaxes, netPaycheck,
-      monthlyPostTaxRothTsp, monthlyPostTaxTradIra, monthlyPostTaxRothIra, monthlyMega, monthlyBrokerage, totalPostTaxSavings,
-      monthlyLoansAndEscrow, remainingToSpend
-    };
-  }, [
-    marketReturn, 
-    currentYear, birthYear, ageStarted, retireAge, priorService, sickLeaveDays,
-    maxGradeSalary, cola, survivorBenefit, fehb5Year, filingStatus, dependents, fersRate, fehbPremium, supplementalIncome, supplementalTaxToggled,
-    currentSalary, annualRaise, tradTsp, rothTsp, isMaxTsp, maxTspRothPct, tspInputMode, tradTspInput, rothTspInput,
-    tradIraBalance, rothIraBalance, isMaxIra, maxIraRothPct, tradIraContrib, rothIraContrib, iraContribStopAge,
-    prior401kBal,
-    megaBal, megaContrib, brokerageBalance, brokerageContrib, brokerageContribStopAge,
-    debtOriginal, debtCurrent, debtRate, debtTerm, debtExtra,
-    mortgageOriginal, mortgageCurrent, mortgageRate, mortgageTerm, mortgageExtra, mortgageEscrow
-  ]);
-
-  // --- MIX BALANCING ---
-  const handleMixChange = (changedBucket: 'preTax' | 'roth' | 'brokerage', value: number) => {
-    let p = mixPreTax;
-    let r = mixRoth;
-    let b = mixBrokerage;
-
-    if (changedBucket === 'preTax') {
-        p = value;
-        let rem = 100 - p;
-        let sumOther = mixRoth + mixBrokerage;
-        if (sumOther === 0) {
-            r = Math.round(rem / 2);
-            b = rem - r;
-        } else {
-            r = Math.round(rem * (mixRoth / sumOther));
-            b = rem - r;
-        }
-    } else if (changedBucket === 'roth') {
-        r = value;
-        let rem = 100 - r;
-        let sumOther = mixPreTax + mixBrokerage;
-        if (sumOther === 0) {
-            p = Math.round(rem / 2);
-            b = rem - p;
-        } else {
-            p = Math.round(rem * (mixPreTax / sumOther));
-            b = rem - p;
-        }
-    } else if (changedBucket === 'brokerage') {
-        b = value;
-        let rem = 100 - b;
-        let sumOther = mixPreTax + mixRoth;
-        if (sumOther === 0) {
-            p = Math.round(rem / 2);
-            r = rem - p;
-        } else {
-            p = Math.round(rem * (mixPreTax / sumOther));
-            r = rem - p;
-        }
-    }
-    
-    setMixPreTax(p);
-    setMixRoth(r);
-    setMixBrokerage(b);
-  };
-
-
-  // --- DRAWDOWN STRATEGY ENGINE ---
-  const drawdownStats = useMemo(() => {
-    // 1. Calculate Gross Draw based on total portfolio and slider
-    const totalMix = mixPreTax + mixRoth + mixBrokerage; // Auto-bound to 100
-    const isMixValid = true;
-    
-    const grossDraw = results.totalPortfolio * (globalWithdrawalRate / 100);
-    const preTaxDraw = grossDraw * (mixPreTax / 100);
-    const rothDraw = grossDraw * (mixRoth / 100);
-    const brokerageDraw = grossDraw * (mixBrokerage / 100);
-
-    const totalGrossIncome = results.grossPension + results.estimatedAnnualSS_future + grossDraw;
-
-    // 2. Tax Engine
-    let ordinaryIncome = results.grossPension + preTaxDraw;
-    
-    // Social Security Taxability
-    let combinedIncome = ordinaryIncome + (results.estimatedAnnualSS_future * 0.5);
-    let base1 = filingStatus === 'Married' ? 32000 : 25000;
-    let base2 = filingStatus === 'Married' ? 44000 : 34000;
-    let taxableSS = 0;
-    
-    if (combinedIncome > base2) {
-         taxableSS = 0.85 * (combinedIncome - base2) + Math.min(0.5 * results.estimatedAnnualSS_future, 0.5 * (base2 - base1));
-         taxableSS = Math.min(taxableSS, 0.85 * results.estimatedAnnualSS_future);
-    } else if (combinedIncome > base1) {
-         taxableSS = Math.min(0.5 * results.estimatedAnnualSS_future, 0.5 * (combinedIncome - base1));
-    }
-    
-    const stdDeduction = filingStatus === 'Married' ? 30800 : 15400; // Adjusted for seniors usually, keeping base for safety
-    const taxableOrdinaryIncome = Math.max(0, (ordinaryIncome + taxableSS) - stdDeduction);
-
-    // Federal Ordinary Brackets
-    let fedTax = 0;
-    const brackets = filingStatus === 'Married'
-      ? [{l: 24500, r: 0.10}, {l: 99700, r: 0.12}, {l: 212500, r: 0.22}, {l: 405800, r: 0.24}, {l: 515200, r: 0.32}, {l: 772900, r: 0.35}, {l: Infinity, r: 0.37}]
-      : [{l: 12250, r: 0.10}, {l: 49850, r: 0.12}, {l: 106250, r: 0.22}, {l: 202900, r: 0.24}, {l: 257600, r: 0.32}, {l: 386450, r: 0.35}, {l: Infinity, r: 0.37}];
-
-    for (let i = 0, prevLimit = 0; i < brackets.length; i++) {
-        const b = brackets[i];
-        if (taxableOrdinaryIncome > prevLimit) {
-            let taxableAtThisBracket = Math.min(taxableOrdinaryIncome, b.l) - prevLimit;
-            fedTax += taxableAtThisBracket * b.r;
-            prevLimit = b.l;
-        } else break;
-    }
-
-    // Capital Gains Tax (Assuming 50% of brokerage draw is gains)
-    const taxableLTCG = brokerageDraw * 0.50;
-    let ltcgTax = 0;
-    const ltcgBrackets = filingStatus === 'Married' 
-      ? [{l: 94050, r: 0.0}, {l: 583750, r: 0.15}, {l: Infinity, r: 0.20}]
-      : [{l: 47025, r: 0.0}, {l: 518900, r: 0.15}, {l: Infinity, r: 0.20}];
-    
-    // LTCG stacks on top of ordinary income to determine rate
-    let currentIncomeStack = taxableOrdinaryIncome;
-    for (let i = 0; i < ltcgBrackets.length; i++) {
-      const b = ltcgBrackets[i];
-      if (currentIncomeStack < b.l && taxableLTCG > 0) {
-         let roomInBracket = b.l - currentIncomeStack;
-         let amountToTax = Math.min(taxableLTCG, roomInBracket);
-         ltcgTax += amountToTax * b.r;
-         currentIncomeStack += amountToTax;
-      }
-    }
-
-    const totalTaxes = fedTax + ltcgTax;
-    const netAnnualIncome = totalGrossIncome - totalTaxes;
-    const netMonthlyIncome = netAnnualIncome / 12;
-
-    const replacementRatio = totalGrossIncome / results.finalSalary;
-
-    // 3. Portfolio Longevity Simulation
-    let bal = results.totalPortfolio;
-    let w = grossDraw;
-    let yearsLasted = 0;
-    const r_rate = marketReturn / 100;
-    const i_rate = inflationRate / 100;
-
-    if (bal > 0 && w > 0) {
-        while (bal > 0 && yearsLasted < 100) {
-            if (bal < w) {
-                yearsLasted += (bal / w);
-                bal = 0;
-                break;
-            }
-            bal -= w;
-            bal *= (1 + r_rate);
-            w *= (1 + i_rate);
-            yearsLasted++;
-        }
-    } else if (w === 0 && bal > 0) {
-        yearsLasted = 100;
-    }
-    
-    let longevityStr = "";
-    if (yearsLasted >= 99) {
-        longevityStr = "99+ Years (Sustainable)";
-    } else {
-        const depleteAge = Math.floor(results.currentAge + results.yearsToRetire + yearsLasted);
-        longevityStr = `${yearsLasted.toFixed(1)} Years (Depleted ~Age ${depleteAge})`;
-    }
-
-    return {
-      grossDraw, preTaxDraw, rothDraw, brokerageDraw, totalMix, isMixValid,
-      totalGrossIncome, fedTax, ltcgTax, netAnnualIncome, netMonthlyIncome,
-      replacementRatio, yearsLasted, longevityStr
-    };
-  }, [results, globalWithdrawalRate, mixPreTax, mixRoth, mixBrokerage, filingStatus, marketReturn, inflationRate]);
-
-  const fmtCur = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val || 0);
-  const fmtNum = (val: number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(val || 0);
-
-  // Inflation Helper
-  const adjustForInflation = (futureValue: number) => {
-    if (inflationRate === 0 || results.yearsToRetire <= 0) return futureValue;
-    return futureValue / Math.pow(1 + (inflationRate / 100), results.yearsToRetire);
-  };
-
-  const icons = {
-    user: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-    building: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>,
-    trending: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>,
-    piggy: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.5-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>,
-    chart: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>,
-    creditCard: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
-    home: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-    wallet: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>,
-    check: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
-    alert: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
-    archive: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>,
-    sun: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
-    moon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
-    chevronDown: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
-    chevronUp: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>,
-    printer: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>,
-    sparkles: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-  };
-
-  const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
-  const [aiInsights, setAiInsights] = useState<string | null>(null);
-  const [aiError, setAiError] = useState<string | null>(null);
-
-  const generateInsights = async () => {
-    setIsGeneratingInsights(true);
-    setAiError(null);
-    setAiInsights(null); 
-    
-    const apiKey = ""; // API Key provided dynamically by execution environment
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-    
-    const systemPrompt = "You are an expert Federal Retirement Financial Planner. Analyze the provided federal employee data and provide 3 to 4 concise, highly personalized observations and actionable recommendations. Format clearly using bullet points and brief paragraphs. Be educational, encouraging, and note that this is not formal financial advice.";
-    
-    const safeNum = (val: any) => (typeof val === 'number' && !isNaN(val)) ? val : 0;
-    
-    const standardDebtWins = results.standardDebtStats.investWins ? "Investing the extra cash in the market" : "Paying off the debt principal early";
-    const mortgageWins = results.mortgageStats.investWins ? "Investing the extra cash in the market" : "Paying off the mortgage principal early";
-
-    const userQuery = `
-      Here is my current profile:
-      Age: ${safeNum(results.currentAge)} (Target Retirement Age: ${safeNum(retireAge)})
-      Years to Retirement: ${safeNum(results.yearsToRetire)}
-      Federal Service at Retirement: ${safeNum(results.totalCreditableService).toFixed(1)} years
-      Current Salary: $${safeNum(currentSalary)}
-      Projected High-3 Salary: $${Math.round(safeNum(results.high3))}
-      
-      Projected Annual FERS Pension (Net): $${Math.round(safeNum(results.netPension))}
-      Estimated Annual Social Security (Target Age): $${Math.round(safeNum(results.estimatedAnnualSS_future))}
-      
-      Current Balances:
-      TSP: $${safeNum(tradTsp) + safeNum(rothTsp)}
-      IRA: $${safeNum(tradIraBalance) + safeNum(rothIraBalance)}
-      Brokerage & Others: $${safeNum(brokerageBalance) + safeNum(prior401kBal) + safeNum(megaBal)}
-      
-      Future Total Portfolio Projection at Retirement (Nominal): $${Math.round(safeNum(results.totalPortfolio))}
-      Future Total Portfolio Projection at Retirement (Inflation Adjusted at ${inflationRate}%): $${Math.round(adjustForInflation(safeNum(results.totalPortfolio)))}
-      
-      Retirement Drawdown Strategy:
-      - Target Income Replacement: ${(drawdownStats.replacementRatio * 100).toFixed(1)}% of Final Salary
-      - Gross Draw: $${Math.round(safeNum(drawdownStats.grossDraw))} (${globalWithdrawalRate}%)
-      - Net Monthly Income: $${Math.round(safeNum(drawdownStats.netMonthlyIncome))}
-      - Portfolio Longevity Simulation: ${drawdownStats.longevityStr}
-      
-      Monthly Cash Flow (Current):
-      Gross: $${Math.round(safeNum(results.totalMonthlyGross))}
-      Take-Home Net: $${Math.round(safeNum(results.netPaycheck))}
-      Remaining Spendable Cash (after savings/debt): $${Math.round(safeNum(results.remainingToSpend))}
-      
-      Debt Payoff vs. Investing ROI Strategy (Assumed Market Return: ${safeNum(marketReturn)}%):
-      - Standard Debt: Assuming extra payments of $${safeNum(debtExtra)}/mo. My calculations show that ${standardDebtWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(safeNum(results.standardDebtStats.diff))}.
-      - Mortgage: Assuming extra payments of $${safeNum(mortgageExtra)}/mo. My calculations show that ${mortgageWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(safeNum(results.mortgageStats.diff))}.
-      
-      Based on all this, please give me your top insights and explicitly tell me whether or not it is better to put my extra payments into the debt principal or to the market to get a better ROI based on my specific numbers above.
-    `;
-
-    const payload = {
-      contents: [{ parts: [{ text: userQuery }] }],
-      systemInstruction: { parts: [{ text: systemPrompt }] }
-    };
-
-    // Exponential Backoff as strictly required by system guidelines
-    const fetchWithBackoff = async (retries = 5, delay = 1000): Promise<string> => {
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        
-        if (!response.ok) {
-           let errDetail = response.statusText;
-           try {
-               const errData = await response.json();
-               errDetail = errData.error?.message || errDetail;
-           } catch(e) {}
-           throw new Error(`API Error (${response.status}): ${errDetail}`);
-        }
-        
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        
-        if (!text) {
-           if (data.promptFeedback?.blockReason) {
-              throw new Error(`Blocked by safety filter: ${data.promptFeedback.blockReason}`);
-           }
-           throw new Error("No text returned from Gemini. The response may have been blocked or empty.");
-        }
-        
-        return text;
-      } catch (error: any) {
-        if (retries > 0) {
-          await new Promise(res => setTimeout(res, delay));
-          // delays of 1s, 2s, 4s, 8s, 16s...
-          return fetchWithBackoff(retries - 1, delay * 2);
-        } else {
-          throw error;
-        }
-      }
-    };
-
-    try {
-      const text = await fetchWithBackoff();
-      setAiInsights(text);
-    } catch (err: any) {
-      console.error("Gemini Generation Error:", err);
-      setAiError(err.message || "Failed to generate insights. Please check your network and try again.");
-    } finally {
-      setIsGeneratingInsights(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 pb-12 flex flex-col transition-colors duration-300">
-      <header className="bg-indigo-700 dark:bg-indigo-900 text-white py-6 px-6 shadow-md mb-8 transition-colors">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight">F.E.R.A - Federal Employee Retirement Analyzer</h1>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4 ml-4 print:hidden">
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className="flex items-center gap-2 px-3 py-2 bg-indigo-600 dark:bg-indigo-800 hover:bg-indigo-500 dark:hover:bg-indigo-700 transition-colors shadow-sm rounded-lg text-sm font-medium"
-              title="Save as PDF"
-            >
-              {icons.printer} <span className="hidden sm:inline">Save PDF</span>
-            </button>
-            <button 
-              type="button"
-              onClick={() => setIsDarkMode(!isDarkMode)} 
-              className="p-2 rounded-full bg-indigo-600 dark:bg-indigo-800 hover:bg-indigo-500 dark:hover:bg-indigo-700 transition-colors shadow-sm shrink-0"
-              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {isDarkMode ? icons.sun : icons.moon}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 w-full flex-1">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* LEFT COLUMN: INPUTS */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
-
-            <Card 
-              title="Time & Service" icon={icons.user}
-              info="Defines your Federal creditable tenure. Under OPM rules, 'Prior Service' includes bought-back military time. 'Sick Leave' adds to your multiplier using the 2,087-hour chart, but it does NOT count toward the 20-year requirement needed for the 1.1% bump."
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Birth Year"><NumberInput value={birthYear} onChange={(v) => typeof v === 'number' && setBirthYear(v)} /></Field>
-                <Field label="Age Started Fed"><NumberInput value={ageStarted} onChange={(v) => typeof v === 'number' && setAgeStarted(v)} /></Field>
-                <Field label="Target Retire Age"><NumberInput value={retireAge} onChange={(v) => typeof v === 'number' && setRetireAge(v)} /></Field>
-                <Field label="Prior Uniformed Service" description="Years bought back"><NumberInput value={priorService} onChange={(v) => typeof v === 'number' && setPriorService(v)} suffix="yrs" /></Field>
-              </div>
-              <Field label="Unused Sick Leave" description="Converts to creditable time (OPM 360-day yr)">
-                <Slider value={sickLeaveDays} onChange={setSickLeaveDays} min={0} max={365} step={1} suffix=" days" />
-              </Field>
-            </Card>
-
-            <Card 
-              title="Tax & Cash Flow Parameters" icon={icons.wallet}
-              info="Calculates paycheck using official 2026 IRS marginal tax brackets and the updated standard deduction. FERS rates: 0.8% (Legacy), 3.1% (FERS-Revised), or 4.4% (FERS-FRAE)."
-            >
-              <div className="grid grid-cols-2 gap-4">
-                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Filing Status</label>
-                  <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
-                    <button type="button" onClick={() => setFilingStatus('Single')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${filingStatus === 'Single' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Single</button>
-                    <button type="button" onClick={() => setFilingStatus('Married')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${filingStatus === 'Married' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Married</button>
-                  </div>
-                </div>
-                <Field label="Dependents"><NumberInput value={dependents} onChange={(v) => typeof v === 'number' && setDependents(v)} min={0} /></Field>
-                <Field label="FERS Contribution Rate" description="0.8%, 3.1%, or 4.4%"><NumberInput value={fersRate} onChange={(v) => typeof v === 'number' && setFersRate(v)} suffix="%" step={0.1} /></Field>
-                <Field label="FEHB Healthcare Prem." description="Monthly Pre-Tax"><NumberInput value={fehbPremium} onChange={(v) => typeof v === 'number' && setFehbPremium(v)} prefix="$" /></Field>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                 <Field label="Supplemental Income" description="Second job, VA disability, etc."><NumberInput value={supplementalIncome} onChange={(v) => typeof v === 'number' && setSupplementalIncome(v)} prefix="$" /></Field>
-                 <div className="flex flex-col justify-end">
-                   <Toggle active={supplementalTaxToggled} onChange={setSupplementalTaxToggled} label="Apply Taxes to this Income?" />
-                 </div>
-              </div>
-            </Card>
-
-            <Card 
-              title="FERS Pension Parameters" icon={icons.building}
-              info="Your gross FERS annuity uses your 'High-3' salary average. At 62+ with 20+ years, multiplier is 1.1%. Survivor benefit reduces pension by 10% to guarantee 50% for your spouse."
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Max Grade Salary"><NumberInput value={maxGradeSalary} onChange={(v) => typeof v === 'number' && setMaxGradeSalary(v)} prefix="$" /></Field>
-                <Field label="Est. Annual COLA"><NumberInput value={cola} onChange={(v) => typeof v === 'number' && setCola(v)} suffix="%" step={0.1} /></Field>
-              </div>
-              <Toggle active={survivorBenefit} onChange={setSurvivorBenefit} label="Include Max Survivor Benefit (-10%)" />
-              <Toggle active={fehb5Year} onChange={setFehb5Year} label="Meet 5-Year FEHB Rule?" />
-            </Card>
-
-            <Card 
-              title="Thrift Savings Plan (TSP)" icon={icons.trending}
-              info="Strictly applies 2026 Projected limits: $24,500 base | $8,000 standard Catch-Up (Age 50+) | $12,000 SECURE 2.0 Super Catch-Up (Ages 60-63). Auto-Max calculates absolute legal limit yearly based on age."
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Current Federal Salary" description="Excludes supplemental"><NumberInput value={currentSalary} onChange={(v) => typeof v === 'number' && setCurrentSalary(v)} prefix="$" /></Field>
-                <Field label="Est. Annual Raise" description={"\u00A0"}><NumberInput value={annualRaise} onChange={(v) => typeof v === 'number' && setAnnualRaise(v)} suffix="%" step={0.1} /></Field>
-              </div>
-              
-              <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 mt-2 mb-2 transition-colors">
-                <div className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Current TSP Balances</div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Traditional Bal"><NumberInput value={tradTsp} onChange={(v) => typeof v === 'number' && setTradTsp(v)} prefix="$" /></Field>
-                  <Field label="Roth Bal"><NumberInput value={rothTsp} onChange={(v) => typeof v === 'number' && setRothTsp(v)} prefix="$" /></Field>
-                </div>
-              </div>
-
-              <Toggle active={isMaxTsp} onChange={setIsMaxTsp} label="Auto-Max IRS Contributions" accent="emerald" />
-
-              {isMaxTsp ? (
-                <div className="mt-4 p-4 border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                  <div className="text-sm text-emerald-800 dark:text-emerald-300 font-semibold mb-3">
-                    Contributing IRS Max every year. (Current yr limit: {fmtCur(results.currentTspLimit)})
-                  </div>
-                  <Field label="Contribution Split (Trad vs Roth)" description={`Currently: ${100 - maxTspRothPct}% Trad / ${maxTspRothPct}% Roth`}>
-                    <Slider value={maxTspRothPct} onChange={setMaxTspRothPct} min={0} max={100} step={1} suffix="% Roth" />
-                  </Field>
-                </div>
-              ) : (
-                <div className="mt-4 space-y-4">
-                  <div className="flex flex-col gap-1.5">
-                     <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
-                        <button type="button" onClick={() => setTspInputMode('%')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${tspInputMode === '%' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>% of Salary</button>
-                        <button type="button" onClick={() => setTspInputMode('$')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${tspInputMode === '$' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>$ per Pay Period</button>
-                     </div>
-                  </div>
-                  {tspInputMode === '%' ? (
-                    <>
-                      <Field label="Trad Contribution Rate"><Slider value={typeof tradTspInput === 'number' ? tradTspInput : 0} onChange={setTradTspInput} min={0} max={100} step={1} suffix="%" /></Field>
-                      <Field label="Roth Contribution Rate"><Slider value={typeof rothTspInput === 'number' ? rothTspInput : 0} onChange={setRothTspInput} min={0} max={100} step={1} suffix="%" /></Field>
-                    </>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-4">
-                      <Field label="Trad Contrib. (Bi-weekly)"><NumberInput value={tradTspInput} onChange={setTradTspInput} prefix="$" /></Field>
-                      <Field label="Roth Contrib. (Bi-weekly)"><NumberInput value={rothTspInput} onChange={setRothTspInput} prefix="$" /></Field>
-                    </div>
-                  )}
-                </div>
-              )}
-            </Card>
-
-            <Card 
-              title="Individual Retirement Accounts" icon={icons.piggy}
-              info="IRAs are private tax-advantaged accounts. Under updated 2026 Projected rules, combined limits are capped at $7,500/yr (or $8,600 if Age 50+)."
-            >
-              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-700 pb-4 mb-2">
-                <Field label="Trad IRA Balance"><NumberInput value={tradIraBalance} onChange={(v) => typeof v === 'number' && setTradIraBalance(v)} prefix="$" /></Field>
-                <Field label="Roth IRA Balance"><NumberInput value={rothIraBalance} onChange={(v) => typeof v === 'number' && setRothIraBalance(v)} prefix="$" /></Field>
-              </div>
-              
-              <Toggle active={isMaxIra} onChange={setIsMaxIra} label="Auto-Max IRS Contributions" accent="emerald" />
-
-              {isMaxIra ? (
-                <div className="mt-4 p-4 border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                  <div className="text-sm text-emerald-800 dark:text-emerald-300 font-semibold mb-3">
-                    Contributing IRS Max every year. (Current yr limit: {fmtCur(results.currentIraLimit)})
-                  </div>
-                  <Field label="Contribution Split (Trad vs Roth)" description={`Currently: ${100 - maxIraRothPct}% Trad / ${maxIraRothPct}% Roth`}>
-                    <Slider value={maxIraRothPct} onChange={setMaxIraRothPct} min={0} max={100} step={1} suffix="% Roth" />
-                  </Field>
-                </div>
-              ) : (
-                <div className="mt-4 space-y-4">
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block">Planned Contributions</label>
-                  
-                  {iraWarning && (
-                    <div className="mb-3 text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 p-2 rounded border border-amber-200 dark:border-amber-800 flex items-center gap-2">
-                      <span>{icons.alert}</span> <span>{iraWarning}</span>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-4">
-                      <Field label="Annual Trad Contrib.">
-                           <NumberInput value={tradIraContrib} onChange={(val) => handleIraInput('Trad', val)} prefix="$" />
-                      </Field>
-                      <Field label="Annual Roth Contrib.">
-                           <NumberInput value={rothIraContrib} onChange={(val) => handleIraInput('Roth', val)} prefix="$" />
-                      </Field>
-                    </div>
-                </div>
-              )}
-
-              <div className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-slate-700 pt-4">
-                  <Field label="Stop Contributions At Age" description="Age to stop adding funds">
-                        <NumberInput value={iraContribStopAge} onChange={(v) => typeof v === 'number' && setIraContribStopAge(v)} />
-                  </Field>
-              </div>
-            </Card>
-
-            <Card 
-              title="Prior Employer 401(k)" icon={icons.archive}
-              info="Old retirement accounts that continue to compound but no longer receive contributions."
-            >
-               <div className="grid grid-cols-1 gap-4">
-                <Field label="Legacy 401(k) Balance"><NumberInput value={prior401kBal} onChange={(v) => typeof v === 'number' && setPrior401kBal(v)} prefix="$" /></Field>
-              </div>
-            </Card>
-
-            <Card 
-              title="Mega Backdoor Roth / Alt 401(k)" icon={icons.chart}
-              info="SECURE 2.0 options. Note: Federal TSP does NOT currently permit after-tax mega backdoor contributions."
-            >
-               <div className="grid grid-cols-2 gap-4">
-                <Field label="Current Mega/Alt Bal"><NumberInput value={megaBal} onChange={(v) => typeof v === 'number' && setMegaBal(v)} prefix="$" /></Field>
-                <Field label="Annual Contribution"><NumberInput value={megaContrib} onChange={(v) => typeof v === 'number' && setMegaContrib(v)} prefix="$" /></Field>
-              </div>
-            </Card>
-
-            <Card 
-              title="Taxable Brokerage" icon={icons.chart}
-              info="Standard investment accounts (Vanguard, Fidelity, etc.) with no IRS limits or age withdrawal penalties."
-            >
-               <div className="grid grid-cols-2 gap-4">
-                <Field label="Current Brokerage Bal"><NumberInput value={brokerageBalance} onChange={(v) => typeof v === 'number' && setBrokerageBalance(v)} prefix="$" /></Field>
-                <Field label="Annual Contribution"><NumberInput value={brokerageContrib} onChange={(v) => typeof v === 'number' && setBrokerageContrib(v)} prefix="$" /></Field>
-              </div>
-              <div className="mt-4 border-t border-slate-100 dark:border-slate-700 pt-4 grid grid-cols-2 gap-4">
-                  <Field label="Stop Contributions At Age" description="Age to stop adding funds">
-                      <NumberInput value={brokerageContribStopAge} onChange={(v) => typeof v === 'number' && setBrokerageContribStopAge(v)} />
-                  </Field>
-              </div>
-            </Card>
-
-            <Card 
-              title="Global Market Assumptions" icon={icons.trending}
-              info="Sets the expected annual rate of return across all of your investment accounts."
-            >
-              <Field label="Expected Annual Market Return">
-                <Slider value={marketReturn} onChange={setMarketReturn} min={3} max={15} step={0.1} suffix="%" />
-              </Field>
-            </Card>
-
-            <Card 
-              title="Standard Debt Amortization" icon={icons.creditCard}
-              info="Simulates paying off standard fixed-rate loans (student loans, car loans, etc.) and compares the guaranteed ROI of early payoff against investing the extra cash in the market."
-            >
-               <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
-                <Field label="Loan Start Date"><MonthInput value={debtStartDate} onChange={setDebtStartDate} /></Field>
-                <Field label="Original Loan Amount"><NumberInput value={debtOriginal} onChange={(v) => typeof v === 'number' && setDebtOriginal(v)} prefix="$" /></Field>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Current Balance"><NumberInput value={debtCurrent} onChange={(v) => typeof v === 'number' && setDebtCurrent(v)} prefix="$" /></Field>
-                <Field label="Original Term (Years)"><NumberInput value={debtTerm} onChange={(v) => typeof v === 'number' && setDebtTerm(v)} /></Field>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <Field label="Interest Rate"><NumberInput value={debtRate} onChange={(v) => typeof v === 'number' && setDebtRate(v)} suffix="%" step={0.1} /></Field>
-                <Field label="Extra Monthly Principal"><NumberInput value={debtExtra} onChange={(v) => typeof v === 'number' && setDebtExtra(v)} prefix="$" /></Field>
-              </div>
-            </Card>
-
-            <Card 
-              title="Mortgage Amortization" icon={icons.home}
-              info="Simulates paying off your primary residence early. Includes escrow logic for accurate monthly cash flow modeling. Compares the ROI of early payoff vs market investing."
-            >
-               <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
-                <Field label="Loan Start Date"><MonthInput value={mortgageStartDate} onChange={setMortgageStartDate} /></Field>
-                <Field label="Original Loan Amount"><NumberInput value={mortgageOriginal} onChange={(v) => typeof v === 'number' && setMortgageOriginal(v)} prefix="$" /></Field>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Current Balance"><NumberInput value={mortgageCurrent} onChange={(v) => typeof v === 'number' && setMortgageCurrent(v)} prefix="$" /></Field>
-                <Field label="Original Term (Years)"><NumberInput value={mortgageTerm} onChange={(v) => typeof v === 'number' && setMortgageTerm(v)} /></Field>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <Field label="Interest Rate"><NumberInput value={mortgageRate} onChange={(v) => typeof v === 'number' && setMortgageRate(v)} suffix="%" step={0.1} /></Field>
-                <Field label="Extra Monthly Principal"><NumberInput value={mortgageExtra} onChange={(v) => typeof v === 'number' && setMortgageExtra(v)} prefix="$" /></Field>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <Field label="Monthly Escrow (Tax/Ins)"><NumberInput value={mortgageEscrow} onChange={(v) => typeof v === 'number' && setMortgageEscrow(v)} prefix="$" /></Field>
-              </div>
-            </Card>
-          </div>
-
-          {/* RIGHT COLUMN: DASHBOARD */}
-          <div className="lg:col-span-7">
-            <div className="sticky top-6 flex flex-col gap-6">
-              
-              <div className="flex flex-col gap-4">
-                <div className="bg-indigo-600 dark:bg-indigo-700 rounded-xl p-6 text-white shadow-lg overflow-hidden transition-colors w-full">
-                  <p className="text-indigo-100 text-sm font-medium mb-1">Projected Annual FERS Pension (Net)</p>
-                  <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                    {fmtCur(results.netPension)} <span className="text-xl font-normal opacity-75">/yr</span>
-                  </h2>
-                  <p className="text-indigo-200 text-sm mt-2">{fmtCur(results.netPension / 12)} per month</p>
-                </div>
-                
-                <div className="bg-emerald-600 dark:bg-emerald-700 rounded-xl text-white shadow-lg overflow-hidden transition-all border border-transparent dark:border-emerald-600">
-                  <div className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-emerald-100 text-sm font-medium mb-1">Total Future Portfolio</p>
-                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight cursor-pointer" onClick={() => setIsPortfolioExpanded(!isPortfolioExpanded)}>
-                          {fmtCur(adjustForInflation(results.totalPortfolio))}
-                        </h2>
-                      </div>
-                      <div className="text-emerald-100 bg-emerald-700/50 p-2 rounded-full cursor-pointer hover:bg-emerald-500 transition-colors" onClick={() => setIsPortfolioExpanded(!isPortfolioExpanded)}>
-                        {isPortfolioExpanded ? icons.chevronUp : icons.chevronDown}
-                      </div>
-                    </div>
-
-                    {/* Inflation Dropdown */}
-                    <div className="mt-5 pt-4 border-t border-emerald-500/50">
-                      <label className="text-emerald-100 text-xs font-medium mb-1.5 block">Adjust for Inflation (Purchasing Power in Today's Dollars)</label>
-                      <div className="relative">
-                        <select 
-                          className="w-full appearance-none bg-emerald-700/50 border border-emerald-500/50 text-white text-sm rounded-lg py-2 pl-3 pr-8 outline-none focus:ring-2 focus:ring-emerald-400 transition-colors cursor-pointer"
-                          value={inflationRate}
-                          onChange={(e) => setInflationRate(Number(e.target.value) as 0 | 2.5 | 3.5)}
-                        >
-                          <option value={0}>Nominal Value (No Adjustment)</option>
-                          <option value={2.5}>Moderate (Baseline): 2.5% per year</option>
-                          <option value={3.5}>Conservative: 3.5% per year</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-emerald-300">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {isPortfolioExpanded && (
-                    <div className="px-6 pb-6 pt-4 border-t border-emerald-500/50 dark:border-emerald-600/50 bg-emerald-700/30 dark:bg-emerald-800/40">
-                      <div className="space-y-3 text-sm sm:text-base">
-                        <div className="flex justify-between items-center">
-                          <span className="text-emerald-100">Thrift Savings Plan (TSP)</span>
-                          <span className="font-bold">{fmtCur(adjustForInflation(results.totalTsp))}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-emerald-100">Individual IRAs</span>
-                          <span className="font-bold">{fmtCur(adjustForInflation(results.simTradIra + results.simRothIra))}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-emerald-100">Taxable Brokerage</span>
-                          <span className="font-bold">{fmtCur(adjustForInflation(results.simBrokerage))}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-emerald-100">Mega Backdoor / Alt</span>
-                          <span className="font-bold">{fmtCur(adjustForInflation(results.simMega))}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-emerald-100">Prior Legacy 401(k)</span>
-                          <span className="font-bold">{fmtCur(adjustForInflation(results.simPrior401k))}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* MONTHLY CASH FLOW */}
-              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg p-6 relative overflow-hidden transition-colors">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-5 gap-4">
-                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    {icons.wallet} Monthly Cash Flow
-                  </h3>
-                </div>
-
-                <div className="space-y-4 text-sm">
-                  <div className="flex justify-between items-center text-slate-800 dark:text-slate-200">
-                    <span className="font-semibold text-base">Gross Monthly Income</span>
-                    <span className="font-bold text-base">{fmtCur(results.totalMonthlyGross)}</span>
-                  </div>
-                  
-                  {supplementalIncome > 0 && (
-                    <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-1 mb-2 text-xs">
-                       <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                         <span>Federal Base Salary</span>
-                         <span>{fmtCur(results.baseMonthlyGross)}</span>
-                       </div>
-                       <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                         <span>Supplemental Income {supplementalTaxToggled ? '(Taxable)' : '(Tax-Free)'}</span>
-                         <span className="text-emerald-600 dark:text-emerald-400">+{fmtCur(supplementalIncome)}</span>
-                       </div>
-                    </div>
-                  )}
-                  
-                  <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-2">
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                      <span>Pre-Tax Deductions <span className="text-xs">(TSP, FEHB)</span></span>
-                      <span className="text-rose-600 dark:text-rose-400">-{fmtCur(results.totalPreTax)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                      <span>Taxes <span className="text-xs">(Fed Income + FICA)</span></span>
-                      <span className="text-rose-600 dark:text-rose-400">-{fmtCur(results.totalTaxes)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                      <span>Post-Tax FERS Deduction</span>
-                      <span className="text-rose-600 dark:text-rose-400">-{fmtCur(results.monthlyFersDeduction)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <span className="font-bold text-slate-700 dark:text-slate-300">Net Take-Home Pay</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-100">{fmtCur(results.netPaycheck)}</span>
-                  </div>
-
-                  <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-2">
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                      <span>Post-Tax Savings <span className="text-xs">(Roth, IRAs, Brok)</span></span>
-                      <span className="text-amber-600 dark:text-amber-500">-{fmtCur(results.totalPostTaxSavings)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                      <span>Debt & Escrow <span className="text-xs">(Loans + Mtg + Esc)</span></span>
-                      <span className="text-amber-600 dark:text-amber-500">-{fmtCur(results.monthlyLoansAndEscrow)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-200 dark:border-emerald-800/50 mt-2">
-                    <span className="font-bold text-emerald-800 dark:text-emerald-400 text-base">Remaining Spendable Cash</span>
-                    <span className="font-black text-emerald-600 dark:text-emerald-50 text-2xl">{fmtCur(results.remainingToSpend)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* FERS Breakdown */}
-              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-6 transition-colors">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-700 pb-3 mb-4 flex items-center gap-2">
-                  {icons.building} FERS Retirement Summary
-                </h3>
-                <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
-                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
-                    <span className="text-slate-500 dark:text-slate-400">Years until Retirement</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{results.yearsToRetire}</span>
-                  </div>
-                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
-                    <span className="text-slate-500 dark:text-slate-400">Base Svc + Buyback</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{results.baseServiceForMultiplier} yrs</span>
-                  </div>
-                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
-                    <span className="text-slate-500 dark:text-slate-400">Sick Leave Conversion</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">+{fmtNum(results.sickLeaveYears)} yrs</span>
-                  </div>
-                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
-                    <span className="text-slate-500 dark:text-slate-400">Total Creditable Service</span>
-                    <span className="font-bold text-indigo-600 dark:text-indigo-400">{fmtNum(results.totalCreditableService)} yrs</span>
-                  </div>
-                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
-                    <span className="text-slate-500 dark:text-slate-400">Multiplier</span>
-                    <span className="font-bold text-indigo-600 dark:text-indigo-400">{(results.fersMultiplier * 100).toFixed(1)}%</span>
-                  </div>
-                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
-                    <span className="text-slate-500 dark:text-slate-400">High-3 Salary</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{fmtCur(results.high3)}</span>
-                  </div>
-                </div>
-
-                <div className={`mt-5 p-3 rounded-lg flex items-start gap-3 border ${fehb5Year ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'}`}>
-                  <div className="mt-0.5">{fehb5Year ? icons.check : icons.alert}</div>
-                  <div className="text-sm">
-                    <strong className="block">{fehb5Year ? 'FEHB Eligible' : 'FEHB Alert'}</strong>
-                    {fehb5Year 
-                      ? 'Meeting the 5-year enrollment requirement.' 
-                      : 'You must have 5 years of FEHB before retirement to carry it over.'}
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-        
-        {/* RETIREMENT DRAWDOWN STRATEGY MODULE */}
-        <div className="mt-8 mb-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden transition-colors flex flex-col xl:flex-row">
-          
-          {/* Controls Side */}
-          <div className="flex-1 p-6 sm:p-8 xl:border-r border-slate-200 dark:border-slate-700">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
-                <span className="text-emerald-500">{icons.chart}</span> Retirement Drawdown Strategy
-              </h3>
-              
-              {/* Information Button */}
-              <button 
-                type="button"
-                onClick={() => setShowDrawdownInfo(!showDrawdownInfo)} 
-                className={`p-1 rounded-full transition-colors ${showDrawdownInfo ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
-                title="More Information"
-              >
-                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                    <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.732l-1.171 4.805c-.06.241.05.49.27.585a.5.5 0 00.67-.323l.115-.463a.5.5 0 01.968.252l-.116.463a1.5 1.5 0 01-2.01.968c-1.146-.573-2.437-.463-2.126-1.732l1.171-4.805a.5.5 0 00-.67-.585.5.5 0 01-.968-.252l.116-.463a1.5 1.5 0 012.01-.968zM12 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
-                 </svg>
-              </button>
-            </div>
-            
-            {showDrawdownInfo && (
-              <div className="bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-xl px-5 py-4 text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed border-l-4 border-l-indigo-500 dark:border-l-indigo-400 mb-6">
-                <strong className="block mb-2 font-bold">How this Strategy is Calculated:</strong>
-                <ul className="space-y-2 list-disc pl-4">
-                  <li><strong>The Withdrawal Rule:</strong> Simulates a fixed percentage withdrawal from your final portfolio balance in your first year of retirement.</li>
-                  <li><strong>Portfolio Longevity:</strong> Simulates your annual withdrawal adjusting upward for inflation each year, while the remaining balance continues to grow by your expected market return.</li>
-                  <li><strong>Income Replacement Target:</strong> Compares your Gross Retirement Income against your <em>projected final salary</em> (factoring in raises) at the moment you retire.</li>
-                  <li><strong>Estimated Social Security:</strong> Automatically approximated based on your birth year, current salary (as AIME proxy), and standard age-claiming reductions/credits. This is a rough estimate.</li>
-                  <li><strong>Taxes:</strong> FERS Pension + Pre-Tax Draw + Taxable SS are grouped and run through Federal ordinary brackets. Brokerage assumes 50% basis and applies LTCG rates. State & Local taxes are excluded.</li>
-                </ul>
-              </div>
-            )}
-
-            <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed max-w-3xl">
-              Set your global withdrawal rate across your total projected assets, then use the mix sliders below to simulate a tax-optimized drawdown strategy. 
-            </p>
-
-            {/* Global Withdrawal Rate */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 mb-8">
-               <div className="flex justify-between items-center mb-2">
-                 <label className="font-bold text-slate-700 dark:text-slate-300">Total Portfolio Withdrawal Rate</label>
-                 <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">{globalWithdrawalRate.toFixed(1)}% <span className="text-sm font-normal text-slate-500">({fmtCur(drawdownStats.grossDraw)})</span></span>
-               </div>
-               <input type="range" min={2.0} max={7.0} step={0.1} value={globalWithdrawalRate} onChange={(e) => setGlobalWithdrawalRate(Number(e.target.value))} className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
-               
-               {/* Portfolio Longevity Display */}
-               <div className="mt-5 p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex justify-between items-center shadow-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400">{icons.trending}</span>
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Est. Portfolio Longevity:</span>
-                  </div>
-                  <span className={`text-sm font-bold ${drawdownStats.yearsLasted >= 40 ? 'text-emerald-600 dark:text-emerald-400' : drawdownStats.yearsLasted >= 25 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                     {drawdownStats.longevityStr}
-                  </span>
-               </div>
-            </div>
-
-            {/* Mix Sliders */}
-            <div className="flex justify-between items-center mb-4">
-               <h4 className="font-bold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Tax Bucket Drawdown Mix</h4>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-               {/* Pre-Tax */}
-               <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-                 <div className="flex justify-between text-sm mb-2 font-semibold">
-                   <span className="text-slate-700 dark:text-slate-300">Pre-Tax (Ordinary)</span>
-                   <span className="text-blue-600 dark:text-blue-400">{mixPreTax}% <span className="text-xs font-normal text-slate-500">({fmtCur(drawdownStats.preTaxDraw)})</span></span>
-                 </div>
-                 <input type="range" min={0} max={100} value={mixPreTax} onChange={(e) => handleMixChange('preTax', Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
-                 <p className="text-[10px] text-slate-400 mt-2">Trad TSP + Trad IRA</p>
-               </div>
-
-               {/* Tax-Free (Roth) */}
-               <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-                 <div className="flex justify-between text-sm mb-2 font-semibold">
-                   <span className="text-slate-700 dark:text-slate-300">Tax-Free (Roth)</span>
-                   <span className="text-purple-600 dark:text-purple-400">{mixRoth}% <span className="text-xs font-normal text-slate-500">({fmtCur(drawdownStats.rothDraw)})</span></span>
-                 </div>
-                 <input type="range" min={0} max={100} value={mixRoth} onChange={(e) => handleMixChange('roth', Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
-                 <p className="text-[10px] text-slate-400 mt-2">Roth TSP + Roth IRA</p>
-               </div>
-
-               {/* Taxable Brokerage */}
-               <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 sm:col-span-2">
-                 <div className="flex justify-between text-sm mb-2 font-semibold">
-                   <span className="text-slate-700 dark:text-slate-300">Taxable Brokerage (LTCG)</span>
-                   <span className="text-amber-500">{mixBrokerage}% <span className="text-xs font-normal text-slate-500">({fmtCur(drawdownStats.brokerageDraw)})</span></span>
-                 </div>
-                 <input type="range" min={0} max={100} value={mixBrokerage} onChange={(e) => handleMixChange('brokerage', Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500" />
-                 <p className="text-[10px] text-slate-400 mt-2">Brokerage + Mega Backdoor. Assumes 50% Capital Gains.</p>
-               </div>
-            </div>
-
-            {/* Validation Bar */}
-            <div className={`p-4 rounded-xl flex items-center justify-between text-sm font-bold transition-colors bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800`}>
-               <span>Total Withdrawal Mix:</span>
-               <span>{drawdownStats.totalMix}% (Auto-Balanced)</span>
-            </div>
-
-          </div>
-
-          {/* Results Side */}
-          <div className="xl:w-1/3 bg-slate-900 text-slate-100 p-6 sm:p-8 flex flex-col justify-between">
-            <div>
-              <h3 className="text-xl font-bold mb-6 text-white">Estimated Annual Income</h3>
-              
-              {/* Income Replacement Bar */}
-              <div className="mb-8">
-                <div className="flex justify-between text-xs mb-1 text-slate-400 font-medium">
-                   <span>Income Replacement</span>
-                   <span>Target: Final Salary ({fmtCur(results.finalSalary)})</span>
-                </div>
-                <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden flex">
-                  <div className="h-full bg-emerald-500 transition-all duration-500" style={{width: `${Math.min(100, drawdownStats.replacementRatio * 100)}%`}}></div>
-                </div>
-                <div className="text-right text-sm mt-1 font-bold text-emerald-400">
-                  Replacing {(drawdownStats.replacementRatio * 100).toFixed(1)}% of Salary
-                </div>
-              </div>
-
-              <div className="space-y-4 text-sm border-b border-slate-700 pb-6">
-                <div className="flex justify-between items-center text-slate-300">
-                  <span>Gross FERS Pension</span>
-                  <span>{fmtCur(results.grossPension)}</span>
-                </div>
-                <div className="flex justify-between items-center text-slate-300">
-                  <span>Est. Social Security <span className="text-[10px] text-slate-500 block">Claiming at Age {results.claimAge}</span></span>
-                  <span>{fmtCur(results.estimatedAnnualSS_future)}</span>
-                </div>
-                <div className="flex justify-between items-center text-white font-semibold">
-                  <span>Gross Portfolio Draw</span>
-                  <span>{fmtCur(drawdownStats.grossDraw)}</span>
-                </div>
-                
-                <div className="pt-4 mt-2 border-t border-slate-700/50"></div>
-                
-                <div className="flex justify-between items-center text-rose-400">
-                  <div>
-                    <span>Federal Income Tax</span>
-                    <span className="block text-[10px] opacity-75">Ordinary Income Brackets</span>
-                  </div>
-                  <span>-{fmtCur(drawdownStats.fedTax)}</span>
-                </div>
-                <div className="flex justify-between items-center text-rose-400">
-                  <div>
-                    <span>LTCG Tax</span>
-                    <span className="block text-[10px] opacity-75">Capital Gains Brackets</span>
-                  </div>
-                  <span>-{fmtCur(drawdownStats.ltcgTax)}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6">              
-              <div className="flex justify-between items-end mb-4">
-                <div>
-                  <span className="text-slate-400 text-xs font-bold uppercase tracking-wider block mb-1">Net Monthly Income</span>
-                  <span className="text-slate-500 text-xs block">(After Fed Tax)</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-4xl font-black text-white block leading-none">{fmtCur(drawdownStats.netMonthlyIncome)}</span>
-                  <span className="text-emerald-400 text-sm font-semibold mt-1 block">≈ {fmtCur(drawdownStats.netAnnualIncome)} / year</span>
-                </div>
-              </div>
+  const currentYear = new Date().getFullYear();
+
+  // Application State
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isPortfolioExpanded, setIsPortfolioExpanded] = useState(false);
+  const [inflationRate, setInflationRate] = useState<0 | 2.5 | 3.5>(0); // New Inflation State
+
+  useEffect(() => {
+    if (isDarkMode) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+  }, [isDarkMode]);
+
+  // Global Assumptions
+  const [marketReturn, setMarketReturn] = useState(7.0);
+
+  // Time & Service
+  const [birthYear, setBirthYear] = useState(1985);
+  const [ageStarted, setAgeStarted] = useState(25);
+  const [retireAge, setRetireAge] = useState(62);
+  const [priorService, setPriorService] = useState(4);
+  const [sickLeaveDays, setSickLeaveDays] = useState(180);
+
+  // Taxes & Cash Flow Info
+  const [filingStatus, setFilingStatus] = useState<'Single' | 'Married'>('Married');
+  const [dependents, setDependents] = useState(2);
+  const [fersRate, setFersRate] = useState(4.4);
+  const [fehbPremium, setFehbPremium] = useState(450);
+  
+  // Supplemental Income
+  const [supplementalIncome, setSupplementalIncome] = useState(0);
+  const [supplementalTaxToggled, setSupplementalTaxToggled] = useState(true);
+
+  // FERS Pension
+  const [maxGradeSalary, setMaxGradeSalary] = useState(135000);
+  const [cola, setCola] = useState(2.0);
+  const [survivorBenefit, setSurvivorBenefit] = useState(true);
+  const [fehb5Year, setFehb5Year] = useState(true);
+
+  // TSP & Income
+  const [currentSalary, setCurrentSalary] = useState(95000);
+  const [annualRaise, setAnnualRaise] = useState(2.0);
+  const [tradTsp, setTradTsp] = useState(65000);
+  const [rothTsp, setRothTsp] = useState(15000);
+  
+  // TSP Advanced Inputs
+  const [isMaxTsp, setIsMaxTsp] = useState(false);
+  const [maxTspRothPct, setMaxTspRothPct] = useState(0); 
+  const [tspInputMode, setTspInputMode] = useState<'%' | '$'>('%'); 
+  const [tradTspInput, setTradTspInput] = useState<number | ''>(5.0);
+  const [rothTspInput, setRothTspInput] = useState<number | ''>(0.0);
+
+  // IRA
+  const [tradIraBalance, setTradIraBalance] = useState(10000);
+  const [rothIraBalance, setRothIraBalance] = useState(10000);
+  const [isMaxIra, setIsMaxIra] = useState(false);
+  const [maxIraRothPct, setMaxIraRothPct] = useState(100);
+  const [tradIraContrib, setTradIraContrib] = useState<number | ''>(0);
+  const [rothIraContrib, setRothIraContrib] = useState<number | ''>(7500); 
+  const [iraWarning, setIraWarning] = useState('');
+  const [iraContribStopAge, setIraContribStopAge] = useState(55);
+
+  const handleIraInput = (type: 'Trad' | 'Roth', val: number | '') => {
+    const annualLimit = (currentYear - birthYear) >= 50 ? 8600 : 7500;
+    
+    let safeVal = val;
+    if (type === 'Trad') {
+      const currentRoth = typeof rothIraContrib === 'number' ? rothIraContrib : 0;
+      const maxAllow = Math.max(0, annualLimit - currentRoth);
+      if (typeof val === 'number' && val > maxAllow) { 
+        safeVal = maxAllow; 
+        setIraWarning(`Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
+      } else { setIraWarning(''); }
+      setTradIraContrib(safeVal);
+    } else {
+      const currentTrad = typeof tradIraContrib === 'number' ? tradIraContrib : 0;
+      const maxAllow = Math.max(0, annualLimit - currentTrad);
+      if (typeof val === 'number' && val > maxAllow) { 
+        safeVal = maxAllow; 
+        setIraWarning(`Projected Max Reached: Combined limit is ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(annualLimit)}/yr.`); 
+      } else { setIraWarning(''); }
+      setRothIraContrib(safeVal);
+    }
+  };
+
+  // Prior 401(k)
+  const [prior401kBal, setPrior401kBal] = useState(45000);
+
+  // Mega Backdoor
+  const [megaBal, setMegaBal] = useState(0);
+  const [megaContrib, setMegaContrib] = useState(0);
+
+  // Taxable Brokerage
+  const [brokerageBalance, setBrokerageBalance] = useState(50000);
+  const [brokerageContrib, setBrokerageContrib] = useState(6000);
+  const [brokerageContribStopAge, setBrokerageContribStopAge] = useState(55);
+
+  // Debt
+  const [debtStartDate, setDebtStartDate] = useState('2022-01');
+  const [debtOriginal, setDebtOriginal] = useState(45000);
+  const [debtCurrent, setDebtCurrent] = useState(35000);
+  const [debtRate, setDebtRate] = useState(6.5);
+  const [debtTerm, setDebtTerm] = useState(10);
+  const [debtExtra, setDebtExtra] = useState(100);
+
+  // Mortgage
+  const [mortgageStartDate, setMortgageStartDate] = useState('2019-06');
+  const [mortgageOriginal, setMortgageOriginal] = useState(500000);
+  const [mortgageCurrent, setMortgageCurrent] = useState(450000);
+  const [mortgageRate, setMortgageRate] = useState(5.5);
+  const [mortgageTerm, setMortgageTerm] = useState(30);
+  const [mortgageExtra, setMortgageExtra] = useState(300);
+  const [mortgageEscrow, setMortgageEscrow] = useState(500);
+
+  // Drawdown Strategy State
+  const [globalWithdrawalRate, setGlobalWithdrawalRate] = useState(4.0);
+  const [mixPreTax, setMixPreTax] = useState(60);
+  const [mixRoth, setMixRoth] = useState(20);
+  const [mixBrokerage, setMixBrokerage] = useState(20);
+  const [showDrawdownInfo, setShowDrawdownInfo] = useState(false);
+
+  // --- MATH ENGINE ---
+  const results = useMemo(() => {
+    const currentAge = currentYear - birthYear;
+    const yearsToRetire = Math.max(0, retireAge - currentAge);
+    const baseFederalTenure = retireAge - ageStarted;
+    const baseServiceForMultiplier = baseFederalTenure + priorService;
+    const sickLeaveYears = sickLeaveDays / 360; 
+    const totalCreditableService = baseServiceForMultiplier + sickLeaveYears;
+
+    const meets11Bump = retireAge >= 62 && baseServiceForMultiplier >= 20;
+    const fersMultiplier = meets11Bump ? 0.011 : 0.010;
+
+    let y = yearsToRetire;
+    let c = cola / 100;
+    const salYrMinus2 = maxGradeSalary * Math.pow(1 + c, Math.max(0, y - 2));
+    const salYrMinus1 = maxGradeSalary * Math.pow(1 + c, Math.max(0, y - 1));
+    const salYr0 = maxGradeSalary * Math.pow(1 + c, Math.max(0, y));
+    const high3 = (salYrMinus2 + salYrMinus1 + salYr0) / 3;
+
+    let grossPension = high3 * fersMultiplier * totalCreditableService;
+    let netPension = survivorBenefit ? grossPension * 0.9 : grossPension;
+
+    // --- Final Salary Estimation ---
+    const finalSalary = currentSalary * Math.pow(1 + (annualRaise / 100), yearsToRetire);
+
+    // --- Estimated Social Security Engine ---
+    // Calculates FRA based on birth year
+    let fra = 67;
+    if (birthYear <= 1954) fra = 66;
+    else if (birthYear < 1960) fra = 66 + (birthYear - 1954) / 12;
+
+    // Use current salary to approximate Average Indexed Monthly Earnings (AIME)
+    let aime = currentSalary / 12;
+    // Projected 2026 Bend Points
+    let bp1 = 1226;
+    let bp2 = 7391;
+    let pia = 0;
+    
+    if (aime <= bp1) pia = 0.9 * aime;
+    else if (aime <= bp2) pia = (0.9 * bp1) + 0.32 * (aime - bp1);
+    else pia = (0.9 * bp1) + 0.32 * (bp2 - bp1) + 0.15 * (aime - bp2);
+
+    let claimAge = Math.min(Math.max(retireAge, 62), 70); // Assume claim at retirement, min 62, max 70
+    let monthsToFra = (fra - claimAge) * 12;
+    
+    let ssMultiplier = 1.0;
+    if (monthsToFra > 0) {
+        let first36 = Math.min(monthsToFra, 36);
+        let over36 = Math.max(0, monthsToFra - 36);
+        ssMultiplier -= (first36 * (5/900)) + (over36 * (5/1200));
+    } else if (monthsToFra < 0) {
+        let delayedMonths = -monthsToFra;
+        ssMultiplier += delayedMonths * (8/1200);
+    }
+
+    let estimatedAnnualSS_today = pia * ssMultiplier * 12;
+    // Project SS out to retirement year using estimated COLA
+    let estimatedAnnualSS_future = estimatedAnnualSS_today * Math.pow(1 + cola/100, yearsToRetire);
+
+    // --- Unified Trajectory Engine ---
+    
+    let simTradTsp = typeof tradTsp === 'number' ? tradTsp : 0;
+    let simRothTsp = typeof rothTsp === 'number' ? rothTsp : 0;
+    let simSalary = typeof currentSalary === 'number' ? currentSalary : 0; 
+    let yr1TradContrib = 0;
+    let yr1RothContrib = 0;
+    let yr1Match = 0;
+    let maxedOutEarlyWarning = false;
+
+    let simTradIra = typeof tradIraBalance === 'number' ? tradIraBalance : 0;
+    let simRothIra = typeof rothIraBalance === 'number' ? rothIraBalance : 0;
+    let simMega = typeof megaBal === 'number' ? megaBal : 0;
+    let yr1TradIra = 0, yr1RothIra = 0, yr1Mega = 0;
+
+    let simBrokerage = typeof brokerageBalance === 'number' ? brokerageBalance : 0;
+    let simPrior401k = typeof prior401kBal === 'number' ? prior401kBal : 0;
+    
+    let runningCumulativeContribs = 0;
+    const totalInitialBalances = simTradTsp + simRothTsp + simTradIra + simRothIra + simPrior401k + simMega + simBrokerage;
+
+    let cumTradTsp = 0; let cumRothTsp = 0;
+    let cumTradIra = 0; let cumRothIra = 0;
+    let cumMega = 0; let cumBrokerage = 0;
+
+    const trajectory = [{
+        year: 0,
+        portfolioInvested: totalInitialBalances,
+        portfolioTotal: totalInitialBalances,
+        tspTotalInvested: simTradTsp + simRothTsp,
+        tspTotal: simTradTsp + simRothTsp,
+        tspTradInvested: simTradTsp,
+        tspTrad: simTradTsp,
+        tspRothInvested: simRothTsp,
+        tspRoth: simRothTsp,
+        iraTotalInvested: simTradIra + simRothIra,
+        iraTotal: simTradIra + simRothIra,
+        iraTradInvested: simTradIra,
+        iraTrad: simTradIra,
+        iraRothInvested: simRothIra,
+        iraRoth: simRothIra,
+        brokerageInvested: simBrokerage,
+        brokerageTotal: simBrokerage
+    }];
+
+    const annualR = marketReturn / 100;
+    const tspReturnBiweekly = Math.pow(1 + annualR, 1 / 26) - 1;
+    
+    const iraPeriodsPerYear = 1;
+    const iraRatePerPeriod = annualR;
+    
+    const broPeriodsPerYear = 1;
+    const broRatePerPeriod = annualR;
+    
+    const currentTspLimit = 24500 + (currentAge >= 60 && currentAge <= 63 ? 12000 : (currentAge >= 50 ? 8000 : 0));
+    const currentIraLimit = 7500 + (currentAge >= 50 ? 1100 : 0);
+
+    for (let yr = 0; yr < yearsToRetire; yr++) {
+      let simAgeEndOfYear = currentAge + yr;
+      
+      // -- TSP LOGIC --
+      let tspLimit = 24500;
+      if (simAgeEndOfYear >= 60 && simAgeEndOfYear <= 63) tspLimit += 12000; 
+      else if (simAgeEndOfYear >= 50) tspLimit += 8000; 
+
+      let ytdTspContribs = 0;
+      let biweeklyGross = simSalary / 26;
+      let targetBiweeklyTrad = 0;
+      let targetBiweeklyRoth = 0;
+
+      if (isMaxTsp) {
+        targetBiweeklyTrad = (tspLimit * (1 - (maxTspRothPct / 100))) / 26;
+        targetBiweeklyRoth = (tspLimit * (maxTspRothPct / 100)) / 26;
+      } else {
+        targetBiweeklyTrad = tspInputMode === '%' ? biweeklyGross * ((typeof tradTspInput === 'number' ? tradTspInput : 0) / 100) : (typeof tradTspInput === 'number' ? tradTspInput : 0);
+        targetBiweeklyRoth = tspInputMode === '%' ? biweeklyGross * ((typeof rothTspInput === 'number' ? rothTspInput : 0) / 100) : (typeof rothTspInput === 'number' ? rothTspInput : 0);
+      }
+
+      for (let pp = 0; pp < 26; pp++) {
+        let availableRoom = Math.max(0, tspLimit - ytdTspContribs);
+        let actualBiweeklyTrad = targetBiweeklyTrad;
+        let actualBiweeklyRoth = targetBiweeklyRoth;
+
+        if (actualBiweeklyTrad + actualBiweeklyRoth > availableRoom) {
+          let totalTarget = actualBiweeklyTrad + actualBiweeklyRoth;
+          if (totalTarget > 0 && availableRoom > 0) {
+            actualBiweeklyTrad = availableRoom * (actualBiweeklyTrad / totalTarget);
+            actualBiweeklyRoth = availableRoom * (actualBiweeklyRoth / totalTarget);
+          } else {
+            actualBiweeklyTrad = 0; actualBiweeklyRoth = 0;
+          }
+          if (!isMaxTsp && yr === 0 && pp < 25 && availableRoom === 0) maxedOutEarlyWarning = true;
+        }
+
+        let equivPct = biweeklyGross > 0 ? ((actualBiweeklyTrad + actualBiweeklyRoth) / biweeklyGross) * 100 : 0;
+        
+        let matchRate = 1.0; 
+        matchRate += Math.min(equivPct, 3.0); 
+        if (equivPct > 3.0) matchRate += Math.min(equivPct - 3.0, 2.0) * 0.5; 
+        let actualMatch = biweeklyGross * (matchRate / 100);
+
+        simTradTsp = simTradTsp * (1 + tspReturnBiweekly) + actualBiweeklyTrad + actualMatch;
+        simRothTsp = simRothTsp * (1 + tspReturnBiweekly) + actualBiweeklyRoth;
+        ytdTspContribs += actualBiweeklyTrad + actualBiweeklyRoth;
+        
+        cumTradTsp += actualBiweeklyTrad + actualMatch;
+        cumRothTsp += actualBiweeklyRoth;
+        runningCumulativeContribs += (actualBiweeklyTrad + actualBiweeklyRoth + actualMatch);
+
+        if (yr === 0) {
+          yr1TradContrib += actualBiweeklyTrad;
+          yr1RothContrib += actualBiweeklyRoth;
+          yr1Match += actualMatch;
+        }
+      }
+      simSalary *= (1 + (annualRaise / 100)); 
+
+      // -- IRA LOGIC --
+      let canContribIra = simAgeEndOfYear < iraContribStopAge;
+      let iraLimit = 7500 + (simAgeEndOfYear >= 50 ? 1100 : 0);
+      let megaLimit = 47500;
+      let ytdIra = 0;
+      let ytdMega = 0;
+      let targetPeriodTradIra = 0;
+      let targetPeriodRothIra = 0;
+
+      if (canContribIra) {
+        if (isMaxIra) {
+          let annualTrad = iraLimit * (1 - (maxIraRothPct / 100));
+          let annualRoth = iraLimit * (maxIraRothPct / 100);
+          targetPeriodTradIra = annualTrad;
+          targetPeriodRothIra = annualRoth;
+        } else {
+          targetPeriodTradIra = typeof tradIraContrib === 'number' ? tradIraContrib : 0;
+          targetPeriodRothIra = typeof rothIraContrib === 'number' ? rothIraContrib : 0;
+        }
+      }
+      let targetPeriodMega = typeof megaContrib === 'number' ? megaContrib : 0;
+
+      for (let p = 0; p < iraPeriodsPerYear; p++) {
+        let iraRoom = Math.max(0, iraLimit - ytdIra);
+        let actTradIra = targetPeriodTradIra;
+        let actRothIra = targetPeriodRothIra;
+        let totIra = actTradIra + actRothIra;
+
+        if (totIra > iraRoom) {
+            if (totIra > 0) {
+                actTradIra = iraRoom * (actTradIra / totIra);
+                actRothIra = iraRoom * (actRothIra / totIra);
+            } else { actTradIra = 0; actRothIra = 0; }
+        } else if (totIra === 0) {
+            actTradIra = 0; actRothIra = 0;
+        }
+
+        let megaRoom = Math.max(0, megaLimit - ytdMega);
+        let actMega = targetPeriodMega > megaRoom ? megaRoom : targetPeriodMega;
+
+        simTradIra = simTradIra * (1 + iraRatePerPeriod) + actTradIra;
+        simRothIra = simRothIra * (1 + iraRatePerPeriod) + actRothIra;
+        simMega = simMega * (1 + iraRatePerPeriod) + actMega;
+
+        ytdIra += actTradIra + actRothIra;
+        ytdMega += actMega;
+        
+        cumTradIra += actTradIra;
+        cumRothIra += actRothIra;
+        cumMega += actMega;
+        runningCumulativeContribs += (actTradIra + actRothIra + actMega);
+
+        if (yr === 0) {
+          yr1TradIra += actTradIra; yr1RothIra += actRothIra; yr1Mega += actMega;
+        }
+      }
+
+      // -- BROKERAGE LOGIC --
+      let canContribBro = simAgeEndOfYear < brokerageContribStopAge;
+      let targetPeriodBro = canContribBro ? (typeof brokerageContrib === 'number' ? brokerageContrib : 0) : 0;
+      for (let p = 0; p < broPeriodsPerYear; p++) {
+          simBrokerage = simBrokerage * (1 + broRatePerPeriod) + targetPeriodBro;
+          cumBrokerage += targetPeriodBro;
+          runningCumulativeContribs += targetPeriodBro;
+      }
+      
+      // -- YEAR-END RECORDING --
+      simPrior401k = simPrior401k * Math.pow(1 + annualR, 1);
+      
+      trajectory.push({
+          year: yr + 1,
+          portfolioInvested: totalInitialBalances + runningCumulativeContribs,
+          portfolioTotal: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simBrokerage + simPrior401k,
+
+          tspTotalInvested: (typeof tradTsp === 'number' ? tradTsp : 0) + (typeof rothTsp === 'number' ? rothTsp : 0) + cumTradTsp + cumRothTsp,
+          tspTotal: simTradTsp + simRothTsp,
+          tspTradInvested: (typeof tradTsp === 'number' ? tradTsp : 0) + cumTradTsp,
+          tspTrad: simTradTsp,
+          tspRothInvested: (typeof rothTsp === 'number' ? rothTsp : 0) + cumRothTsp,
+          tspRoth: simRothTsp,
+
+          iraTotalInvested: (typeof tradIraBalance === 'number' ? tradIraBalance : 0) + (typeof rothIraBalance === 'number' ? rothIraBalance : 0) + cumTradIra + cumRothIra,
+          iraTotal: simTradIra + simRothIra,
+          iraTradInvested: (typeof tradIraBalance === 'number' ? tradIraBalance : 0) + cumTradIra,
+          iraTrad: simTradIra,
+          iraRothInvested: (typeof rothIraBalance === 'number' ? rothIraBalance : 0) + cumRothIra,
+          iraRoth: simRothIra,
+
+          brokerageInvested: (typeof brokerageBalance === 'number' ? brokerageBalance : 0) + cumBrokerage,
+          brokerageTotal: simBrokerage
+      });
+    }
+
+    // --- Debt Engine ---
+    const calcDebt = (origP: number | '', currentP: number | '', rate: number | '', t: number | '', extra: number | '', invRateAnnual: number) => {
+      const orig = typeof origP === 'number' ? origP : 0;
+      const curr = typeof currentP === 'number' ? currentP : 0;
+      const r_rate = typeof rate === 'number' ? rate : 0;
+      const term = typeof t === 'number' ? t : 0;
+      const ex = typeof extra === 'number' ? extra : 0;
+      
+      const r = (r_rate / 100) / 12; 
+      const n = term * 12; 
+      const minPmt = orig > 0 && r > 0 ? (orig * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : (n > 0 ? orig / n : 0);
+      const newPmt = minPmt + ex;
+
+      let monthsOrig = 0;
+      if (curr > 0 && minPmt > 0 && minPmt > curr * r) {
+        monthsOrig = Math.ceil(-Math.log(1 - (curr * r) / minPmt) / Math.log(1 + r));
+      } else if (curr > 0) {
+        monthsOrig = Infinity;
+      }
+
+      let monthsAcc = 0;
+      if (curr > 0 && newPmt > 0) {
+        if (newPmt > curr * r) { 
+           monthsAcc = Math.ceil(-Math.log(1 - (curr * r) / newPmt) / Math.log(1 + r)); 
+        } 
+        else { monthsAcc = Infinity; }
+      }
+
+      const current = new Date(); 
+      const basePayoffDate = new Date(current);
+      if (monthsOrig !== Infinity && !isNaN(monthsOrig)) basePayoffDate.setMonth(current.getMonth() + monthsOrig);
+      const accPayoffDate = new Date(current);
+      if (monthsAcc !== Infinity && !isNaN(monthsAcc)) accPayoffDate.setMonth(current.getMonth() + monthsAcc);
+
+      const fmtDate = (d: Date) => isNaN(d.getTime()) ? 'Unknown' : d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      const invRateMonthly = (invRateAnnual / 100) / 12;
+      let fvInvestExtra = 0;
+      let fvPayoffThenInvest = 0;
+
+      if (monthsOrig !== Infinity && !isNaN(monthsOrig) && ex > 0 && invRateMonthly > 0) {
+          fvInvestExtra = ex * ((Math.pow(1 + invRateMonthly, monthsOrig) - 1) / invRateMonthly);
+      }
+      if (monthsAcc !== Infinity && !isNaN(monthsAcc) && monthsAcc < monthsOrig && newPmt > 0 && invRateMonthly > 0) {
+          const monthsRemainingFree = monthsOrig - monthsAcc;
+          fvPayoffThenInvest = newPmt * ((Math.pow(1 + invRateMonthly, monthsRemainingFree) - 1) / invRateMonthly);
+      }
+
+      const investWins = fvInvestExtra > fvPayoffThenInvest;
+      const diff = Math.abs(fvInvestExtra - fvPayoffThenInvest) || 0;
+
+      return { 
+        minPmt, newPmt, monthsOrig, monthsAcc, timeSaved: Math.max(0, monthsOrig - monthsAcc) || 0,
+        basePayoffStr: monthsOrig === Infinity ? 'Never' : fmtDate(basePayoffDate),
+        accPayoffStr: monthsAcc === Infinity ? 'Never' : fmtDate(accPayoffDate),
+        invRateAnnual, fvInvestExtra, fvPayoffThenInvest, investWins, diff
+      };
+    };
+    
+    const standardDebtStats = calcDebt(debtOriginal, debtCurrent, debtRate, debtTerm, debtExtra, marketReturn);
+    const mortgageStats = calcDebt(mortgageOriginal, mortgageCurrent, mortgageRate, mortgageTerm, mortgageExtra, marketReturn);
+
+    // --- Cash Flow Engine ---
+    const baseMonthlyGross = (typeof currentSalary === 'number' ? currentSalary : 0) / 12;
+    const monthlyPreTaxTradTsp = yr1TradContrib / 12;
+    
+    const monthlyFersDeduction = baseMonthlyGross * ((typeof fersRate === 'number' ? fersRate : 0) / 100);
+    const monthlyPreTaxFehb = typeof fehbPremium === 'number' ? fehbPremium : 0;
+    
+    const totalPreTax = monthlyPreTaxTradTsp + monthlyPreTaxFehb; 
+
+    const safeSuppIncome = typeof supplementalIncome === 'number' ? supplementalIncome : 0;
+    const totalMonthlyGross = baseMonthlyGross + safeSuppIncome;
+    let annualTaxableIncome = (baseMonthlyGross - totalPreTax) * 12;
+    
+    let totalFicaWages = (typeof currentSalary === 'number' ? currentSalary : 0) - (monthlyPreTaxFehb * 12); 
+
+    if (supplementalTaxToggled) {
+       annualTaxableIncome += (safeSuppIncome * 12);
+       totalFicaWages += (safeSuppIncome * 12);
+    }
+
+    const stdDeduction = filingStatus === 'Married' ? 30800 : 15400;
+    const incomeAfterDeduction = Math.max(0, annualTaxableIncome - stdDeduction);
+    
+    let annualFedTax = 0;
+    const brackets = filingStatus === 'Married'
+      ? [{l: 24500, r: 0.10}, {l: 99700, r: 0.12}, {l: 212500, r: 0.22}, {l: 405800, r: 0.24}, {l: 515200, r: 0.32}, {l: 772900, r: 0.35}, {l: Infinity, r: 0.37}]
+      : [{l: 12250, r: 0.10}, {l: 49850, r: 0.12}, {l: 106250, r: 0.22}, {l: 202900, r: 0.24}, {l: 257600, r: 0.32}, {l: 386450, r: 0.35}, {l: Infinity, r: 0.37}];
+
+    for (let i = 0, prevLimit = 0; i < brackets.length; i++) {
+        const b = brackets[i];
+        if (incomeAfterDeduction > prevLimit) {
+            let taxableAtThisBracket = Math.min(incomeAfterDeduction, b.l) - prevLimit;
+            annualFedTax += taxableAtThisBracket * b.r;
+            prevLimit = b.l;
+        } else break;
+    }
+    
+    annualFedTax = Math.max(0, annualFedTax - ((typeof dependents === 'number' ? dependents : 0) * 2000));
+    const monthlyFedTax = annualFedTax / 12;
+
+    const annualOASDI = Math.min(totalFicaWages, 182700) * 0.062;
+    const annualMedicare = totalFicaWages * 0.0145;
+    const monthlyFica = (annualOASDI + annualMedicare) / 12;
+    
+    const totalTaxes = monthlyFedTax + monthlyFica;
+    const netPaycheck = totalMonthlyGross - totalPreTax - monthlyFersDeduction - totalTaxes;
+
+    const monthlyPostTaxRothTsp = yr1RothContrib / 12;
+    const monthlyPostTaxTradIra = yr1TradIra / 12;
+    const monthlyPostTaxRothIra = yr1RothIra / 12;
+    const monthlyMega = yr1Mega / 12;
+    
+    const safeBrokContrib = typeof brokerageContrib === 'number' ? brokerageContrib : 0;
+    const canContribBroYr1 = (currentYear - birthYear) < brokerageContribStopAge;
+    const monthlyBrokerage = canContribBroYr1 ? safeBrokContrib / 12 : 0;
+    
+    const totalPostTaxSavings = monthlyPostTaxRothTsp + monthlyPostTaxTradIra + monthlyPostTaxRothIra + monthlyMega + monthlyBrokerage;
+
+    const safeDebtCurr = typeof debtCurrent === 'number' ? debtCurrent : 0;
+    const safeMtgCurr = typeof mortgageCurrent === 'number' ? mortgageCurrent : 0;
+    const safeMtgEscrow = typeof mortgageEscrow === 'number' ? mortgageEscrow : 0;
+    const monthlyLoansAndEscrow = (safeDebtCurr > 0 ? standardDebtStats.newPmt : 0) + (safeMtgCurr > 0 ? mortgageStats.newPmt : 0) + safeMtgEscrow;
+    const remainingToSpend = netPaycheck - totalPostTaxSavings - monthlyLoansAndEscrow;
+
+    return {
+      currentAge, yearsToRetire, baseServiceForMultiplier, sickLeaveYears, totalCreditableService,
+      meets11Bump, fersMultiplier, high3, grossPension, netPension, finalSalary, estimatedAnnualSS_future, claimAge,
+      currentTspLimit, currentIraLimit, simTradTsp, simRothTsp, totalTsp: simTradTsp + simRothTsp, 
+      simTradIra, simRothIra, simMega, simPrior401k, simBrokerage,
+      totalPortfolio: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simPrior401k + simBrokerage,
+      trajectory, 
+      standardDebtStats, mortgageStats, maxedOutEarlyWarning, yr1Match,
+      baseMonthlyGross, totalMonthlyGross, monthlyPreTaxTradTsp, monthlyFersDeduction, monthlyPreTaxFehb, totalPreTax,
+      monthlyFedTax, monthlyFica, totalTaxes, netPaycheck,
+      monthlyPostTaxRothTsp, monthlyPostTaxTradIra, monthlyPostTaxRothIra, monthlyMega, monthlyBrokerage, totalPostTaxSavings,
+      monthlyLoansAndEscrow, remainingToSpend
+    };
+  }, [
+    marketReturn, 
+    currentYear, birthYear, ageStarted, retireAge, priorService, sickLeaveDays,
+    maxGradeSalary, cola, survivorBenefit, fehb5Year, filingStatus, dependents, fersRate, fehbPremium, supplementalIncome, supplementalTaxToggled,
+    currentSalary, annualRaise, tradTsp, rothTsp, isMaxTsp, maxTspRothPct, tspInputMode, tradTspInput, rothTspInput,
+    tradIraBalance, rothIraBalance, isMaxIra, maxIraRothPct, tradIraContrib, rothIraContrib, iraContribStopAge,
+    prior401kBal,
+    megaBal, megaContrib, brokerageBalance, brokerageContrib, brokerageContribStopAge,
+    debtOriginal, debtCurrent, debtRate, debtTerm, debtExtra,
+    mortgageOriginal, mortgageCurrent, mortgageRate, mortgageTerm, mortgageExtra, mortgageEscrow
+  ]);
+
+  // --- MIX BALANCING ---
+  const handleMixChange = (changedBucket: 'preTax' | 'roth' | 'brokerage', value: number) => {
+    let p = mixPreTax;
+    let r = mixRoth;
+    let b = mixBrokerage;
+
+    if (changedBucket === 'preTax') {
+        p = value;
+        let rem = 100 - p;
+        let sumOther = mixRoth + mixBrokerage;
+        if (sumOther === 0) {
+            r = Math.round(rem / 2);
+            b = rem - r;
+        } else {
+            r = Math.round(rem * (mixRoth / sumOther));
+            b = rem - r;
+        }
+    } else if (changedBucket === 'roth') {
+        r = value;
+        let rem = 100 - r;
+        let sumOther = mixPreTax + mixBrokerage;
+        if (sumOther === 0) {
+            p = Math.round(rem / 2);
+            b = rem - p;
+        } else {
+            p = Math.round(rem * (mixPreTax / sumOther));
+            b = rem - p;
+        }
+    } else if (changedBucket === 'brokerage') {
+        b = value;
+        let rem = 100 - b;
+        let sumOther = mixPreTax + mixRoth;
+        if (sumOther === 0) {
+            p = Math.round(rem / 2);
+            r = rem - p;
+        } else {
+            p = Math.round(rem * (mixPreTax / sumOther));
+            r = rem - p;
+        }
+    }
+    
+    setMixPreTax(p);
+    setMixRoth(r);
+    setMixBrokerage(b);
+  };
+
+
+  // --- DRAWDOWN STRATEGY ENGINE ---
+  const drawdownStats = useMemo(() => {
+    // 1. Calculate Gross Draw based on total portfolio and slider
+    const totalMix = mixPreTax + mixRoth + mixBrokerage; // Auto-bound to 100
+    const isMixValid = true;
+    
+    const grossDraw = results.totalPortfolio * (globalWithdrawalRate / 100);
+    const preTaxDraw = grossDraw * (mixPreTax / 100);
+    const rothDraw = grossDraw * (mixRoth / 100);
+    const brokerageDraw = grossDraw * (mixBrokerage / 100);
+
+    const totalGrossIncome = results.grossPension + results.estimatedAnnualSS_future + grossDraw;
+
+    // 2. Tax Engine
+    let ordinaryIncome = results.grossPension + preTaxDraw;
+    
+    // Social Security Taxability
+    let combinedIncome = ordinaryIncome + (results.estimatedAnnualSS_future * 0.5);
+    let base1 = filingStatus === 'Married' ? 32000 : 25000;
+    let base2 = filingStatus === 'Married' ? 44000 : 34000;
+    let taxableSS = 0;
+    
+    if (combinedIncome > base2) {
+         taxableSS = 0.85 * (combinedIncome - base2) + Math.min(0.5 * results.estimatedAnnualSS_future, 0.5 * (base2 - base1));
+         taxableSS = Math.min(taxableSS, 0.85 * results.estimatedAnnualSS_future);
+    } else if (combinedIncome > base1) {
+         taxableSS = Math.min(0.5 * results.estimatedAnnualSS_future, 0.5 * (combinedIncome - base1));
+    }
+    
+    const stdDeduction = filingStatus === 'Married' ? 30800 : 15400; // Adjusted for seniors usually, keeping base for safety
+    const taxableOrdinaryIncome = Math.max(0, (ordinaryIncome + taxableSS) - stdDeduction);
+
+    // Federal Ordinary Brackets
+    let fedTax = 0;
+    const brackets = filingStatus === 'Married'
+      ? [{l: 24500, r: 0.10}, {l: 99700, r: 0.12}, {l: 212500, r: 0.22}, {l: 405800, r: 0.24}, {l: 515200, r: 0.32}, {l: 772900, r: 0.35}, {l: Infinity, r: 0.37}]
+      : [{l: 12250, r: 0.10}, {l: 49850, r: 0.12}, {l: 106250, r: 0.22}, {l: 202900, r: 0.24}, {l: 257600, r: 0.32}, {l: 386450, r: 0.35}, {l: Infinity, r: 0.37}];
+
+    for (let i = 0, prevLimit = 0; i < brackets.length; i++) {
+        const b = brackets[i];
+        if (taxableOrdinaryIncome > prevLimit) {
+            let taxableAtThisBracket = Math.min(taxableOrdinaryIncome, b.l) - prevLimit;
+            fedTax += taxableAtThisBracket * b.r;
+            prevLimit = b.l;
+        } else break;
+    }
+
+    // Capital Gains Tax (Assuming 50% of brokerage draw is gains)
+    const taxableLTCG = brokerageDraw * 0.50;
+    let ltcgTax = 0;
+    const ltcgBrackets = filingStatus === 'Married' 
+      ? [{l: 94050, r: 0.0}, {l: 583750, r: 0.15}, {l: Infinity, r: 0.20}]
+      : [{l: 47025, r: 0.0}, {l: 518900, r: 0.15}, {l: Infinity, r: 0.20}];
+    
+    // LTCG stacks on top of ordinary income to determine rate
+    let currentIncomeStack = taxableOrdinaryIncome;
+    for (let i = 0; i < ltcgBrackets.length; i++) {
+      const b = ltcgBrackets[i];
+      if (currentIncomeStack < b.l && taxableLTCG > 0) {
+         let roomInBracket = b.l - currentIncomeStack;
+         let amountToTax = Math.min(taxableLTCG, roomInBracket);
+         ltcgTax += amountToTax * b.r;
+         currentIncomeStack += amountToTax;
+      }
+    }
+
+    const totalTaxes = fedTax + ltcgTax;
+    const netAnnualIncome = totalGrossIncome - totalTaxes;
+    const netMonthlyIncome = netAnnualIncome / 12;
+
+    const replacementRatio = totalGrossIncome / results.finalSalary;
+
+    // 3. Portfolio Longevity Simulation
+    let bal = results.totalPortfolio;
+    let w = grossDraw;
+    let yearsLasted = 0;
+    const r_rate = marketReturn / 100;
+    const i_rate = inflationRate / 100;
+
+    if (bal > 0 && w > 0) {
+        while (bal > 0 && yearsLasted < 100) {
+            if (bal < w) {
+                yearsLasted += (bal / w);
+                bal = 0;
+                break;
+            }
+            bal -= w;
+            bal *= (1 + r_rate);
+            w *= (1 + i_rate);
+            yearsLasted++;
+        }
+    } else if (w === 0 && bal > 0) {
+        yearsLasted = 100;
+    }
+    
+    let longevityStr = "";
+    if (yearsLasted >= 99) {
+        longevityStr = "99+ Years (Sustainable)";
+    } else {
+        const depleteAge = Math.floor(results.currentAge + results.yearsToRetire + yearsLasted);
+        longevityStr = `${yearsLasted.toFixed(1)} Years (Depleted ~Age ${depleteAge})`;
+    }
+
+    return {
+      grossDraw, preTaxDraw, rothDraw, brokerageDraw, totalMix, isMixValid,
+      totalGrossIncome, fedTax, ltcgTax, netAnnualIncome, netMonthlyIncome,
+      replacementRatio, yearsLasted, longevityStr
+    };
+  }, [results, globalWithdrawalRate, mixPreTax, mixRoth, mixBrokerage, filingStatus, marketReturn, inflationRate]);
+
+  const fmtCur = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val || 0);
+  const fmtNum = (val: number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(val || 0);
+
+  // Inflation Helper
+  const adjustForInflation = (futureValue: number) => {
+    if (inflationRate === 0 || results.yearsToRetire <= 0) return futureValue;
+    return futureValue / Math.pow(1 + (inflationRate / 100), results.yearsToRetire);
+  };
+
+  const icons = {
+    user: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+    building: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>,
+    trending: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>,
+    piggy: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.5-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>,
+    chart: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>,
+    creditCard: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+    home: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+    wallet: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>,
+    check: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+    alert: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+    archive: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>,
+    sun: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+    moon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+    chevronDown: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+    chevronUp: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>,
+    printer: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>,
+    sparkles: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+  };
+
+  const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
+  const [aiInsights, setAiInsights] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  const generateInsights = async () => {
+    setIsGeneratingInsights(true);
+    setAiError(null);
+    setAiInsights(null); 
+    
+    const apiKey = ""; // API Key provided dynamically by execution environment
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    
+    const systemPrompt = "You are an expert Federal Retirement Financial Planner. Analyze the provided federal employee data and provide 3 to 4 concise, highly personalized observations and actionable recommendations. Format clearly using bullet points and brief paragraphs. Be educational, encouraging, and note that this is not formal financial advice.";
+    
+    const safeNum = (val: any) => (typeof val === 'number' && !isNaN(val)) ? val : 0;
+    
+    const standardDebtWins = results.standardDebtStats.investWins ? "Investing the extra cash in the market" : "Paying off the debt principal early";
+    const mortgageWins = results.mortgageStats.investWins ? "Investing the extra cash in the market" : "Paying off the mortgage principal early";
+
+    const userQuery = `
+      Here is my current profile:
+      Age: ${safeNum(results.currentAge)} (Target Retirement Age: ${safeNum(retireAge)})
+      Years to Retirement: ${safeNum(results.yearsToRetire)}
+      Federal Service at Retirement: ${safeNum(results.totalCreditableService).toFixed(1)} years
+      Current Salary: $${safeNum(currentSalary)}
+      Projected High-3 Salary: $${Math.round(safeNum(results.high3))}
+      
+      Projected Annual FERS Pension (Net): $${Math.round(safeNum(results.netPension))}
+      Estimated Annual Social Security (Target Age): $${Math.round(safeNum(results.estimatedAnnualSS_future))}
+      
+      Current Balances:
+      TSP: $${safeNum(tradTsp) + safeNum(rothTsp)}
+      IRA: $${safeNum(tradIraBalance) + safeNum(rothIraBalance)}
+      Brokerage & Others: $${safeNum(brokerageBalance) + safeNum(prior401kBal) + safeNum(megaBal)}
+      
+      Future Total Portfolio Projection at Retirement (Nominal): $${Math.round(safeNum(results.totalPortfolio))}
+      Future Total Portfolio Projection at Retirement (Inflation Adjusted at ${inflationRate}%): $${Math.round(adjustForInflation(safeNum(results.totalPortfolio)))}
+      
+      Retirement Drawdown Strategy:
+      - Target Income Replacement: ${(drawdownStats.replacementRatio * 100).toFixed(1)}% of Final Salary
+      - Gross Draw: $${Math.round(safeNum(drawdownStats.grossDraw))} (${globalWithdrawalRate}%)
+      - Net Monthly Income: $${Math.round(safeNum(drawdownStats.netMonthlyIncome))}
+      - Portfolio Longevity Simulation: ${drawdownStats.longevityStr}
+      
+      Monthly Cash Flow (Current):
+      Gross: $${Math.round(safeNum(results.totalMonthlyGross))}
+      Take-Home Net: $${Math.round(safeNum(results.netPaycheck))}
+      Remaining Spendable Cash (after savings/debt): $${Math.round(safeNum(results.remainingToSpend))}
+      
+      Debt Payoff vs. Investing ROI Strategy (Assumed Market Return: ${safeNum(marketReturn)}%):
+      - Standard Debt: Assuming extra payments of $${safeNum(debtExtra)}/mo. My calculations show that ${standardDebtWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(safeNum(results.standardDebtStats.diff))}.
+      - Mortgage: Assuming extra payments of $${safeNum(mortgageExtra)}/mo. My calculations show that ${mortgageWins} is the mathematically optimal choice, winning by a total difference of $${Math.round(safeNum(results.mortgageStats.diff))}.
+      
+      Based on all this, please give me your top insights and explicitly tell me whether or not it is better to put my extra payments into the debt principal or to the market to get a better ROI based on my specific numbers above.
+    `;
+
+    const payload = {
+      contents: [{ parts: [{ text: userQuery }] }],
+      systemInstruction: { parts: [{ text: systemPrompt }] }
+    };
+
+    // Exponential Backoff as strictly required by system guidelines
+    const fetchWithBackoff = async (retries = 5, delay = 1000): Promise<string> => {
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+           let errDetail = response.statusText;
+           try {
+               const errData = await response.json();
+               errDetail = errData.error?.message || errDetail;
+           } catch(e) {}
+           throw new Error(`API Error (${response.status}): ${errDetail}`);
+        }
+        
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!text) {
+           if (data.promptFeedback?.blockReason) {
+              throw new Error(`Blocked by safety filter: ${data.promptFeedback.blockReason}`);
+           }
+           throw new Error("No text returned from Gemini. The response may have been blocked or empty.");
+        }
+        
+        return text;
+      } catch (error: any) {
+        if (retries > 0) {
+          await new Promise(res => setTimeout(res, delay));
+          // delays of 1s, 2s, 4s, 8s, 16s...
+          return fetchWithBackoff(retries - 1, delay * 2);
+        } else {
+          throw error;
+        }
+      }
+    };
+
+    try {
+      const text = await fetchWithBackoff();
+      setAiInsights(text);
+    } catch (err: any) {
+      console.error("Gemini Generation Error:", err);
+      setAiError(err.message || "Failed to generate insights. Please check your network and try again.");
+    } finally {
+      setIsGeneratingInsights(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 pb-12 flex flex-col transition-colors duration-300">
+      <header className="bg-indigo-700 dark:bg-indigo-900 text-white py-6 px-6 shadow-md mb-8 transition-colors">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight">F.E.R.A - Federal Employee Retirement Analyzer</h1>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-4 ml-4 print:hidden">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-3 py-2 bg-indigo-600 dark:bg-indigo-800 hover:bg-indigo-500 dark:hover:bg-indigo-700 transition-colors shadow-sm rounded-lg text-sm font-medium"
+              title="Save as PDF"
+            >
+              {icons.printer} <span className="hidden sm:inline">Save PDF</span>
+            </button>
+            <button 
+              type="button"
+              onClick={() => setIsDarkMode(!isDarkMode)} 
+              className="p-2 rounded-full bg-indigo-600 dark:bg-indigo-800 hover:bg-indigo-500 dark:hover:bg-indigo-700 transition-colors shadow-sm shrink-0"
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? icons.sun : icons.moon}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 w-full flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* LEFT COLUMN: INPUTS */}
+          <div className="lg:col-span-5 flex flex-col gap-6">
+
+            <Card 
+              title="Time & Service" icon={icons.user}
+              info="Defines your Federal creditable tenure. Under OPM rules, 'Prior Service' includes bought-back military time. 'Sick Leave' adds to your multiplier using the 2,087-hour chart, but it does NOT count toward the 20-year requirement needed for the 1.1% bump."
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Birth Year"><NumberInput value={birthYear} onChange={(v) => typeof v === 'number' && setBirthYear(v)} /></Field>
+                <Field label="Age Started Fed"><NumberInput value={ageStarted} onChange={(v) => typeof v === 'number' && setAgeStarted(v)} /></Field>
+                <Field label="Target Retire Age"><NumberInput value={retireAge} onChange={(v) => typeof v === 'number' && setRetireAge(v)} /></Field>
+                <Field label="Prior Uniformed Service" description="Years bought back"><NumberInput value={priorService} onChange={(v) => typeof v === 'number' && setPriorService(v)} suffix="yrs" /></Field>
+              </div>
+              <Field label="Unused Sick Leave" description="Converts to creditable time (OPM 360-day yr)">
+                <Slider value={sickLeaveDays} onChange={setSickLeaveDays} min={0} max={365} step={1} suffix=" days" />
+              </Field>
+            </Card>
+
+            <Card 
+              title="Tax & Cash Flow Parameters" icon={icons.wallet}
+              info="Calculates paycheck using official 2026 IRS marginal tax brackets and the updated standard deduction. FERS rates: 0.8% (Legacy), 3.1% (FERS-Revised), or 4.4% (FERS-FRAE)."
+            >
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Filing Status</label>
+                  <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+                    <button type="button" onClick={() => setFilingStatus('Single')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${filingStatus === 'Single' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Single</button>
+                    <button type="button" onClick={() => setFilingStatus('Married')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${filingStatus === 'Married' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>Married</button>
+                  </div>
+                </div>
+                <Field label="Dependents"><NumberInput value={dependents} onChange={(v) => typeof v === 'number' && setDependents(v)} min={0} /></Field>
+                <Field label="FERS Contribution Rate" description="0.8%, 3.1%, or 4.4%"><NumberInput value={fersRate} onChange={(v) => typeof v === 'number' && setFersRate(v)} suffix="%" step={0.1} /></Field>
+                <Field label="FEHB Healthcare Prem." description="Monthly Pre-Tax"><NumberInput value={fehbPremium} onChange={(v) => typeof v === 'number' && setFehbPremium(v)} prefix="$" /></Field>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                 <Field label="Supplemental Income" description="Second job, VA disability, etc."><NumberInput value={supplementalIncome} onChange={(v) => typeof v === 'number' && setSupplementalIncome(v)} prefix="$" /></Field>
+                 <div className="flex flex-col justify-end">
+                   <Toggle active={supplementalTaxToggled} onChange={setSupplementalTaxToggled} label="Apply Taxes to this Income?" />
+                 </div>
+              </div>
+            </Card>
+
+            <Card 
+              title="FERS Pension Parameters" icon={icons.building}
+              info="Your gross FERS annuity uses your 'High-3' salary average. At 62+ with 20+ years, multiplier is 1.1%. Survivor benefit reduces pension by 10% to guarantee 50% for your spouse."
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Max Grade Salary"><NumberInput value={maxGradeSalary} onChange={(v) => typeof v === 'number' && setMaxGradeSalary(v)} prefix="$" /></Field>
+                <Field label="Est. Annual COLA"><NumberInput value={cola} onChange={(v) => typeof v === 'number' && setCola(v)} suffix="%" step={0.1} /></Field>
+              </div>
+              <Toggle active={survivorBenefit} onChange={setSurvivorBenefit} label="Include Max Survivor Benefit (-10%)" />
+              <Toggle active={fehb5Year} onChange={setFehb5Year} label="Meet 5-Year FEHB Rule?" />
+            </Card>
+
+            <Card 
+              title="Thrift Savings Plan (TSP)" icon={icons.trending}
+              info="Strictly applies 2026 Projected limits: $24,500 base | $8,000 standard Catch-Up (Age 50+) | $12,000 SECURE 2.0 Super Catch-Up (Ages 60-63). Auto-Max calculates absolute legal limit yearly based on age."
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Current Federal Salary" description="Excludes supplemental"><NumberInput value={currentSalary} onChange={(v) => typeof v === 'number' && setCurrentSalary(v)} prefix="$" /></Field>
+                <Field label="Est. Annual Raise" description={"\u00A0"}><NumberInput value={annualRaise} onChange={(v) => typeof v === 'number' && setAnnualRaise(v)} suffix="%" step={0.1} /></Field>
+              </div>
+              
+              <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 mt-2 mb-2 transition-colors">
+                <div className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Current TSP Balances</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Traditional Bal"><NumberInput value={tradTsp} onChange={(v) => typeof v === 'number' && setTradTsp(v)} prefix="$" /></Field>
+                  <Field label="Roth Bal"><NumberInput value={rothTsp} onChange={(v) => typeof v === 'number' && setRothTsp(v)} prefix="$" /></Field>
+                </div>
+              </div>
+
+              <Toggle active={isMaxTsp} onChange={setIsMaxTsp} label="Auto-Max IRS Contributions" accent="emerald" />
+
+              {isMaxTsp ? (
+                <div className="mt-4 p-4 border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                  <div className="text-sm text-emerald-800 dark:text-emerald-300 font-semibold mb-3">
+                    Contributing IRS Max every year. (Current yr limit: {fmtCur(results.currentTspLimit)})
+                  </div>
+                  <Field label="Contribution Split (Trad vs Roth)" description={`Currently: ${100 - maxTspRothPct}% Trad / ${maxTspRothPct}% Roth`}>
+                    <Slider value={maxTspRothPct} onChange={setMaxTspRothPct} min={0} max={100} step={1} suffix="% Roth" />
+                  </Field>
+                </div>
+              ) : (
+                <div className="mt-4 space-y-4">
+                  <div className="flex flex-col gap-1.5">
+                     <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+                        <button type="button" onClick={() => setTspInputMode('%')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${tspInputMode === '%' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>% of Salary</button>
+                        <button type="button" onClick={() => setTspInputMode('$')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${tspInputMode === '$' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>$ per Pay Period</button>
+                     </div>
+                  </div>
+                  {tspInputMode === '%' ? (
+                    <>
+                      <Field label="Trad Contribution Rate"><Slider value={typeof tradTspInput === 'number' ? tradTspInput : 0} onChange={setTradTspInput} min={0} max={100} step={1} suffix="%" /></Field>
+                      <Field label="Roth Contribution Rate"><Slider value={typeof rothTspInput === 'number' ? rothTspInput : 0} onChange={setRothTspInput} min={0} max={100} step={1} suffix="%" /></Field>
+                    </>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Trad Contrib. (Bi-weekly)"><NumberInput value={tradTspInput} onChange={setTradTspInput} prefix="$" /></Field>
+                      <Field label="Roth Contrib. (Bi-weekly)"><NumberInput value={rothTspInput} onChange={setRothTspInput} prefix="$" /></Field>
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
+
+            <Card 
+              title="Individual Retirement Accounts" icon={icons.piggy}
+              info="IRAs are private tax-advantaged accounts. Under updated 2026 Projected rules, combined limits are capped at $7,500/yr (or $8,600 if Age 50+)."
+            >
+              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-700 pb-4 mb-2">
+                <Field label="Trad IRA Balance"><NumberInput value={tradIraBalance} onChange={(v) => typeof v === 'number' && setTradIraBalance(v)} prefix="$" /></Field>
+                <Field label="Roth IRA Balance"><NumberInput value={rothIraBalance} onChange={(v) => typeof v === 'number' && setRothIraBalance(v)} prefix="$" /></Field>
+              </div>
+              
+              <Toggle active={isMaxIra} onChange={setIsMaxIra} label="Auto-Max IRS Contributions" accent="emerald" />
+
+              {isMaxIra ? (
+                <div className="mt-4 p-4 border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                  <div className="text-sm text-emerald-800 dark:text-emerald-300 font-semibold mb-3">
+                    Contributing IRS Max every year. (Current yr limit: {fmtCur(results.currentIraLimit)})
+                  </div>
+                  <Field label="Contribution Split (Trad vs Roth)" description={`Currently: ${100 - maxIraRothPct}% Trad / ${maxIraRothPct}% Roth`}>
+                    <Slider value={maxIraRothPct} onChange={setMaxIraRothPct} min={0} max={100} step={1} suffix="% Roth" />
+                  </Field>
+                </div>
+              ) : (
+                <div className="mt-4 space-y-4">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block">Planned Contributions</label>
+                  
+                  {iraWarning && (
+                    <div className="mb-3 text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 p-2 rounded border border-amber-200 dark:border-amber-800 flex items-center gap-2">
+                      <span>{icons.alert}</span> <span>{iraWarning}</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-4">
+                      <Field label="Annual Trad Contrib.">
+                           <NumberInput value={tradIraContrib} onChange={(val) => handleIraInput('Trad', val)} prefix="$" />
+                      </Field>
+                      <Field label="Annual Roth Contrib.">
+                           <NumberInput value={rothIraContrib} onChange={(val) => handleIraInput('Roth', val)} prefix="$" />
+                      </Field>
+                    </div>
+                </div>
+              )}
+
+              <div className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-slate-700 pt-4">
+                  <Field label="Stop Contributions At Age" description="Age to stop adding funds">
+                        <NumberInput value={iraContribStopAge} onChange={(v) => typeof v === 'number' && setIraContribStopAge(v)} />
+                  </Field>
+              </div>
+            </Card>
+
+            <Card 
+              title="Prior Employer 401(k)" icon={icons.archive}
+              info="Old retirement accounts that continue to compound but no longer receive contributions."
+            >
+               <div className="grid grid-cols-1 gap-4">
+                <Field label="Legacy 401(k) Balance"><NumberInput value={prior401kBal} onChange={(v) => typeof v === 'number' && setPrior401kBal(v)} prefix="$" /></Field>
+              </div>
+            </Card>
+
+            <Card 
+              title="Mega Backdoor Roth / Alt 401(k)" icon={icons.chart}
+              info="SECURE 2.0 options. Note: Federal TSP does NOT currently permit after-tax mega backdoor contributions."
+            >
+               <div className="grid grid-cols-2 gap-4">
+                <Field label="Current Mega/Alt Bal"><NumberInput value={megaBal} onChange={(v) => typeof v === 'number' && setMegaBal(v)} prefix="$" /></Field>
+                <Field label="Annual Contribution"><NumberInput value={megaContrib} onChange={(v) => typeof v === 'number' && setMegaContrib(v)} prefix="$" /></Field>
+              </div>
+            </Card>
+
+            <Card 
+              title="Taxable Brokerage" icon={icons.chart}
+              info="Standard investment accounts (Vanguard, Fidelity, etc.) with no IRS limits or age withdrawal penalties."
+            >
+               <div className="grid grid-cols-2 gap-4">
+                <Field label="Current Brokerage Bal"><NumberInput value={brokerageBalance} onChange={(v) => typeof v === 'number' && setBrokerageBalance(v)} prefix="$" /></Field>
+                <Field label="Annual Contribution"><NumberInput value={brokerageContrib} onChange={(v) => typeof v === 'number' && setBrokerageContrib(v)} prefix="$" /></Field>
+              </div>
+              <div className="mt-4 border-t border-slate-100 dark:border-slate-700 pt-4 grid grid-cols-2 gap-4">
+                  <Field label="Stop Contributions At Age" description="Age to stop adding funds">
+                      <NumberInput value={brokerageContribStopAge} onChange={(v) => typeof v === 'number' && setBrokerageContribStopAge(v)} />
+                  </Field>
+              </div>
+            </Card>
+
+            <Card 
+              title="Global Market Assumptions" icon={icons.trending}
+              info="Sets the expected annual rate of return across all of your investment accounts."
+            >
+              <Field label="Expected Annual Market Return">
+                <Slider value={marketReturn} onChange={setMarketReturn} min={3} max={15} step={0.1} suffix="%" />
+              </Field>
+            </Card>
+
+            <Card 
+              title="Standard Debt Amortization" icon={icons.creditCard}
+              info="Simulates paying off standard fixed-rate loans (student loans, car loans, etc.) and compares the guaranteed ROI of early payoff against investing the extra cash in the market."
+            >
+               <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
+                <Field label="Loan Start Date"><MonthInput value={debtStartDate} onChange={setDebtStartDate} /></Field>
+                <Field label="Original Loan Amount"><NumberInput value={debtOriginal} onChange={(v) => typeof v === 'number' && setDebtOriginal(v)} prefix="$" /></Field>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Current Balance"><NumberInput value={debtCurrent} onChange={(v) => typeof v === 'number' && setDebtCurrent(v)} prefix="$" /></Field>
+                <Field label="Original Term (Years)"><NumberInput value={debtTerm} onChange={(v) => typeof v === 'number' && setDebtTerm(v)} /></Field>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <Field label="Interest Rate"><NumberInput value={debtRate} onChange={(v) => typeof v === 'number' && setDebtRate(v)} suffix="%" step={0.1} /></Field>
+                <Field label="Extra Monthly Principal"><NumberInput value={debtExtra} onChange={(v) => typeof v === 'number' && setDebtExtra(v)} prefix="$" /></Field>
+              </div>
+            </Card>
+
+            <Card 
+              title="Mortgage Amortization" icon={icons.home}
+              info="Simulates paying off your primary residence early. Includes escrow logic for accurate monthly cash flow modeling. Compares the ROI of early payoff vs market investing."
+            >
+               <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
+                <Field label="Loan Start Date"><MonthInput value={mortgageStartDate} onChange={setMortgageStartDate} /></Field>
+                <Field label="Original Loan Amount"><NumberInput value={mortgageOriginal} onChange={(v) => typeof v === 'number' && setMortgageOriginal(v)} prefix="$" /></Field>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Current Balance"><NumberInput value={mortgageCurrent} onChange={(v) => typeof v === 'number' && setMortgageCurrent(v)} prefix="$" /></Field>
+                <Field label="Original Term (Years)"><NumberInput value={mortgageTerm} onChange={(v) => typeof v === 'number' && setMortgageTerm(v)} /></Field>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <Field label="Interest Rate"><NumberInput value={mortgageRate} onChange={(v) => typeof v === 'number' && setMortgageRate(v)} suffix="%" step={0.1} /></Field>
+                <Field label="Extra Monthly Principal"><NumberInput value={mortgageExtra} onChange={(v) => typeof v === 'number' && setMortgageExtra(v)} prefix="$" /></Field>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <Field label="Monthly Escrow (Tax/Ins)"><NumberInput value={mortgageEscrow} onChange={(v) => typeof v === 'number' && setMortgageEscrow(v)} prefix="$" /></Field>
+              </div>
+            </Card>
+          </div>
+
+          {/* RIGHT COLUMN: DASHBOARD */}
+          <div className="lg:col-span-7">
+            <div className="sticky top-6 flex flex-col gap-6">
+              
+              <div className="flex flex-col gap-4">
+                <div className="bg-indigo-600 dark:bg-indigo-700 rounded-xl p-6 text-white shadow-lg overflow-hidden transition-colors w-full">
+                  <p className="text-indigo-100 text-sm font-medium mb-1">Projected Annual FERS Pension (Net)</p>
+                  <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
+                    {fmtCur(results.netPension)} <span className="text-xl font-normal opacity-75">/yr</span>
+                  </h2>
+                  <p className="text-indigo-200 text-sm mt-2">{fmtCur(results.netPension / 12)} per month</p>
+                </div>
+                
+                <div className="bg-emerald-600 dark:bg-emerald-700 rounded-xl text-white shadow-lg overflow-hidden transition-all border border-transparent dark:border-emerald-600">
+                  <div className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-emerald-100 text-sm font-medium mb-1">Total Future Portfolio</p>
+                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight cursor-pointer" onClick={() => setIsPortfolioExpanded(!isPortfolioExpanded)}>
+                          {fmtCur(adjustForInflation(results.totalPortfolio))}
+                        </h2>
+                      </div>
+                      <div className="text-emerald-100 bg-emerald-700/50 p-2 rounded-full cursor-pointer hover:bg-emerald-500 transition-colors" onClick={() => setIsPortfolioExpanded(!isPortfolioExpanded)}>
+                        {isPortfolioExpanded ? icons.chevronUp : icons.chevronDown}
+                      </div>
+                    </div>
+
+                    {/* Inflation Dropdown */}
+                    <div className="mt-5 pt-4 border-t border-emerald-500/50">
+                      <label className="text-emerald-100 text-xs font-medium mb-1.5 block">Adjust for Inflation (Purchasing Power in Today's Dollars)</label>
+                      <div className="relative">
+                        <select 
+                          className="w-full appearance-none bg-emerald-700/50 border border-emerald-500/50 text-white text-sm rounded-lg py-2 pl-3 pr-8 outline-none focus:ring-2 focus:ring-emerald-400 transition-colors cursor-pointer"
+                          value={inflationRate}
+                          onChange={(e) => setInflationRate(Number(e.target.value) as 0 | 2.5 | 3.5)}
+                        >
+                          <option value={0}>Nominal Value (No Adjustment)</option>
+                          <option value={2.5}>Moderate (Baseline): 2.5% per year</option>
+                          <option value={3.5}>Conservative: 3.5% per year</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-emerald-300">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {isPortfolioExpanded && (
+                    <div className="px-6 pb-6 pt-4 border-t border-emerald-500/50 dark:border-emerald-600/50 bg-emerald-700/30 dark:bg-emerald-800/40">
+                      <div className="space-y-3 text-sm sm:text-base">
+                        <div className="flex justify-between items-center">
+                          <span className="text-emerald-100">Thrift Savings Plan (TSP)</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.totalTsp))}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-emerald-100">Individual IRAs</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.simTradIra + results.simRothIra))}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-emerald-100">Taxable Brokerage</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.simBrokerage))}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-emerald-100">Mega Backdoor / Alt</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.simMega))}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-emerald-100">Prior Legacy 401(k)</span>
+                          <span className="font-bold">{fmtCur(adjustForInflation(results.simPrior401k))}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* MONTHLY CASH FLOW */}
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg p-6 relative overflow-hidden transition-colors">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-5 gap-4">
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    {icons.wallet} Monthly Cash Flow
+                  </h3>
+                </div>
+
+                <div className="space-y-4 text-sm">
+                  <div className="flex justify-between items-center text-slate-800 dark:text-slate-200">
+                    <span className="font-semibold text-base">Gross Monthly Income</span>
+                    <span className="font-bold text-base">{fmtCur(results.totalMonthlyGross)}</span>
+                  </div>
+                  
+                  {supplementalIncome > 0 && (
+                    <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-1 mb-2 text-xs">
+                       <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                         <span>Federal Base Salary</span>
+                         <span>{fmtCur(results.baseMonthlyGross)}</span>
+                       </div>
+                       <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                         <span>Supplemental Income {supplementalTaxToggled ? '(Taxable)' : '(Tax-Free)'}</span>
+                         <span className="text-emerald-600 dark:text-emerald-400">+{fmtCur(supplementalIncome)}</span>
+                       </div>
+                    </div>
+                  )}
+                  
+                  <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-2">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                      <span>Pre-Tax Deductions <span className="text-xs">(TSP, FEHB)</span></span>
+                      <span className="text-rose-600 dark:text-rose-400">-{fmtCur(results.totalPreTax)}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                      <span>Taxes <span className="text-xs">(Fed Income + FICA)</span></span>
+                      <span className="text-rose-600 dark:text-rose-400">-{fmtCur(results.totalTaxes)}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                      <span>Post-Tax FERS Deduction</span>
+                      <span className="text-rose-600 dark:text-rose-400">-{fmtCur(results.monthlyFersDeduction)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <span className="font-bold text-slate-700 dark:text-slate-300">Net Take-Home Pay</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-100">{fmtCur(results.netPaycheck)}</span>
+                  </div>
+
+                  <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-2">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                      <span>Post-Tax Savings <span className="text-xs">(Roth, IRAs, Brok)</span></span>
+                      <span className="text-amber-600 dark:text-amber-500">-{fmtCur(results.totalPostTaxSavings)}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                      <span>Debt & Escrow <span className="text-xs">(Loans + Mtg + Esc)</span></span>
+                      <span className="text-amber-600 dark:text-amber-500">-{fmtCur(results.monthlyLoansAndEscrow)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-200 dark:border-emerald-800/50 mt-2">
+                    <span className="font-bold text-emerald-800 dark:text-emerald-400 text-base">Remaining Spendable Cash</span>
+                    <span className="font-black text-emerald-600 dark:text-emerald-50 text-2xl">{fmtCur(results.remainingToSpend)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* FERS Breakdown */}
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-6 transition-colors">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-700 pb-3 mb-4 flex items-center gap-2">
+                  {icons.building} FERS Retirement Summary
+                </h3>
+                <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
+                    <span className="text-slate-500 dark:text-slate-400">Years until Retirement</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{results.yearsToRetire}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
+                    <span className="text-slate-500 dark:text-slate-400">Base Svc + Buyback</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{results.baseServiceForMultiplier} yrs</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
+                    <span className="text-slate-500 dark:text-slate-400">Sick Leave Conversion</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">+{fmtNum(results.sickLeaveYears)} yrs</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
+                    <span className="text-slate-500 dark:text-slate-400">Total Creditable Service</span>
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400">{fmtNum(results.totalCreditableService)} yrs</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
+                    <span className="text-slate-500 dark:text-slate-400">Multiplier</span>
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400">{(results.fersMultiplier * 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-1">
+                    <span className="text-slate-500 dark:text-slate-400">High-3 Salary</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{fmtCur(results.high3)}</span>
+                  </div>
+                </div>
+
+                <div className={`mt-5 p-3 rounded-lg flex items-start gap-3 border ${fehb5Year ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'}`}>
+                  <div className="mt-0.5">{fehb5Year ? icons.check : icons.alert}</div>
+                  <div className="text-sm">
+                    <strong className="block">{fehb5Year ? 'FEHB Eligible' : 'FEHB Alert'}</strong>
+                    {fehb5Year 
+                      ? 'Meeting the 5-year enrollment requirement.' 
+                      : 'You must have 5 years of FEHB before retirement to carry it over.'}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        
+        {/* RETIREMENT DRAWDOWN STRATEGY MODULE */}
+        <div className="mt-8 mb-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden transition-colors flex flex-col xl:flex-row">
+          
+          {/* Controls Side */}
+          <div className="flex-1 p-6 sm:p-8 xl:border-r border-slate-200 dark:border-slate-700">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
+                <span className="text-emerald-500">{icons.chart}</span> Retirement Drawdown Strategy
+              </h3>
+              
+              {/* Information Button */}
+              <button 
+                type="button"
+                onClick={() => setShowDrawdownInfo(!showDrawdownInfo)} 
+                className={`p-1 rounded-full transition-colors ${showDrawdownInfo ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                title="More Information"
+              >
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                    <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.732l-1.171 4.805c-.06.241.05.49.27.585a.5.5 0 00.67-.323l.115-.463a.5.5 0 01.968.252l-.116.463a1.5 1.5 0 01-2.01.968c-1.146-.573-2.437-.463-2.126-1.732l1.171-4.805a.5.5 0 00-.67-.585.5.5 0 01-.968-.252l.116-.463a1.5 1.5 0 012.01-.968zM12 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+                 </svg>
+              </button>
+            </div>
+            
+            {showDrawdownInfo && (
+              <div className="bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-xl px-5 py-4 text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed border-l-4 border-l-indigo-500 dark:border-l-indigo-400 mb-6">
+                <strong className="block mb-2 font-bold">How this Strategy is Calculated:</strong>
+                <ul className="space-y-2 list-disc pl-4">
+                  <li><strong>The Withdrawal Rule:</strong> Simulates a fixed percentage withdrawal from your final portfolio balance in your first year of retirement.</li>
+                  <li><strong>Portfolio Longevity:</strong> Simulates your annual withdrawal adjusting upward for inflation each year, while the remaining balance continues to grow by your expected market return.</li>
+                  <li><strong>Income Replacement Target:</strong> Compares your Gross Retirement Income against your <em>projected final salary</em> (factoring in raises) at the moment you retire.</li>
+                  <li><strong>Estimated Social Security:</strong> Automatically approximated based on your birth year, current salary (as AIME proxy), and standard age-claiming reductions/credits. This is a rough estimate.</li>
+                  <li><strong>Taxes:</strong> FERS Pension + Pre-Tax Draw + Taxable SS are grouped and run through Federal ordinary brackets. Brokerage assumes 50% basis and applies LTCG rates. State & Local taxes are excluded.</li>
+                </ul>
+              </div>
+            )}
+
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed max-w-3xl">
+              Set your global withdrawal rate across your total projected assets, then use the mix sliders below to simulate a tax-optimized drawdown strategy. 
+            </p>
+
+            {/* Global Withdrawal Rate */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 mb-8">
+               <div className="flex justify-between items-center mb-2">
+                 <label className="font-bold text-slate-700 dark:text-slate-300">Total Portfolio Withdrawal Rate</label>
+                 <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">{globalWithdrawalRate.toFixed(1)}% <span className="text-sm font-normal text-slate-500">({fmtCur(adjustForInflation(drawdownStats.grossDraw))})</span></span>
+               </div>
+               <input type="range" min={2.0} max={7.0} step={0.1} value={globalWithdrawalRate} onChange={(e) => setGlobalWithdrawalRate(Number(e.target.value))} className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+               
+               {/* Portfolio Longevity Display */}
+               <div className="mt-5 p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex justify-between items-center shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400">{icons.trending}</span>
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Est. Portfolio Longevity:</span>
+                  </div>
+                  <span className={`text-sm font-bold ${drawdownStats.yearsLasted >= 40 ? 'text-emerald-600 dark:text-emerald-400' : drawdownStats.yearsLasted >= 25 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                     {drawdownStats.longevityStr}
+                  </span>
+               </div>
+            </div>
+
+            {/* Mix Sliders */}
+            <div className="flex justify-between items-center mb-4">
+               <h4 className="font-bold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Tax Bucket Drawdown Mix</h4>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+               {/* Pre-Tax */}
+               <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+                 <div className="flex justify-between text-sm mb-2 font-semibold">
+                   <span className="text-slate-700 dark:text-slate-300">Pre-Tax (Ordinary)</span>
+                   <span className="text-blue-600 dark:text-blue-400">{mixPreTax}% <span className="text-xs font-normal text-slate-500">({fmtCur(adjustForInflation(drawdownStats.preTaxDraw))})</span></span>
+                 </div>
+                 <input type="range" min={0} max={100} value={mixPreTax} onChange={(e) => handleMixChange('preTax', Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+                 <p className="text-[10px] text-slate-400 mt-2">Trad TSP + Trad IRA</p>
+               </div>
+
+               {/* Tax-Free (Roth) */}
+               <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+                 <div className="flex justify-between text-sm mb-2 font-semibold">
+                   <span className="text-slate-700 dark:text-slate-300">Tax-Free (Roth)</span>
+                   <span className="text-purple-600 dark:text-purple-400">{mixRoth}% <span className="text-xs font-normal text-slate-500">({fmtCur(adjustForInflation(drawdownStats.rothDraw))})</span></span>
+                 </div>
+                 <input type="range" min={0} max={100} value={mixRoth} onChange={(e) => handleMixChange('roth', Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+                 <p className="text-[10px] text-slate-400 mt-2">Roth TSP + Roth IRA</p>
+               </div>
+
+               {/* Taxable Brokerage */}
+               <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 sm:col-span-2">
+                 <div className="flex justify-between text-sm mb-2 font-semibold">
+                   <span className="text-slate-700 dark:text-slate-300">Taxable Brokerage (LTCG)</span>
+                   <span className="text-amber-500">{mixBrokerage}% <span className="text-xs font-normal text-slate-500">({fmtCur(adjustForInflation(drawdownStats.brokerageDraw))})</span></span>
+                 </div>
+                 <input type="range" min={0} max={100} value={mixBrokerage} onChange={(e) => handleMixChange('brokerage', Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+                 <p className="text-[10px] text-slate-400 mt-2">Brokerage + Mega Backdoor. Assumes 50% Capital Gains.</p>
+               </div>
+            </div>
+
+            {/* Validation Bar */}
+            <div className={`p-4 rounded-xl flex items-center justify-between text-sm font-bold transition-colors bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800`}>
+               <span>Total Withdrawal Mix:</span>
+               <span>{drawdownStats.totalMix}% (Auto-Balanced)</span>
+            </div>
+
+          </div>
+
+          {/* Results Side */}
+          <div className="xl:w-1/3 bg-slate-900 text-slate-100 p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+              <h3 className="text-xl font-bold mb-6 text-white">Estimated Annual Income</h3>
+
+              {/* Linked Inflation Dropdown */}
+              <div className="mb-6 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                <label className="text-slate-300 text-xs font-bold uppercase tracking-wider mb-2 block">
+                  Adjust for Inflation (Today's Dollars)
+                </label>
+                <div className="relative">
+                  <select 
+                    className="w-full appearance-none bg-slate-900 border border-slate-600 text-white text-sm rounded-lg py-2 pl-3 pr-8 outline-none focus:ring-2 focus:ring-emerald-400 transition-colors cursor-pointer"
+                    value={inflationRate}
+                    onChange={(e) => setInflationRate(Number(e.target.value) as 0 | 2.5 | 3.5)}
+                  >
+                    <option value={0}>Nominal Value (No Adjustment)</option>
+                    <option value={2.5}>Moderate (Baseline): 2.5% per year</option>
+                    <option value={3.5}>Conservative: 3.5% per year</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Income Replacement Bar */}
+              <div className="mb-8">
+                <div className="flex justify-between text-xs mb-1 text-slate-400 font-medium">
+                   <span>Income Replacement</span>
+                   <span>Target: Final Salary ({fmtCur(adjustForInflation(results.finalSalary))})</span>
+                </div>
+                <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden flex">
+                  <div className="h-full bg-emerald-500 transition-all duration-500" style={{width: `${Math.min(100, drawdownStats.replacementRatio * 100)}%`}}></div>
+                </div>
+                <div className="text-right text-sm mt-1 font-bold text-emerald-400">
+                  Replacing {(drawdownStats.replacementRatio * 100).toFixed(1)}% of Salary
+                </div>
+              </div>
+
+              <div className="space-y-4 text-sm border-b border-slate-700 pb-6">
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>Gross FERS Pension</span>
+                  <span>{fmtCur(adjustForInflation(results.grossPension))}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>Est. Social Security <span className="text-[10px] text-slate-500 block">Claiming at Age {results.claimAge}</span></span>
+                  <span>{fmtCur(adjustForInflation(results.estimatedAnnualSS_future))}</span>
+                </div>
+                <div className="flex justify-between items-center text-white font-semibold">
+                  <span>Gross Portfolio Draw</span>
+                  <span>{fmtCur(adjustForInflation(drawdownStats.grossDraw))}</span>
+                </div>
+                
+                <div className="pt-4 mt-2 border-t border-slate-700/50"></div>
+                
+                <div className="flex justify-between items-center text-rose-400">
+                  <div>
+                    <span>Federal Income Tax</span>
+                    <span className="block text-[10px] opacity-75">Ordinary Income Brackets</span>
+                  </div>
+                  <span>-{fmtCur(adjustForInflation(drawdownStats.fedTax))}</span>
+                </div>
+                <div className="flex justify-between items-center text-rose-400">
+                  <div>
+                    <span>LTCG Tax</span>
+                    <span className="block text-[10px] opacity-75">Capital Gains Brackets</span>
+                  </div>
+                  <span>-{fmtCur(adjustForInflation(drawdownStats.ltcgTax))}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6">              
+              <div className="flex justify-between items-end mb-4">
+                <div>
+                  <span className="text-slate-400 text-xs font-bold uppercase tracking-wider block mb-1">Net Monthly Income</span>
+                  <span className="text-slate-500 text-xs block">(After Fed Tax)</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-4xl font-black text-white block leading-none">{fmtCur(adjustForInflation(drawdownStats.netMonthlyIncome))}</span>
+                  <span className="text-emerald-400 text-sm font-semibold mt-1 block">≈ {fmtCur(adjustForInflation(drawdownStats.netAnnualIncome))} / year</span>
+                </div>
+              </div>
 
               {inflationRate > 0 && (
-                <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700 flex justify-between items-center">
-                  <div className="text-xs text-slate-400">
-                    <strong className="block text-slate-300 mb-0.5">TODAY'S PURCHASING POWER</strong>
-                    Assumes {inflationRate}% avg inflation over {results.yearsToRetire} yrs
-                  </div>
-                  <div className="text-xl font-bold text-emerald-400 text-right">
-                    {fmtCur(adjustForInflation(drawdownStats.netMonthlyIncome))}<span className="text-sm font-normal text-slate-500">/mo</span>
-                  </div>
+                <div className="text-xs text-emerald-400/80 text-right mt-2 font-medium">
+                  * All figures adjusted for {inflationRate}% inflation to reflect today's purchasing power.
                 </div>
               )}
-            </div>
-          </div>
-        </div>
+            </div>
+          </div>
+        </div>
 
-        <PortfolioChart data={results.trajectory} />
+        <PortfolioChart data={results.trajectory} />
 
-        <div className="flex justify-center mt-8 mb-4 print:hidden">
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 dark:bg-indigo-700 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors shadow-md"
-          >
-            {icons.printer} Save Page as PDF
-          </button>
-        </div>
+        <div className="flex justify-center mt-8 mb-4 print:hidden">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 dark:bg-indigo-700 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors shadow-md"
+          >
+            {icons.printer} Save Page as PDF
+          </button>
+        </div>
 
-        {/* AI Insights Section */}
-        <div className="mt-8 mb-12 print:hidden">
-          <div className="bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 rounded-2xl p-8 shadow-xl relative overflow-hidden border border-indigo-800/50">
-             {/* Decorative background elements */}
-             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl"></div>
-             <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl"></div>
-             
-             <div className="relative z-10 flex flex-col items-center text-center">
-                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 flex items-center justify-center gap-3">
-                  <span className="text-indigo-400">{icons.sparkles}</span> Ask Gemini for AI Insights
-                </h3>
-                <p className="text-indigo-200/80 mb-8 max-w-2xl text-sm sm:text-base leading-relaxed">
-                  Have Gemini analyze your unique federal retirement trajectory, portfolio balances, and monthly cash flow to provide personalized observations and actionable recommendations.
-                </p>
-                
-                {!aiInsights && !isGeneratingInsights && (
-                   <button 
-                     onClick={generateInsights} 
-                     className="px-8 py-3.5 bg-indigo-500 hover:bg-indigo-400 text-white rounded-full font-bold transition-all shadow-lg hover:shadow-indigo-500/25 flex items-center gap-2 transform hover:-translate-y-0.5"
-                   >
-                     Generate My Insights
-                   </button>
-                )}
+        {/* AI Insights Section */}
+        <div className="mt-8 mb-12 print:hidden">
+          <div className="bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 rounded-2xl p-8 shadow-xl relative overflow-hidden border border-indigo-800/50">
+             {/* Decorative background elements */}
+             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl"></div>
+             <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl"></div>
+             
+             <div className="relative z-10 flex flex-col items-center text-center">
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 flex items-center justify-center gap-3">
+                  <span className="text-indigo-400">{icons.sparkles}</span> Ask Gemini for AI Insights
+                </h3>
+                <p className="text-indigo-200/80 mb-8 max-w-2xl text-sm sm:text-base leading-relaxed">
+                  Have Gemini analyze your unique federal retirement trajectory, portfolio balances, and monthly cash flow to provide personalized observations and actionable recommendations.
+                </p>
+                
+                {!aiInsights && !isGeneratingInsights && (
+                   <button 
+                     onClick={generateInsights} 
+                     className="px-8 py-3.5 bg-indigo-500 hover:bg-indigo-400 text-white rounded-full font-bold transition-all shadow-lg hover:shadow-indigo-500/25 flex items-center gap-2 transform hover:-translate-y-0.5"
+                   >
+                     Generate My Insights
+                   </button>
+                )}
 
-                {isGeneratingInsights && (
-                   <div className="flex flex-col items-center gap-4 text-indigo-300">
-                      <div className="w-8 h-8 border-4 border-indigo-500/30 border-t-indigo-400 rounded-full animate-spin"></div>
-                      <span className="font-medium animate-pulse">Analyzing your financial trajectory...</span>
-                   </div>
-                )}
+                {isGeneratingInsights && (
+                   <div className="flex flex-col items-center gap-4 text-indigo-300">
+                      <div className="w-8 h-8 border-4 border-indigo-500/30 border-t-indigo-400 rounded-full animate-spin"></div>
+                      <span className="font-medium animate-pulse">Analyzing your financial trajectory...</span>
+                   </div>
+                )}
 
-                {aiError && (
-                   <div className="text-rose-200 bg-rose-900/40 p-4 rounded-xl border border-rose-800/50 mt-4 flex items-center gap-3 max-w-lg w-full text-left">
-                      <div className="shrink-0 text-rose-400">{icons.alert}</div>
-                      <div className="text-sm font-medium">{aiError}</div>
-                      <button onClick={generateInsights} className="ml-auto text-xs bg-rose-800/50 hover:bg-rose-700 px-3 py-1.5 rounded-md transition-colors">Retry</button>
-                   </div>
-                )}
+                {aiError && (
+                   <div className="text-rose-200 bg-rose-900/40 p-4 rounded-xl border border-rose-800/50 mt-4 flex items-center gap-3 max-w-lg w-full text-left">
+                      <div className="shrink-0 text-rose-400">{icons.alert}</div>
+                      <div className="text-sm font-medium">{aiError}</div>
+                      <button onClick={generateInsights} className="ml-auto text-xs bg-rose-800/50 hover:bg-rose-700 px-3 py-1.5 rounded-md transition-colors">Retry</button>
+                   </div>
+                )}
 
-                {aiInsights && (
-                   <div className="mt-8 w-full text-left bg-slate-900/60 backdrop-blur-md border border-indigo-500/30 p-6 sm:p-8 rounded-xl shadow-inner text-indigo-50 relative">
-                     <div className="absolute top-4 right-4 text-indigo-500/30 opacity-50">
-                        {icons.sparkles}
-                     </div>
-                     <div className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base prose prose-invert prose-indigo max-w-none">
-                       {/* Basic Markdown rendering formatting through whitespace-pre-wrap */}
-                       {aiInsights.split('\n').map((line, idx) => {
-                          if (line.startsWith('**') && line.endsWith('**')) return <h4 key={idx} className="font-bold text-lg text-indigo-300 mt-4 mb-2">{line.replace(/\*\*/g, '')}</h4>;
-                          if (line.startsWith('* ')) return <li key={idx} className="ml-4 mb-1.5 text-indigo-100">{line.substring(2).replace(/\*\*/g, '')}</li>;
-                          if (line.trim() === '') return <br key={idx} />;
-                          return <p key={idx} className="mb-2 text-indigo-50/90">{line.replace(/\*\*/g, '')}</p>;
-                       })}
-                     </div>
-                     <div className="mt-8 flex justify-center gap-4">
-                        {!isGeneratingInsights && (
-                          <button 
-                            onClick={generateInsights} 
-                            className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white transition-colors px-4 py-2 rounded-lg font-medium shadow-sm"
-                          >
-                            Update with New Inputs
-                          </button>
-                        )}
-                        <button 
-                          onClick={() => setAiInsights(null)} 
-                          className="text-sm text-indigo-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-indigo-800/50"
-                        >
-                          Clear
-                        </button>
-                     </div>
-                   </div>
-                )}
-             </div>
-          </div>
-        </div>
+                {aiInsights && (
+                   <div className="mt-8 w-full text-left bg-slate-900/60 backdrop-blur-md border border-indigo-500/30 p-6 sm:p-8 rounded-xl shadow-inner text-indigo-50 relative">
+                     <div className="absolute top-4 right-4 text-indigo-500/30 opacity-50">
+                        {icons.sparkles}
+                     </div>
+                     <div className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base prose prose-invert prose-indigo max-w-none">
+                       {/* Basic Markdown rendering formatting through whitespace-pre-wrap */}
+                       {aiInsights.split('\n').map((line, idx) => {
+                          if (line.startsWith('**') && line.endsWith('**')) return <h4 key={idx} className="font-bold text-lg text-indigo-300 mt-4 mb-2">{line.replace(/\*\*/g, '')}</h4>;
+                          if (line.startsWith('* ')) return <li key={idx} className="ml-4 mb-1.5 text-indigo-100">{line.substring(2).replace(/\*\*/g, '')}</li>;
+                          if (line.trim() === '') return <br key={idx} />;
+                          return <p key={idx} className="mb-2 text-indigo-50/90">{line.replace(/\*\*/g, '')}</p>;
+                       })}
+                     </div>
+                     <div className="mt-8 flex justify-center gap-4">
+                        {!isGeneratingInsights && (
+                          <button 
+                            onClick={generateInsights} 
+                            className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white transition-colors px-4 py-2 rounded-lg font-medium shadow-sm"
+                          >
+                            Update with New Inputs
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => setAiInsights(null)} 
+                          className="text-sm text-indigo-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-indigo-800/50"
+                        >
+                          Clear
+                        </button>
+                     </div>
+                   </div>
+                )}
+             </div>
+          </div>
+        </div>
 
-      </main>
+      </main>
 
-      <footer className="py-10 bg-slate-900 border-t border-slate-800 text-slate-400 text-xs sm:text-sm w-full">
-        <div className="max-w-5xl mx-auto px-6 text-center space-y-4">
-          <p className="font-bold uppercase tracking-widest text-slate-200">
-            F.E.R.A Disclaimer
-          </p>
-          <p className="leading-relaxed">
-            Hypothetical simulation for educational purposes. Designed and powered by Artificial intelligence (AI). Projections based on user inputs and projected limits. 
-            Not affiliated with OPM or ANY government agency. Consult a qualified financial professional for advice.
-          </p>
-        </div>
-      </footer>
-    </div>
-  );
+      <footer className="py-10 bg-slate-900 border-t border-slate-800 text-slate-400 text-xs sm:text-sm w-full">
+        <div className="max-w-5xl mx-auto px-6 text-center space-y-4">
+          <p className="font-bold uppercase tracking-widest text-slate-200">
+            F.E.R.A Disclaimer
+          </p>
+          <p className="leading-relaxed">
+            Hypothetical simulation for educational purposes. Designed and powered by Artificial intelligence (AI). Projections based on user inputs and projected limits. 
+            Not affiliated with OPM or ANY government agency. Consult a qualified financial professional for advice.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
 }
