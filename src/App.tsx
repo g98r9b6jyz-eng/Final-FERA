@@ -414,6 +414,13 @@ export default function App() {
   const [mortgageExtra, setMortgageExtra] = useState(300);
   const [mortgageEscrow, setMortgageEscrow] = useState(500);
 
+  // Drawdown Strategy State
+  const [globalWithdrawalRate, setGlobalWithdrawalRate] = useState(4.0);
+  const [mixPreTax, setMixPreTax] = useState(60);
+  const [mixRoth, setMixRoth] = useState(20);
+  const [mixBrokerage, setMixBrokerage] = useState(20);
+  const [showDrawdownInfo, setShowDrawdownInfo] = useState(false);
+
   // --- MATH ENGINE ---
   const results = useMemo(() => {
     const currentAge = currentYear - birthYear;
@@ -435,6 +442,43 @@ export default function App() {
 
     let grossPension = high3 * fersMultiplier * totalCreditableService;
     let netPension = survivorBenefit ? grossPension * 0.9 : grossPension;
+
+    // --- Final Salary Estimation ---
+    const finalSalary = currentSalary * Math.pow(1 + (annualRaise / 100), yearsToRetire);
+
+    // --- Estimated Social Security Engine ---
+    // Calculates FRA based on birth year
+    let fra = 67;
+    if (birthYear <= 1954) fra = 66;
+    else if (birthYear < 1960) fra = 66 + (birthYear - 1954) / 12;
+
+    // Use current salary to approximate Average Indexed Monthly Earnings (AIME)
+    let aime = currentSalary / 12;
+    // Projected 2026 Bend Points
+    let bp1 = 1226;
+    let bp2 = 7391;
+    let pia = 0;
+    
+    if (aime <= bp1) pia = 0.9 * aime;
+    else if (aime <= bp2) pia = (0.9 * bp1) + 0.32 * (aime - bp1);
+    else pia = (0.9 * bp1) + 0.32 * (bp2 - bp1) + 0.15 * (aime - bp2);
+
+    let claimAge = Math.min(Math.max(retireAge, 62), 70); // Assume claim at retirement, min 62, max 70
+    let monthsToFra = (fra - claimAge) * 12;
+    
+    let ssMultiplier = 1.0;
+    if (monthsToFra > 0) {
+        let first36 = Math.min(monthsToFra, 36);
+        let over36 = Math.max(0, monthsToFra - 36);
+        ssMultiplier -= (first36 * (5/900)) + (over36 * (5/1200));
+    } else if (monthsToFra < 0) {
+        let delayedMonths = -monthsToFra;
+        ssMultiplier += delayedMonths * (8/1200);
+    }
+
+    let estimatedAnnualSS_today = pia * ssMultiplier * 12;
+    // Project SS out to retirement year using estimated COLA
+    let estimatedAnnualSS_future = estimatedAnnualSS_today * Math.pow(1 + cola/100, yearsToRetire);
 
     // --- Unified Trajectory Engine ---
     
@@ -773,7 +817,7 @@ export default function App() {
 
     return {
       currentAge, yearsToRetire, baseServiceForMultiplier, sickLeaveYears, totalCreditableService,
-      meets11Bump, fersMultiplier, high3, grossPension, netPension,
+      meets11Bump, fersMultiplier, high3, grossPension, netPension, finalSalary, estimatedAnnualSS_future, claimAge,
       currentTspLimit, currentIraLimit, simTradTsp, simRothTsp, totalTsp: simTradTsp + simRothTsp, 
       simTradIra, simRothIra, simMega, simPrior401k, simBrokerage,
       totalPortfolio: simTradTsp + simRothTsp + simTradIra + simRothIra + simMega + simPrior401k + simBrokerage,
@@ -795,6 +839,163 @@ export default function App() {
     debtOriginal, debtCurrent, debtRate, debtTerm, debtExtra,
     mortgageOriginal, mortgageCurrent, mortgageRate, mortgageTerm, mortgageExtra, mortgageEscrow
   ]);
+
+  // --- MIX BALANCING ---
+  const handleMixChange = (changedBucket: 'preTax' | 'roth' | 'brokerage', value: number) => {
+    let p = mixPreTax;
+    let r = mixRoth;
+    let b = mixBrokerage;
+
+    if (changedBucket === 'preTax') {
+        p = value;
+        let rem = 100 - p;
+        let sumOther = mixRoth + mixBrokerage;
+        if (sumOther === 0) {
+            r = Math.round(rem / 2);
+            b = rem - r;
+        } else {
+            r = Math.round(rem * (mixRoth / sumOther));
+            b = rem - r;
+        }
+    } else if (changedBucket === 'roth') {
+        r = value;
+        let rem = 100 - r;
+        let sumOther = mixPreTax + mixBrokerage;
+        if (sumOther === 0) {
+            p = Math.round(rem / 2);
+            b = rem - p;
+        } else {
+            p = Math.round(rem * (mixPreTax / sumOther));
+            b = rem - p;
+        }
+    } else if (changedBucket === 'brokerage') {
+        b = value;
+        let rem = 100 - b;
+        let sumOther = mixPreTax + mixRoth;
+        if (sumOther === 0) {
+            p = Math.round(rem / 2);
+            r = rem - p;
+        } else {
+            p = Math.round(rem * (mixPreTax / sumOther));
+            r = rem - p;
+        }
+    }
+    
+    setMixPreTax(p);
+    setMixRoth(r);
+    setMixBrokerage(b);
+  };
+
+
+  // --- DRAWDOWN STRATEGY ENGINE ---
+  const drawdownStats = useMemo(() => {
+    // 1. Calculate Gross Draw based on total portfolio and slider
+    const totalMix = mixPreTax + mixRoth + mixBrokerage; // Auto-bound to 100
+    const isMixValid = true;
+    
+    const grossDraw = results.totalPortfolio * (globalWithdrawalRate / 100);
+    const preTaxDraw = grossDraw * (mixPreTax / 100);
+    const rothDraw = grossDraw * (mixRoth / 100);
+    const brokerageDraw = grossDraw * (mixBrokerage / 100);
+
+    const totalGrossIncome = results.grossPension + results.estimatedAnnualSS_future + grossDraw;
+
+    // 2. Tax Engine
+    let ordinaryIncome = results.grossPension + preTaxDraw;
+    
+    // Social Security Taxability
+    let combinedIncome = ordinaryIncome + (results.estimatedAnnualSS_future * 0.5);
+    let base1 = filingStatus === 'Married' ? 32000 : 25000;
+    let base2 = filingStatus === 'Married' ? 44000 : 34000;
+    let taxableSS = 0;
+    
+    if (combinedIncome > base2) {
+         taxableSS = 0.85 * (combinedIncome - base2) + Math.min(0.5 * results.estimatedAnnualSS_future, 0.5 * (base2 - base1));
+         taxableSS = Math.min(taxableSS, 0.85 * results.estimatedAnnualSS_future);
+    } else if (combinedIncome > base1) {
+         taxableSS = Math.min(0.5 * results.estimatedAnnualSS_future, 0.5 * (combinedIncome - base1));
+    }
+    
+    const stdDeduction = filingStatus === 'Married' ? 30800 : 15400; // Adjusted for seniors usually, keeping base for safety
+    const taxableOrdinaryIncome = Math.max(0, (ordinaryIncome + taxableSS) - stdDeduction);
+
+    // Federal Ordinary Brackets
+    let fedTax = 0;
+    const brackets = filingStatus === 'Married'
+      ? [{l: 24500, r: 0.10}, {l: 99700, r: 0.12}, {l: 212500, r: 0.22}, {l: 405800, r: 0.24}, {l: 515200, r: 0.32}, {l: 772900, r: 0.35}, {l: Infinity, r: 0.37}]
+      : [{l: 12250, r: 0.10}, {l: 49850, r: 0.12}, {l: 106250, r: 0.22}, {l: 202900, r: 0.24}, {l: 257600, r: 0.32}, {l: 386450, r: 0.35}, {l: Infinity, r: 0.37}];
+
+    for (let i = 0, prevLimit = 0; i < brackets.length; i++) {
+        const b = brackets[i];
+        if (taxableOrdinaryIncome > prevLimit) {
+            let taxableAtThisBracket = Math.min(taxableOrdinaryIncome, b.l) - prevLimit;
+            fedTax += taxableAtThisBracket * b.r;
+            prevLimit = b.l;
+        } else break;
+    }
+
+    // Capital Gains Tax (Assuming 50% of brokerage draw is gains)
+    const taxableLTCG = brokerageDraw * 0.50;
+    let ltcgTax = 0;
+    const ltcgBrackets = filingStatus === 'Married' 
+      ? [{l: 94050, r: 0.0}, {l: 583750, r: 0.15}, {l: Infinity, r: 0.20}]
+      : [{l: 47025, r: 0.0}, {l: 518900, r: 0.15}, {l: Infinity, r: 0.20}];
+    
+    // LTCG stacks on top of ordinary income to determine rate
+    let currentIncomeStack = taxableOrdinaryIncome;
+    for (let i = 0; i < ltcgBrackets.length; i++) {
+      const b = ltcgBrackets[i];
+      if (currentIncomeStack < b.l && taxableLTCG > 0) {
+         let roomInBracket = b.l - currentIncomeStack;
+         let amountToTax = Math.min(taxableLTCG, roomInBracket);
+         ltcgTax += amountToTax * b.r;
+         currentIncomeStack += amountToTax;
+      }
+    }
+
+    const totalTaxes = fedTax + ltcgTax;
+    const netAnnualIncome = totalGrossIncome - totalTaxes;
+    const netMonthlyIncome = netAnnualIncome / 12;
+
+    const replacementRatio = totalGrossIncome / results.finalSalary;
+
+    // 3. Portfolio Longevity Simulation
+    let bal = results.totalPortfolio;
+    let w = grossDraw;
+    let yearsLasted = 0;
+    const r_rate = marketReturn / 100;
+    const i_rate = inflationRate / 100;
+
+    if (bal > 0 && w > 0) {
+        while (bal > 0 && yearsLasted < 100) {
+            if (bal < w) {
+                yearsLasted += (bal / w);
+                bal = 0;
+                break;
+            }
+            bal -= w;
+            bal *= (1 + r_rate);
+            w *= (1 + i_rate);
+            yearsLasted++;
+        }
+    } else if (w === 0 && bal > 0) {
+        yearsLasted = 100;
+    }
+    
+    let longevityStr = "";
+    if (yearsLasted >= 99) {
+        longevityStr = "99+ Years (Sustainable)";
+    } else {
+        const depleteAge = Math.floor(results.currentAge + results.yearsToRetire + yearsLasted);
+        longevityStr = `${yearsLasted.toFixed(1)} Years (Depleted ~Age ${depleteAge})`;
+    }
+
+    return {
+      grossDraw, preTaxDraw, rothDraw, brokerageDraw, totalMix, isMixValid,
+      totalGrossIncome, fedTax, ltcgTax, netAnnualIncome, netMonthlyIncome,
+      replacementRatio, yearsLasted, longevityStr
+    };
+  }, [results, globalWithdrawalRate, mixPreTax, mixRoth, mixBrokerage, filingStatus, marketReturn, inflationRate]);
 
   const fmtCur = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val || 0);
   const fmtNum = (val: number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(val || 0);
@@ -835,12 +1036,10 @@ export default function App() {
     setAiInsights(null); 
     
     const apiKey = ""; // API Key provided dynamically by execution environment
-    // Correct URL required by environment specifications
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
     
     const systemPrompt = "You are an expert Federal Retirement Financial Planner. Analyze the provided federal employee data and provide 3 to 4 concise, highly personalized observations and actionable recommendations. Format clearly using bullet points and brief paragraphs. Be educational, encouraging, and note that this is not formal financial advice.";
     
-    // Safety wrappers to guarantee the string payload never receives invalid variable states during active data entry.
     const safeNum = (val: any) => (typeof val === 'number' && !isNaN(val)) ? val : 0;
     
     const standardDebtWins = results.standardDebtStats.investWins ? "Investing the extra cash in the market" : "Paying off the debt principal early";
@@ -855,6 +1054,7 @@ export default function App() {
       Projected High-3 Salary: $${Math.round(safeNum(results.high3))}
       
       Projected Annual FERS Pension (Net): $${Math.round(safeNum(results.netPension))}
+      Estimated Annual Social Security (Target Age): $${Math.round(safeNum(results.estimatedAnnualSS_future))}
       
       Current Balances:
       TSP: $${safeNum(tradTsp) + safeNum(rothTsp)}
@@ -864,7 +1064,13 @@ export default function App() {
       Future Total Portfolio Projection at Retirement (Nominal): $${Math.round(safeNum(results.totalPortfolio))}
       Future Total Portfolio Projection at Retirement (Inflation Adjusted at ${inflationRate}%): $${Math.round(adjustForInflation(safeNum(results.totalPortfolio)))}
       
-      Monthly Cash Flow:
+      Retirement Drawdown Strategy:
+      - Target Income Replacement: ${(drawdownStats.replacementRatio * 100).toFixed(1)}% of Final Salary
+      - Gross Draw: $${Math.round(safeNum(drawdownStats.grossDraw))} (${globalWithdrawalRate}%)
+      - Net Monthly Income: $${Math.round(safeNum(drawdownStats.netMonthlyIncome))}
+      - Portfolio Longevity Simulation: ${drawdownStats.longevityStr}
+      
+      Monthly Cash Flow (Current):
       Gross: $${Math.round(safeNum(results.totalMonthlyGross))}
       Take-Home Net: $${Math.round(safeNum(results.netPaycheck))}
       Remaining Spendable Cash (after savings/debt): $${Math.round(safeNum(results.remainingToSpend))}
@@ -1162,6 +1368,7 @@ export default function App() {
 
             <Card 
               title="Standard Debt Amortization" icon={icons.creditCard}
+              info="Simulates paying off standard fixed-rate loans (student loans, car loans, etc.) and compares the guaranteed ROI of early payoff against investing the extra cash in the market."
             >
                <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
                 <Field label="Loan Start Date"><MonthInput value={debtStartDate} onChange={setDebtStartDate} /></Field>
@@ -1179,6 +1386,7 @@ export default function App() {
 
             <Card 
               title="Mortgage Amortization" icon={icons.home}
+              info="Simulates paying off your primary residence early. Includes escrow logic for accurate monthly cash flow modeling. Compares the ROI of early payoff vs market investing."
             >
                <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
                 <Field label="Loan Start Date"><MonthInput value={mortgageStartDate} onChange={setMortgageStartDate} /></Field>
@@ -1386,6 +1594,189 @@ export default function App() {
           </div>
         </div>
         
+        {/* RETIREMENT DRAWDOWN STRATEGY MODULE */}
+        <div className="mt-8 mb-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden transition-colors flex flex-col xl:flex-row">
+          
+          {/* Controls Side */}
+          <div className="flex-1 p-6 sm:p-8 xl:border-r border-slate-200 dark:border-slate-700">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
+                <span className="text-emerald-500">{icons.chart}</span> Retirement Drawdown Strategy
+              </h3>
+              
+              {/* Information Button */}
+              <button 
+                type="button"
+                onClick={() => setShowDrawdownInfo(!showDrawdownInfo)} 
+                className={`p-1 rounded-full transition-colors ${showDrawdownInfo ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : 'text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                title="More Information"
+              >
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                    <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.732l-1.171 4.805c-.06.241.05.49.27.585a.5.5 0 00.67-.323l.115-.463a.5.5 0 01.968.252l-.116.463a1.5 1.5 0 01-2.01.968c-1.146-.573-2.437-.463-2.126-1.732l1.171-4.805a.5.5 0 00-.67-.585.5.5 0 01-.968-.252l.116-.463a1.5 1.5 0 012.01-.968zM12 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+                 </svg>
+              </button>
+            </div>
+            
+            {showDrawdownInfo && (
+              <div className="bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-xl px-5 py-4 text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed border-l-4 border-l-indigo-500 dark:border-l-indigo-400 mb-6">
+                <strong className="block mb-2 font-bold">How this Strategy is Calculated:</strong>
+                <ul className="space-y-2 list-disc pl-4">
+                  <li><strong>The Withdrawal Rule:</strong> Simulates a fixed percentage withdrawal from your final portfolio balance in your first year of retirement.</li>
+                  <li><strong>Portfolio Longevity:</strong> Simulates your annual withdrawal adjusting upward for inflation each year, while the remaining balance continues to grow by your expected market return.</li>
+                  <li><strong>Income Replacement Target:</strong> Compares your Gross Retirement Income against your <em>projected final salary</em> (factoring in raises) at the moment you retire.</li>
+                  <li><strong>Estimated Social Security:</strong> Automatically approximated based on your birth year, current salary (as AIME proxy), and standard age-claiming reductions/credits. This is a rough estimate.</li>
+                  <li><strong>Taxes:</strong> FERS Pension + Pre-Tax Draw + Taxable SS are grouped and run through Federal ordinary brackets. Brokerage assumes 50% basis and applies LTCG rates. State & Local taxes are excluded.</li>
+                </ul>
+              </div>
+            )}
+
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed max-w-3xl">
+              Set your global withdrawal rate across your total projected assets, then use the mix sliders below to simulate a tax-optimized drawdown strategy. 
+            </p>
+
+            {/* Global Withdrawal Rate */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 mb-8">
+               <div className="flex justify-between items-center mb-2">
+                 <label className="font-bold text-slate-700 dark:text-slate-300">Total Portfolio Withdrawal Rate</label>
+                 <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">{globalWithdrawalRate.toFixed(1)}% <span className="text-sm font-normal text-slate-500">({fmtCur(drawdownStats.grossDraw)})</span></span>
+               </div>
+               <input type="range" min={2.0} max={7.0} step={0.1} value={globalWithdrawalRate} onChange={(e) => setGlobalWithdrawalRate(Number(e.target.value))} className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+               
+               {/* Portfolio Longevity Display */}
+               <div className="mt-5 p-3.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex justify-between items-center shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400">{icons.trending}</span>
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Est. Portfolio Longevity:</span>
+                  </div>
+                  <span className={`text-sm font-bold ${drawdownStats.yearsLasted >= 40 ? 'text-emerald-600 dark:text-emerald-400' : drawdownStats.yearsLasted >= 25 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                     {drawdownStats.longevityStr}
+                  </span>
+               </div>
+            </div>
+
+            {/* Mix Sliders */}
+            <div className="flex justify-between items-center mb-4">
+               <h4 className="font-bold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Tax Bucket Drawdown Mix</h4>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+               {/* Pre-Tax */}
+               <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+                 <div className="flex justify-between text-sm mb-2 font-semibold">
+                   <span className="text-slate-700 dark:text-slate-300">Pre-Tax (Ordinary)</span>
+                   <span className="text-blue-600 dark:text-blue-400">{mixPreTax}% <span className="text-xs font-normal text-slate-500">({fmtCur(drawdownStats.preTaxDraw)})</span></span>
+                 </div>
+                 <input type="range" min={0} max={100} value={mixPreTax} onChange={(e) => handleMixChange('preTax', Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+                 <p className="text-[10px] text-slate-400 mt-2">Trad TSP + Trad IRA</p>
+               </div>
+
+               {/* Tax-Free (Roth) */}
+               <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+                 <div className="flex justify-between text-sm mb-2 font-semibold">
+                   <span className="text-slate-700 dark:text-slate-300">Tax-Free (Roth)</span>
+                   <span className="text-purple-600 dark:text-purple-400">{mixRoth}% <span className="text-xs font-normal text-slate-500">({fmtCur(drawdownStats.rothDraw)})</span></span>
+                 </div>
+                 <input type="range" min={0} max={100} value={mixRoth} onChange={(e) => handleMixChange('roth', Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+                 <p className="text-[10px] text-slate-400 mt-2">Roth TSP + Roth IRA</p>
+               </div>
+
+               {/* Taxable Brokerage */}
+               <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 sm:col-span-2">
+                 <div className="flex justify-between text-sm mb-2 font-semibold">
+                   <span className="text-slate-700 dark:text-slate-300">Taxable Brokerage (LTCG)</span>
+                   <span className="text-amber-500">{mixBrokerage}% <span className="text-xs font-normal text-slate-500">({fmtCur(drawdownStats.brokerageDraw)})</span></span>
+                 </div>
+                 <input type="range" min={0} max={100} value={mixBrokerage} onChange={(e) => handleMixChange('brokerage', Number(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+                 <p className="text-[10px] text-slate-400 mt-2">Brokerage + Mega Backdoor. Assumes 50% Capital Gains.</p>
+               </div>
+            </div>
+
+            {/* Validation Bar */}
+            <div className={`p-4 rounded-xl flex items-center justify-between text-sm font-bold transition-colors bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800`}>
+               <span>Total Withdrawal Mix:</span>
+               <span>{drawdownStats.totalMix}% (Auto-Balanced)</span>
+            </div>
+
+          </div>
+
+          {/* Results Side */}
+          <div className="xl:w-1/3 bg-slate-900 text-slate-100 p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+              <h3 className="text-xl font-bold mb-6 text-white">Estimated Annual Income</h3>
+              
+              {/* Income Replacement Bar */}
+              <div className="mb-8">
+                <div className="flex justify-between text-xs mb-1 text-slate-400 font-medium">
+                   <span>Income Replacement</span>
+                   <span>Target: Final Salary ({fmtCur(results.finalSalary)})</span>
+                </div>
+                <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden flex">
+                  <div className="h-full bg-emerald-500 transition-all duration-500" style={{width: `${Math.min(100, drawdownStats.replacementRatio * 100)}%`}}></div>
+                </div>
+                <div className="text-right text-sm mt-1 font-bold text-emerald-400">
+                  Replacing {(drawdownStats.replacementRatio * 100).toFixed(1)}% of Salary
+                </div>
+              </div>
+
+              <div className="space-y-4 text-sm border-b border-slate-700 pb-6">
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>Gross FERS Pension</span>
+                  <span>{fmtCur(results.grossPension)}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>Est. Social Security <span className="text-[10px] text-slate-500 block">Claiming at Age {results.claimAge}</span></span>
+                  <span>{fmtCur(results.estimatedAnnualSS_future)}</span>
+                </div>
+                <div className="flex justify-between items-center text-white font-semibold">
+                  <span>Gross Portfolio Draw</span>
+                  <span>{fmtCur(drawdownStats.grossDraw)}</span>
+                </div>
+                
+                <div className="pt-4 mt-2 border-t border-slate-700/50"></div>
+                
+                <div className="flex justify-between items-center text-rose-400">
+                  <div>
+                    <span>Federal Income Tax</span>
+                    <span className="block text-[10px] opacity-75">Ordinary Income Brackets</span>
+                  </div>
+                  <span>-{fmtCur(drawdownStats.fedTax)}</span>
+                </div>
+                <div className="flex justify-between items-center text-rose-400">
+                  <div>
+                    <span>LTCG Tax</span>
+                    <span className="block text-[10px] opacity-75">Capital Gains Brackets</span>
+                  </div>
+                  <span>-{fmtCur(drawdownStats.ltcgTax)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6">              
+              <div className="flex justify-between items-end mb-4">
+                <div>
+                  <span className="text-slate-400 text-xs font-bold uppercase tracking-wider block mb-1">Net Monthly Income</span>
+                  <span className="text-slate-500 text-xs block">(After Fed Tax)</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-4xl font-black text-white block leading-none">{fmtCur(drawdownStats.netMonthlyIncome)}</span>
+                  <span className="text-emerald-400 text-sm font-semibold mt-1 block">≈ {fmtCur(drawdownStats.netAnnualIncome)} / year</span>
+                </div>
+              </div>
+
+              {inflationRate > 0 && (
+                <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700 flex justify-between items-center">
+                  <div className="text-xs text-slate-400">
+                    <strong className="block text-slate-300 mb-0.5">TODAY'S PURCHASING POWER</strong>
+                    Assumes {inflationRate}% avg inflation over {results.yearsToRetire} yrs
+                  </div>
+                  <div className="text-xl font-bold text-emerald-400 text-right">
+                    {fmtCur(adjustForInflation(drawdownStats.netMonthlyIncome))}<span className="text-sm font-normal text-slate-500">/mo</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         <PortfolioChart data={results.trajectory} />
 
         <div className="flex justify-center mt-8 mb-4 print:hidden">
@@ -1481,8 +1872,8 @@ export default function App() {
             F.E.R.A Disclaimer
           </p>
           <p className="leading-relaxed">
-            Hypothetical simulation for educational purposes entirely made by artificial intelligence. Projections based on user inputs and projected limits. 
-            Not affiliated with OPM or any government agency. Consult a financial professional for advice.
+            Hypothetical simulation for educational purposes. Designed and powered by Artificial intelligence (AI). Projections based on user inputs and projected limits. 
+            Not affiliated with OPM or ANY government agency. Consult a qualified financial professional for advice.
           </p>
         </div>
       </footer>
