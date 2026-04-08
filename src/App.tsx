@@ -1036,7 +1036,7 @@ export default function App() {
     setAiInsights(null); 
     
     const apiKey = "AIzaSyBbOzaMYbAQv2ztYvv6_uKT3MAyMODPzaE"; // API Key provided dynamically by execution environment
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
     
     const systemPrompt = "You are an expert Federal Retirement Financial Planner. Analyze the provided federal employee data and provide 3 to 4 concise, highly personalized observations and actionable recommendations. Format clearly using bullet points and brief paragraphs. Be educational, encouraging, and note that this is not formal financial advice.";
     
