@@ -834,8 +834,9 @@ export default function App() {
     setAiError(null);
     setAiInsights(null); 
     
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || ""; 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const apiKey = ""; // API Key provided dynamically by execution environment
+    // Correct URL required by environment specifications
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
     
     const systemPrompt = "You are an expert Federal Retirement Financial Planner. Analyze the provided federal employee data and provide 3 to 4 concise, highly personalized observations and actionable recommendations. Format clearly using bullet points and brief paragraphs. Be educational, encouraging, and note that this is not formal financial advice.";
     
@@ -880,7 +881,8 @@ export default function App() {
       systemInstruction: { parts: [{ text: systemPrompt }] }
     };
 
-    const fetchWithBackoff = async (retries = 3, delay = 1000): Promise<string> => {
+    // Exponential Backoff as strictly required by system guidelines
+    const fetchWithBackoff = async (retries = 5, delay = 1000): Promise<string> => {
       try {
         const response = await fetch(url, {
           method: 'POST',
@@ -911,6 +913,7 @@ export default function App() {
       } catch (error: any) {
         if (retries > 0) {
           await new Promise(res => setTimeout(res, delay));
+          // delays of 1s, 2s, 4s, 8s, 16s...
           return fetchWithBackoff(retries - 1, delay * 2);
         } else {
           throw error;
@@ -1021,7 +1024,7 @@ export default function App() {
             >
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Current Federal Salary" description="Excludes supplemental"><NumberInput value={currentSalary} onChange={(v) => typeof v === 'number' && setCurrentSalary(v)} prefix="$" /></Field>
-                <Field label="Est. Annual Raise"><NumberInput value={annualRaise} onChange={(v) => typeof v === 'number' && setAnnualRaise(v)} suffix="%" step={0.1} /></Field>
+                <Field label="Est. Annual Raise" description={"\u00A0"}><NumberInput value={annualRaise} onChange={(v) => typeof v === 'number' && setAnnualRaise(v)} suffix="%" step={0.1} /></Field>
               </div>
               
               <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 mt-2 mb-2 transition-colors">
@@ -1478,7 +1481,7 @@ export default function App() {
             F.E.R.A Disclaimer
           </p>
           <p className="leading-relaxed">
-            Hypothetical simulation for educational purposes. Projections based on user inputs and projected 2026 limits. 
+            Hypothetical simulation for educational purposes. Projections based on user inputs and projected limits. 
             Not affiliated with OPM or any government agency. Consult a financial professional for advice.
           </p>
         </div>
